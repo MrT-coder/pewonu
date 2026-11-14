@@ -126,7 +126,7 @@ STRINGS: dict[str, dict[Language, str]] = {
         "Contamos durante {seconds} segundos.",
     },
     "pulse.interval": {_EN: "How long to count", _ES: "Cuánto tiempo contar"},
-    "pulse.interval_30": {_EN: "30 seconds (×2)", _ES: "30 segundos (×2)"},
+    "pulse.interval_30": {_EN: "30 seconds (×2)", _ES: "30 segundos (×2)"},  # noqa: RUF001
     "pulse.interval_60": {_EN: "60 seconds", _ES: "60 segundos"},
     "pulse.next": {_EN: "Done, next", _ES: "Listo, siguiente"},
     "pulse.begin_count": {_EN: "Start counting", _ES: "Empezar a contar"},
@@ -135,8 +135,8 @@ STRINGS: dict[str, dict[Language, str]] = {
     "pulse.seconds_left": {_EN: "{s} s left", _ES: "{s} s restantes"},
     "pulse.result_title": {_EN: "Your count", _ES: "Tu conteo"},
     "pulse.formula_30": {
-        _EN: "{taps} beats × 2 = {bpm} bpm",
-        _ES: "{taps} latidos × 2 = {bpm} lpm",
+        _EN: "{taps} beats × 2 = {bpm} bpm",  # noqa: RUF001
+        _ES: "{taps} latidos × 2 = {bpm} lpm",  # noqa: RUF001
     },
     "pulse.formula_60": {
         _EN: "{taps} beats in 60 s = {bpm} bpm",
