@@ -234,6 +234,7 @@ Hard limit: 30 seconds. Subtitles in English if the narration is in Spanish. Add
 |---|---|
 | Five hazards and the list of risks | `[VERIFICADO]` NASA HRP pages, read 13 Nov 2026 |
 | Missions to the Moon and Mars bring more radiation, isolation, delay and dependence on own resources | `[VERIFICADO]` CSA page, read 14 Nov 2026 |
+| Neutrons are "about 30%" of the total radiation on the ISS | `[VERIFICADO]` CSA article of 26 Feb 2026, but the page does not say whether it is dose: do **not** quote it as a share of the dose ([research/12](../research/12-radiacion.md)) |
 | Sleep on the ISS is shorter than scheduled; resting pulse changes on landing | Do **not** quote numbers: they come from search summaries and the articles were not opened (D-013) |
 | One-way delay Earth to Mars about 3 to 22 minutes | From the team's research note ([research/10](../research/10-plataforma-offline-y-dispositivos.md)); confirm the source before quoting |
 | Heart-rate Observation: category vital-signs, LOINC 8867-4, unit `/min` | `[VERIFICADO]` HL7 FHIR R4 Heart Rate profile; official validator gave 0 errors on a sample |

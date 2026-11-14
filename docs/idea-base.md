@@ -91,4 +91,5 @@ Impact 4 · Creativity 3-4 (por el color relativo, el gris y el pulso gamificado
 - Marca de agua visible en las imágenes generadas con IA (requisito del formulario, ver D-023).
 - Si el rojo puede salir solo de la referencia poblacional (ver [pulso-referencia.md](pulso-referencia.md)).
 - Qué cuatro o cinco sistemas del cuerpo entran en la figura (hay una propuesta en `core/status.py`).
+- Radiación: se analizó el artículo de la CSA en [research/12-radiacion.md](../research/12-radiacion.md). Propuesta: tarjeta de contexto informativa, sin estado ni umbrales (D-025 propuesta, sin registrar).
 - Análisis de imágenes: la v1 lo consideraba obligatorio; sigue sin analizarse (viabilidad offline, privacidad y no diagnosticar).

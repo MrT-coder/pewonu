@@ -70,7 +70,7 @@ Lista oficial de riesgos, agrupados en tres categorías. [VERIFICADO]
 
 ### CSA: Monitoring Radiation for Astronaut Health (26 feb 2026)
 - [VERIFICADO] Contrato de 5,5 millones de dólares canadienses a Bubble Technology Industries para el CANS (Canadian Active Neutron Spectrometer), un instrumento compacto y autónomo que mide neutrones.
-- [VERIFICADO] Los neutrones aportan ~30% de la radiación total en la ISS. [HUECO] el texto no aclara el tipo de medida (dosis o flujo); no usar la cifra sin leer la fuente.
+- [VERIFICADO] Los neutrones aportan ~30% de la radiación total en la ISS. [HUECO] el texto no aclara el tipo de medida (dosis o flujo); no usar la cifra como parte de la dosis. Artículo leído completo el 14 nov y analizado en [12-radiacion.md](12-radiacion.md).
 - [VERIFICADO] Antecedentes canadienses en la ISS: MOSFET, EVARM, Radi-N y Radi-N2.
 
 ### CSA: Why Do We Conduct Science Experiments in Space? (modificada 28 oct 2025)
