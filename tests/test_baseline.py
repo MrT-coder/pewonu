@@ -209,3 +209,15 @@ def test_invalid_config_is_rejected(kwargs: dict[str, float]) -> None:
 
 def test_default_config_values_are_the_documented_ones() -> None:
     assert (DEFAULT_CONFIG.min_days, DEFAULT_CONFIG.sustained, DEFAULT_CONFIG.band_k) == (5, 3, 2.5)
+
+
+def test_repeated_values_do_not_collapse_the_band() -> None:
+    # More than half of the history is 59, so the MAD is 0, but the history does spread.
+    # Before the fallback the band was the single point 59 and [60, 62, 61] raised amber.
+    history = [59, 59, 59, 59, 59, 57, 61]
+    result = run(daily([*history, 60, 62, 61]))
+    assert result.status is Status.OK
+    assert result.baseline is not None
+    assert result.baseline.low < 59 < result.baseline.high
+    # A real sustained shift is still caught.
+    assert run(daily([*history, 64, 65, 64])).status is Status.WATCH

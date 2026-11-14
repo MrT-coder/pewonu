@@ -2,7 +2,8 @@
 
 For one person, one indicator and one environment (``earth``, ``spacecraft``, ``planet``):
 
-- The baseline is the median of the history with a robust band (median +- k * scaled MAD).
+- The baseline is the median of the history with a robust band (median +- k * scaled MAD, or the
+  scaled mean absolute deviation when the MAD is 0).
 - The last ``sustained`` readings are judged against it and are *not* part of it, so a recent shift
   cannot widen its own band.
 - ``insufficient_data`` until the baseline covers ``min_days`` distinct days (D-013: every new
@@ -31,8 +32,10 @@ from crew_self_check.core.contract import (
     TrendPoint,
 )
 
-# Scales the MAD to match the standard deviation of a normal distribution.
+# Scale the MAD, or the mean absolute deviation, to match the standard deviation of a normal
+# distribution.
 _MAD_SCALE = 1.4826
+_MEAN_AD_SCALE = 1.253314
 
 
 class Direction(StrEnum):
@@ -73,8 +76,14 @@ def _build_baseline(history: list[Measurement], config: BaselineConfig) -> Basel
         return None
     values = [m.value for m in history]
     center = statistics.median(values)
-    mad = statistics.median(abs(v - center) for v in values) * _MAD_SCALE
-    half = config.band_k * mad
+    deviations = [abs(v - center) for v in values]
+    spread = statistics.median(deviations) * _MAD_SCALE
+    if spread == 0:
+        # More than half of the history repeats the median (common with integer readings, such as a
+        # counted pulse): fall back to the mean absolute deviation so the band does not collapse to
+        # a point. Only a truly constant history keeps a zero-width band.
+        spread = statistics.fmean(deviations) * _MEAN_AD_SCALE
+    half = config.band_k * spread
     return Baseline(center=center, low=center - half, high=center + half, n_days=n_days)
 
 
