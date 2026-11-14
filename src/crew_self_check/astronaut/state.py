@@ -14,13 +14,21 @@ from enum import StrEnum
 from crew_self_check.astronaut.access import AccessDirectory, AccessError
 from crew_self_check.astronaut.mood import check_level, mood_measurement
 from crew_self_check.astronaut.pulse_mission import PulseMission
+from crew_self_check.astronaut.share_model import (
+    DEFAULT_GROUND_DELAY_MINUTES,
+    DeliveryState,
+    OutboxItem,
+    delivery_state,
+)
 from crew_self_check.core.contract import (
     CrewProfile,
     Indicator,
     Measurement,
+    Status,
     System,
     SystemStatus,
 )
+from crew_self_check.core.fhir import ShareSelection, build_bundle, check_bundle
 from crew_self_check.core.reasons import Language
 from crew_self_check.core.scenario import Scenario, ScenarioDay, generate_scenario
 from crew_self_check.core.status import IndicatorResolution, resolve_indicator, resolve_system
@@ -58,6 +66,12 @@ class AppState:
         self.pulse: PulseMission | None = None
         self.mood_choice: int | None = None  # the face tapped and not saved yet
         self.selected_system: System | None = None
+        # Sharing with the ground team (A10): nothing leaves without the astronaut's confirmation.
+        self.share_selection: set[Indicator] = set()
+        self.share_confirmed = False
+        self.ground_delay_minutes = DEFAULT_GROUND_DELAY_MINUTES
+        self.outbox: list[OutboxItem] = []
+        self.ground_inbox: list[OutboxItem] = []  # stands in for the ground base until G1
 
     @property
     def logged_in(self) -> bool:
@@ -77,6 +91,7 @@ class AppState:
         self.pulse = None
         self.mood_choice = None
         self.selected_system = None
+        self.clear_share()
         return True
 
     def logout(self) -> None:
@@ -87,6 +102,7 @@ class AppState:
         self.pulse = None  # an unfinished mission is abandoned; what was saved stays
         self.mood_choice = None
         self.selected_system = None
+        self.clear_share()
 
     def set_language(self, language: Language) -> None:
         self.language = language
@@ -110,6 +126,7 @@ class AppState:
             raise IndexError(f"day {index} is outside 0..{len(self.scenario.days) - 1}")
         self.journey_day = index
         self.environment = self.current_day.environment
+        self._deliver()
 
     def advance(self) -> None:
         if self.journey_day < len(self.scenario.days) - 1:
@@ -212,3 +229,102 @@ class AppState:
 
     def select_system(self, system: System | None) -> None:
         self.selected_system = system
+
+    # --- sharing with the ground team (A10) --------------------------------------------------
+
+    def shareable(self) -> tuple[Indicator, ...]:
+        """The indicators with a reading in the current space, in the contract's order."""
+        return tuple(
+            indicator
+            for indicator, resolution in self.resolutions().items()
+            if resolution.status.latest is not None
+        )
+
+    def toggle_share(self, indicator: Indicator) -> None:
+        if self.profile is None:
+            return
+        if indicator not in self.shareable():
+            raise ValueError(f"no reading to share for {indicator.value}")
+        self.share_selection ^= {indicator}
+        self.share_confirmed = False  # a different selection needs a new confirmation
+
+    def select_attention(self) -> None:
+        wanted = {
+            indicator
+            for indicator, resolution in self.resolutions().items()
+            if resolution.status.status in (Status.WATCH, Status.ACT)
+        }
+        self.share_selection = wanted & set(self.shareable())
+        self.share_confirmed = False
+
+    def select_all(self) -> None:
+        self.share_selection = set(self.shareable())
+        self.share_confirmed = False
+
+    def clear_share(self) -> None:
+        self.share_selection = set()
+        self.share_confirmed = False
+
+    def set_share_confirmed(self, confirmed: bool) -> None:
+        self.share_confirmed = confirmed
+
+    def send_to_ground(self) -> OutboxItem:
+        """Pack what was chosen as a FHIR Bundle. ``ConsentRequired`` unless it was confirmed."""
+        if self.profile is None:
+            raise RuntimeError("nobody is signed in")
+        resolutions = self.resolutions()
+        latest: dict[Indicator, Measurement] = {}
+        for measurement in self.visible_measurements():  # oldest first: the last one wins
+            if measurement.environment is self.environment:
+                latest[measurement.indicator] = measurement
+        chosen = [i for i in Indicator if i in self.share_selection]
+        selection = ShareSelection(
+            profile=self.profile,
+            confirmed=self.share_confirmed,
+            confirmed_at=self.journey_time(),
+            measurements=tuple(latest[i] for i in chosen if i in latest),
+            statuses=tuple(resolutions[i].status for i in chosen),
+        )
+        bundle = build_bundle(selection)
+        problems = check_bundle(bundle)
+        if problems:
+            raise RuntimeError(f"the package is not valid: {problems}")
+        item = OutboxItem(
+            crew_id=self.profile.crew_id,
+            day_label=self.current_day.label,
+            sent_at=selection.confirmed_at,
+            arrives_at=selection.confirmed_at + timedelta(minutes=self.ground_delay_minutes),
+            bundle=bundle,
+            readings=len(selection.measurements),
+            states=len(selection.statuses),
+            indicators=tuple(chosen),
+        )
+        self.outbox.append(item)
+        self.clear_share()
+        return item
+
+    def own_outbox(self) -> tuple[OutboxItem, ...]:
+        """The packages this person sent, up to the simulated "now"."""
+        if self.profile is None:
+            return ()
+        now = self.journey_time()
+        return tuple(
+            i for i in self.outbox if i.crew_id == self.profile.crew_id and i.sent_at <= now
+        )
+
+    def delivered(self) -> tuple[OutboxItem, ...]:
+        return tuple(
+            i
+            for i in self.own_outbox()
+            if delivery_state(i, self.journey_time()) is DeliveryState.DELIVERED
+        )
+
+    def _deliver(self) -> None:
+        """Move what has arrived by the simulated time to the (simulated) ground inbox."""
+        now = self.journey_time()
+        for item in self.outbox:
+            if (
+                item not in self.ground_inbox
+                and delivery_state(item, now) is DeliveryState.DELIVERED
+            ):
+                self.ground_inbox.append(item)

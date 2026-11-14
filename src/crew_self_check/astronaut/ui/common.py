@@ -9,6 +9,7 @@ import flet as ft
 
 from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.i18n import GLOSSARY, translate
+from crew_self_check.astronaut.share_model import OutboxItem
 from crew_self_check.astronaut.state import AppState, Section
 from crew_self_check.core.contract import Status, System
 from crew_self_check.core.reasons import Language
@@ -26,6 +27,7 @@ class Actions:
     show_glossary: Callable[[], None]
     set_day: Callable[[int], None]
     select_system: Callable[[System | None], None]
+    show_package: Callable[[OutboxItem], None]
     refresh: Callable[[], None]  # push control changes to the screen
     rerender: Callable[[], None]  # rebuild the whole view from the state
 

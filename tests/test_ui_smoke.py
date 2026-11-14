@@ -12,6 +12,7 @@ from crew_self_check.astronaut.i18n import translate  # noqa: E402
 from crew_self_check.astronaut.state import AppState, Section  # noqa: E402
 from crew_self_check.astronaut.ui.common import Actions, glossary_dialog  # noqa: E402
 from crew_self_check.astronaut.ui.login import build_login  # noqa: E402
+from crew_self_check.astronaut.ui.share import package_dialog  # noqa: E402
 from crew_self_check.astronaut.ui.shell import build_shell  # noqa: E402
 from crew_self_check.core.contract import Indicator, System  # noqa: E402
 from crew_self_check.core.reasons import Language  # noqa: E402
@@ -52,6 +53,7 @@ class Recorder:
             show_glossary=lambda: self._log("glossary"),
             set_day=lambda index: self._log(f"day:{index}"),
             select_system=lambda system: self._log(f"system:{system}"),
+            show_package=lambda item: self._log(f"package:{item.day_label}"),
             refresh=lambda: self._log("refresh"),
             rerender=lambda: self._log("rerender"),
         )
@@ -435,3 +437,108 @@ def test_the_home_cards_no_longer_say_coming_next() -> None:
     state = state_in(Language.EN, logged_in=True)
     texts = collect_texts(build_shell(state, Recorder().actions()))
     assert translate("part.coming", Language.EN) not in texts
+
+
+# --- sharing with the ground team ----------------------------------------------------------------
+
+
+def controls_of(node: object, kind: type) -> list[object]:
+    """Every control of a given type found by walking the control tree."""
+    found: list[object] = []
+    if isinstance(node, kind):
+        found.append(node)
+    if dataclasses.is_dataclass(node) and not isinstance(node, type):
+        for field in dataclasses.fields(node):
+            found.extend(controls_of(getattr(node, field.name, None), kind))
+    elif isinstance(node, list | tuple):
+        for item in node:
+            found.extend(controls_of(item, kind))
+    return found
+
+
+def send_button(view: object, language: Language) -> ft.FilledButton:
+    label = translate("share.send", language)
+    (button,) = [b for b in controls_of(view, ft.FilledButton) if b.content == label]  # type: ignore[attr-defined]
+    return button  # type: ignore[return-value]
+
+
+def confirm_box(view: object, language: Language) -> ft.Checkbox:
+    label = translate("share.confirm", language)
+    (box,) = [b for b in controls_of(view, ft.Checkbox) if b.label == label]  # type: ignore[attr-defined]
+    return box  # type: ignore[return-value]
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_share_panel_states_the_rule_and_offers_the_shortcuts(language: Language) -> None:
+    texts = collect_texts(build_shell(summary_state(language, "R+3"), Recorder().actions()))
+    for key in (
+        "share.title",
+        "share.note",
+        "share.attention",
+        "share.all",
+        "share.clear",
+        "share.nothing",
+        "share.confirm",
+        "share.send",
+        "share.sent_title",
+        "share.sent_empty",
+        "share.sim_note",
+    ):
+        assert translate(key, language) in texts, key
+
+
+def test_there_is_a_checkbox_per_reading_and_sending_starts_disabled() -> None:
+    state = summary_state(Language.EN, "R+3")
+    view = build_shell(state, Recorder().actions())
+    assert len(controls_of(view, ft.Checkbox)) == len(state.shareable()) + 1  # + the confirmation
+    assert send_button(view, Language.EN).disabled is True
+    assert confirm_box(view, Language.EN).disabled is True  # nothing selected yet
+
+
+def test_sending_needs_a_selection_and_a_confirmation() -> None:
+    state = summary_state(Language.EN, "R+3")
+    state.toggle_share(Indicator.RESTING_HR)
+    view = build_shell(state, Recorder().actions())
+    assert confirm_box(view, Language.EN).disabled is False
+    assert confirm_box(view, Language.EN).value is False
+    assert send_button(view, Language.EN).disabled is True  # not confirmed yet
+    assert translate("share.summary", Language.EN, readings=1, states=1) in collect_texts(view)
+    state.set_share_confirmed(True)
+    ready = build_shell(state, Recorder().actions())
+    assert confirm_box(ready, Language.EN).value is True
+    assert send_button(ready, Language.EN).disabled is False
+
+
+def test_the_chosen_readings_are_the_checked_boxes() -> None:
+    state = summary_state(Language.EN, "R+3")
+    state.select_attention()
+    view = build_shell(state, Recorder().actions())
+    checked = [b for b in controls_of(view, ft.Checkbox) if b.value]  # type: ignore[attr-defined]
+    assert len(checked) == len(state.share_selection)
+
+
+def test_a_sent_package_is_listed_in_transit_and_then_delivered() -> None:
+    state = summary_state(Language.EN, "R+1")
+    state.toggle_share(Indicator.RESTING_HR)
+    state.set_share_confirmed(True)
+    state.send_to_ground()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("share.sent_line", Language.EN, label="R+1", readings=1, states=1) in texts
+    minutes = state.ground_delay_minutes
+    assert translate("share.in_transit", Language.EN, minutes=minutes) in texts
+    assert translate("share.show_data", Language.EN) in texts
+    assert translate("share.sent_empty", Language.EN) not in texts
+    state.advance()
+    later = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("share.delivered", Language.EN) in later
+
+
+def test_the_package_dialog_shows_the_fhir_data_that_was_sent() -> None:
+    state = summary_state(Language.EN, "R+3")
+    state.toggle_share(Indicator.RESTING_HR)
+    state.set_share_confirmed(True)
+    item = state.send_to_ground()
+    texts = collect_texts(package_dialog(item, Language.EN, lambda: None))
+    assert translate("share.data_title", Language.EN) in texts
+    assert any('"resourceType": "Bundle"' in text for text in texts)
+    assert any("8867-4" in text for text in texts)  # the LOINC code of the pulse

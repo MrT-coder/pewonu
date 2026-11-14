@@ -9,9 +9,11 @@ import flet as ft
 from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.access import simulated_directory
 from crew_self_check.astronaut.i18n import translate
+from crew_self_check.astronaut.share_model import OutboxItem
 from crew_self_check.astronaut.state import AppState, Section
 from crew_self_check.astronaut.ui.common import Actions, glossary_dialog, limits_dialog
 from crew_self_check.astronaut.ui.login import build_login
+from crew_self_check.astronaut.ui.share import package_dialog
 from crew_self_check.astronaut.ui.shell import build_shell
 from crew_self_check.core.contract import System
 from crew_self_check.core.reasons import Language
@@ -59,6 +61,9 @@ def main(page: ft.Page) -> None:
         state.select_system(system)
         render()
 
+    def show_package(item: OutboxItem) -> None:
+        page.show_dialog(package_dialog(item, state.language, close_limits))
+
     def close_limits() -> None:
         page.pop_dialog()
 
@@ -77,6 +82,7 @@ def main(page: ft.Page) -> None:
         show_glossary=show_glossary,
         set_day=set_day,
         select_system=select_system,
+        show_package=show_package,
         refresh=page.update,
         rerender=render,
     )

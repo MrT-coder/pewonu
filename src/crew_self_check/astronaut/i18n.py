@@ -614,6 +614,77 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "See it on the body",
         _ES: "Verlo en el cuerpo",
     },
+    "share.title": {
+        _EN: "Share with the ground team",
+        _ES: "Compartir con el equipo en Tierra",
+    },
+    "share.note": {
+        _EN: "Nothing is sent unless you confirm it. You choose what goes.",
+        _ES: "Nada se envía si no lo confirmas. Tú eliges qué va.",
+    },
+    "share.attention": {
+        _EN: "Select what needs attention",
+        _ES: "Seleccionar lo que requiere atención",
+    },
+    "share.all": {
+        _EN: "Select all",
+        _ES: "Seleccionar todo",
+    },
+    "share.clear": {
+        _EN: "Clear the selection",
+        _ES: "Quitar la selección",
+    },
+    "share.nothing": {
+        _EN: "Nothing selected yet.",
+        _ES: "Aún no hay nada seleccionado.",
+    },
+    "share.summary": {
+        _EN: "{readings} readings and {states} states will be sent as a standard HL7 FHIR package.",
+        _ES: "Se enviarán {readings} lecturas y {states} estados como un paquete "
+        "estándar HL7 FHIR.",
+    },
+    "share.confirm": {
+        _EN: "I confirm I want to send this to the ground team.",
+        _ES: "Confirmo que quiero enviar esto al equipo en Tierra.",
+    },
+    "share.send": {
+        _EN: "Send to the ground team",
+        _ES: "Enviar al equipo en Tierra",
+    },
+    "share.sent_title": {
+        _EN: "Sent packages",
+        _ES: "Paquetes enviados",
+    },
+    "share.sent_empty": {
+        _EN: "Nothing sent yet.",
+        _ES: "Todavía no has enviado nada.",
+    },
+    "share.sent_line": {
+        _EN: "Sent on day {label} · {readings} readings, {states} states",
+        _ES: "Enviado el día {label} · {readings} lecturas, {states} estados",
+    },
+    "share.in_transit": {
+        _EN: "In transit: it arrives after {minutes} minutes of simulated time.",
+        _ES: "En camino: llega tras {minutes} minutos de tiempo simulado.",
+    },
+    "share.delivered": {
+        _EN: "Delivered to the ground inbox (simulated).",
+        _ES: "Entregado a la bandeja de Tierra (simulado).",
+    },
+    "share.sim_note": {
+        _EN: "The ground base is simulated: it is not built yet, so delivery only "
+        "moves the package to a local inbox.",
+        _ES: "La base en Tierra es simulada: aún no existe, así que la entrega solo "
+        "mueve el paquete a una bandeja local.",
+    },
+    "share.show_data": {
+        _EN: "Show the FHIR data",
+        _ES: "Ver los datos FHIR",
+    },
+    "share.data_title": {
+        _EN: "What was sent (FHIR)",
+        _ES: "Lo que se envió (FHIR)",
+    },
     "limits.title": {_EN: "Limits of this prototype", _ES: "Límites de este prototipo"},
     "limits.body": {
         _EN: "Analog and simulated data: not from real astronauts. "
@@ -678,6 +749,28 @@ GLOSSARY: tuple[dict[Language, tuple[str, str]], ...] = (
             "NASA",
             "Administración Nacional de Aeronáutica y del Espacio, la agencia espacial "
             "de Estados Unidos",
+        ),
+    },
+    {
+        _EN: (
+            "FHIR",
+            "Fast Healthcare Interoperability Resources: the standard format for exchanging "
+            "health data",
+        ),
+        _ES: (
+            "FHIR",
+            "Fast Healthcare Interoperability Resources: el formato estándar para intercambiar "
+            "datos de salud",
+        ),
+    },
+    {
+        _EN: (
+            "HL7",
+            "Health Level Seven: the organization that publishes the FHIR standard",
+        ),
+        _ES: (
+            "HL7",
+            "Health Level Seven: la organización que publica el estándar FHIR",
         ),
     },
     {

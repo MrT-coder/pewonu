@@ -10,6 +10,7 @@ from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.state import AppState, Section
 from crew_self_check.astronaut.summary_model import Summary, build_summary
 from crew_self_check.astronaut.ui.common import Actions, card, status_color
+from crew_self_check.astronaut.ui.share import build_share_panel
 from crew_self_check.astronaut.ui.system_card import status_chip
 from crew_self_check.core.contract import Status
 from crew_self_check.core.status import IndicatorResolution
@@ -292,5 +293,6 @@ def build_summary_view(state: AppState, actions: Actions) -> ft.Control:
             _kpis(state, summary),
             _attention(state, summary, actions),
             _latest(state, summary),
+            build_share_panel(state, summary, actions),
         ],
     )
