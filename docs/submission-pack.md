@@ -42,7 +42,7 @@ Submission window closes **Sunday 15 November, 23:59, local event time**. Only t
 | Guided, gamified manual pulse ("pulse mission") | `[BUILT]` | A5 |
 | Mood check with five faces | `[BUILT]` | A6 (survey part) |
 | Works without internet | `[BUILT]` (spike A1) | A1 |
-| Body figure colored by system status, system cards with citations | `[PENDING]` | A3, A4 |
+| Body figure whose zones are colored by each system's state, with a card per system (what is measured, what it was compared with, a trend over its band, a suggestion and a NASA source) | `[BUILT]` | A3, A4 |
 | One-page summary per astronaut ("human KPIs") | `[PENDING]` | part 4 of D-020 |
 | Local database (SQLite) | `[PENDING]` | A2 |
 | Voice log (audio discarded, numeric acoustic measures kept) | `[PENDING]` | A6 (audio part) |
@@ -50,10 +50,11 @@ Submission window closes **Sunday 15 November, 23:59, local event time**. Only t
 | Sending that export to the ground and receiving it there | `[PENDING]` | A10, G1 |
 | Ground base that receives FHIR with a simulated delay | `[PENDING]` | G1 to G3 |
 | Escalation the astronaut confirms before anything is sent | `[PENDING]` | A10 |
-| Trip player and routine reminders | `[PENDING]` | A7, A8 |
+| Journey control: move the simulated mission day by day from Earth to the planet and watch the states change | `[BUILT]` (no automatic playback) | A7 |
+| Routine reminders | `[PENDING]` | A8 |
 | ISS-analog spacecraft profile, emergency screen, adherence streak | `[PENDING]` | C7, A11, A12 |
 
-Engineering facts you can quote `[BUILT]`: 428 automated tests; strict type checking; contract of six objects; two simulated crew members over a 28-day trip (14 days on Earth, 10 in the spacecraft, 4 on arrival at Mars); engine defaults are 5 days of history, 3 sustained readings and a 2.5 robust-deviation band.
+Engineering facts you can quote `[BUILT]`: 491 automated tests; strict type checking; contract of six objects; two simulated crew members over a 28-day trip (14 days on Earth, 10 in the spacecraft, 4 on arrival at Mars); engine defaults are 5 days of history, 3 sustained readings and a 2.5 robust-deviation band.
 
 ---
 
@@ -64,13 +65,13 @@ Engineering facts you can quote `[BUILT]`: 428 automated tests; strict type chec
 
 ### Summary (limit 1500 characters; 50 to 200 words suggested)
 
-Safe version, only claims what is built (about 170 words):
+Safe version, only claims what is built (about 188 words):
 
-> Crew Self-Check is a health self-assessment prototype for astronauts on long missions, built with simulated, analog data. Instead of comparing an astronaut with an average person, it compares them with **their own baseline**, kept separately for Earth, the spacecraft and a planet's surface. When it does not have enough data it says so (gray) instead of guessing. The astronaut signs in with a personal code, answers a five-face mood check and takes a manually counted pulse through a guided, gamified "pulse mission" that teaches the wrist technique step by step; the game rewards good technique, never the value of the pulse. The rules that decide a status are deterministic and explained in plain English and Spanish: no AI model is in the alert path, and nothing is diagnosed. The design is private by default: data stays on the crew computer and only what the astronaut chooses to share is meant to travel to the ground team, standardized as HL7 FHIR R4. The app runs locally and works without internet.
+> Crew Self-Check is a health self-assessment prototype for astronauts on long missions, built with simulated, analog data. Instead of comparing an astronaut with an average person, it compares them with **their own baseline**, kept separately for Earth, the spacecraft and a planet's surface. When it does not have enough data it says so (gray) instead of guessing. Each body system is shown on a figure and colored against that baseline, with a card that explains why. The astronaut signs in with a personal code, answers a five-face mood check and takes a manually counted pulse through a guided, gamified "pulse mission" that teaches the wrist technique step by step; the game rewards good technique, never the value of the pulse. The rules that decide a status are deterministic and explained in plain English and Spanish: no AI model is in the alert path, and nothing is diagnosed. The design is private by default: data stays on the crew computer and only what the astronaut chooses to share is meant to travel to the ground team, standardized as HL7 FHIR R4. The app runs locally and works without internet.
 
 Add this sentence only if it is true at submission time:
 
-> `[PENDING A3, A4]` Each body system is shown on a body figure and colored against the astronaut's own baseline, with a card that explains why.
+> `[BUILT]` Each body system is shown on a body figure and colored against the astronaut's own baseline, with a card that explains why. (Already included in the safe version above.)
 > `[PENDING A10, G1 to G3]` What the astronaut confirms is sent to a ground-base system as an HL7 FHIR Bundle, after a simulated communication delay. (The Bundle itself is built and validated; sending and receiving it are not.)
 
 ### Project Details (long field)
@@ -196,8 +197,8 @@ Keep text short: judges read these without a presenter. Put the SI watermark on 
 - Sign in with a personal code. Switch English and Spanish.
 - The **pulse mission**: four stations, count with your fingers on the wrist and enter the beats, "34 beats x 2 = 68 bpm", points and a badge for technique only.
 - Mood check with five faces.
-- Earth to Mars scenario with the four states (green, amber, red, gray). `[PENDING A3, A7]` for the body figure and the trip player.
-- Visual: three or four screenshots (they exist for sign-in, pulse mission and mood). Pulse illustrations need the SI watermark.
+- The **body figure** on the simulated trip: move the journey bar from Earth to Mars and watch the zones change color. The four states (green, amber, red, gray) all appear, each with its reason and what it was compared with.
+- Visual: three or four screenshots (they exist for sign-in, pulse mission, mood and the body figure). Pulse illustrations need the SI watermark.
 
 **Slide 6: Trust, privacy and limits**
 - Private by default; escalation suggests and never notifies by itself.
@@ -223,7 +224,7 @@ Hard limit: 30 seconds. Subtitles in English if the narration is in Spanish. Add
 | 0 to 4 s | Earth, spacecraft, Mars line | "Far from Earth, normal is personal." |
 | 4 to 10 s | Sign in with the code, switch language | "Crew Self-Check compares each astronaut with themselves." |
 | 10 to 18 s | Pulse mission: enter the counted beats, result, badge | "Even a manual pulse becomes a guided game that rewards good technique." |
-| 18 to 24 s | Four states, gray highlighted `[PENDING A3, A7]` | "When it does not know, it says gray. It always shows what it compared against." |
+| 18 to 24 s | Body figure while the journey bar moves, gray highlighted | "When it does not know, it says gray. It always shows what it compared against." |
 | 24 to 30 s | Privacy lock, FHIR, limits | "Private by default. Standard FHIR for the ground team. No diagnosis." |
 
 ---

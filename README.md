@@ -4,7 +4,7 @@ Prototype for the NASA Space Apps Challenge 2026, "Create Health Monitoring Soft
 
 > **Status: work in progress (hackathon, 14-15 Nov 2026).** This is a prototype built with simulated, analog data. It does **not** diagnose, predict disease, or replace medical care. Nothing here has been validated for use in space.
 >
-> **Built so far:** data contract, personal baseline engine, labeled population reference, status and reasons in English and Spanish, simulated Earth-spacecraft-Mars scenario, device port, FHIR R4 export (only what the astronaut confirms, validated with the official HL7 validator), and the astronaut app shell (sign-in by code, guided manual-pulse mission, five-face mood check). **Not built yet:** body figure and cards, local database, voice log, the send button and the ground base. See [docs/tareas.md](docs/tareas.md).
+> **Built so far:** data contract, personal baseline engine, labeled population reference, status and reasons in English and Spanish, simulated Earth-spacecraft-Mars scenario, device port, FHIR R4 export (only what the astronaut confirms, validated with the official HL7 validator), and the astronaut app (sign-in by code, guided manual-pulse mission, five-face mood check, a body figure colored by each system's state with a card per system, and a journey bar from Earth to the planet). **Not built yet:** local database, voice log, the send button and the ground base. See [docs/tareas.md](docs/tareas.md).
 
 ## The idea
 

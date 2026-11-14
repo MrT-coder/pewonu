@@ -48,11 +48,11 @@ Escenario con base documental ([research/09](../research/09-humanos-en-el-espaci
 
 1. **Ingreso con código** y cambio de idioma español/inglés. *Hecho.*
 2. **Chequeo diario.** *Hecho:* caritas de ánimo (cinco niveles) y **misión del pulso** (cuatro estaciones, la persona cuenta con los dedos en la muñeca durante 30 o 60 s y escribe cuántos latidos contó, puntos e insignia por la técnica).
-3. **Estado calculado:** gris mientras la línea base madura; en la nave el sueño se marca contra la línea base de la Tierra (transición); al llegar a Marte suben el pulso y los síntomas vestibulares; el pulso manual de `crew-02` llega a rojo con referencia poblacional. *El motor está hecho (C3, C4, C5); falta mostrarlo en la interfaz.*
-4. **Figura corporal y tarjeta del sistema** con tendencia, explicación simple, orientación con cita y checklist. *Pendiente (A3, A4).*
+3. **Estado calculado:** gris mientras la línea base madura; en la nave el sueño se marca contra la línea base de la Tierra (transición); al llegar a Marte suben el pulso y los síntomas vestibulares; el pulso manual de `crew-02` llega a rojo con referencia poblacional. *Hecho: el motor (C3, C4, C5) y su pantalla (A3, A4).*
+4. **Figura corporal y tarjeta del sistema** con tendencia dentro de su banda, con qué se comparó, sugerencia y orientación genérica con cita de la NASA, sin pasos clínicos. *Hecho (A3, A4).*
 5. **Caso gris:** la glucosa es un análisis ocasional; sin datos recientes se muestra gris y no "normal". *Motor hecho.*
 6. **Escalamiento privado:** el astronauta confirma qué enviar; llega a la base como un FHIR Bundle tras un retraso simulado. *Exportación FHIR hecha y validada (C8); pendientes el envío (A10) y la recepción (G1 a G3).*
-7. **Evolución R+0 → R+3:** reproductor del viaje. *Pendiente (A7).*
+7. **Evolución R+0 → R+3:** barra del viaje con control de día; cada paso recalcula los estados. *Hecho; falta la reproducción automática (A7).*
 
 ## 5b. Principios de diseño que salen de la evidencia
 
