@@ -25,7 +25,7 @@ Versión: `0.3` (propuesta, 2026-11-14: espacios `environment`, `method`, refere
 - `indicator`: uno de `resting_hr`, `systolic_bp`, `diastolic_bp`, `blood_glucose`, `body_temp`, `sleep_hours`, `mood`, `spo2`, `orthostatic_hr_delta` (FC de pie menos FC acostado), `vestibular_symptoms` (escala de síntomas), `tandem_walk_ok` (0/1). Se agregan otros con una decisión registrada. Base de los nuevos indicadores: [research/09](../research/09-humanos-en-el-espacio.md).
 - `blood_glucose` es de baja frecuencia: entre análisis, su estado normal es `insufficient_data`.
 - `source`: `manual`, `sleep-accel`, `official-2026` (los recursos del 13 nov) o `simulated-scenario` (el viaje simulado de la demo, D-013). Los datos simulados se rotulan siempre como tales.
-- `mood`: el dato es el resultado de la encuesta clásica de la burbuja (`method: survey`), nunca una inferencia del LLM ni de la voz (D-015).
+- `mood`: el dato es el resultado de la encuesta clásica de la burbuja (`method: survey`), nunca una inferencia de la voz (D-015, D-019).
 
 ## 2. IndicatorStatus (salida del motor, por persona e indicador)
 
@@ -91,7 +91,7 @@ Versión: `0.3` (propuesta, 2026-11-14: espacios `environment`, `method`, refere
 }
 ```
 
-- Solo números. **Sin etiquetas de emoción** y sin texto de la conversación, que no se guarda ni se envía (D-015).
+- Solo números. **Sin etiquetas de emoción** y sin audio ni transcripción: el audio de la bitácora se descarta tras extraer las medidas (D-015, D-019).
 - No mueve ningún `status`. Se exporta por FHIR (códigos locales) solo si el astronauta decide enviarlo (D-006).
 - [HUECO] El conjunto exacto de medidas y su unidad se definen al implementar; este ejemplo es ilustrativo.
 

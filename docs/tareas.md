@@ -32,7 +32,7 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 | A3 | Figura corporal con arte SVG y zonas clicables, coloreada por `SystemStatus` | M | A2, C4 | Cada sistema abre su tarjeta; el color sale del estado y no está fijo en el código |
 | A4 | Tarjeta del sistema: tendencia con banda, explicación simple, orientación con cita y checklist | M | A3 | Cada afirmación de orientación tiene su cita; sin diagnóstico ni dosis |
 | A5 | Entrada manual del pulso: el astronauta cuenta y la app calcula, con el gráfico explicativo | M | A2, C3 | Un conteo produce un `Measurement` con `method: palpation`. **Hecho 2026-11-14** como misión guiada (D-021) en `astronaut/pulse_mission.py` y `ui/checkin.py`, rama `app/pulse-mission`; falta guardarlo en SQLite (A2) |
-| A6 | Burbuja de ánimo: encuesta clásica, luego conversación opcional por voz con un LLM; la conversación no se guarda; se guardan solo medidas acústicas numéricas (D-015) | M | A2 | La encuesta mueve el estado de `mood`; la conversación no queda en SQLite; las medidas acústicas no mueven ningún estado. **Parcial 2026-11-14:** la encuesta de cinco caritas está hecha (`astronaut/mood.py`, `ui/checkin.py`, rama `app/mood-faces`); faltan la bitácora de audio (D-019) y SQLite |
+| A6 | Burbuja de ánimo: encuesta clásica (Must) y bitácora de audio opcional (Could): el audio se descarta y se guardan solo medidas acústicas numéricas (D-015, D-019) | M | A2 | La encuesta mueve el estado de `mood`; el audio no queda en disco ni en SQLite; las medidas acústicas no mueven ningún estado. **Parcial 2026-11-14:** la encuesta de cinco caritas está hecha (`astronaut/mood.py`, `ui/checkin.py`, rama `app/mood-faces`); faltan la bitácora de audio y SQLite |
 | A7 | Reproductor del viaje: cambio de espacio y rótulos de referencia de transición | M | A3, C5 | Se recorre Tierra → nave → Marte y la figura cambia; cada estado muestra contra qué referencia se comparó |
 | A8 | Recordatorios de rutina del escenario simulado | M | A7 | Aparece el recordatorio del día con la medición pedida |
 | A9 | Pantalla "Limits": datos análogos, nada validado en órbita, sin diagnóstico | M | A2 | Visible desde cualquier pantalla, en ambos idiomas. **Hecho 2026-11-14** en la carcasa (login y app), rama `app/shell` |
@@ -47,7 +47,7 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 |---|---|---|---|---|
 | G1 | Servicio FastAPI con SQLite que recibe y valida Bundles FHIR (D-018) | M | C8 | Un Bundle válido se guarda; uno inválido se rechaza con error claro |
 | G2 | Cola de retraso de comunicación simulado y configurable (~3 a 22 min) | M | G1 | Lo enviado aparece en la base pasado el retraso; el retraso se configura |
-| G3 | Interfaz de la base (flight surgeon): estado por tripulante, Bundles recibidos y resumen del escalamiento, en español e inglés. [SUPOSICION] Flet por coherencia con `astronaut`; falta decidirlo | M | G2 | Solo muestra lo que el astronauta envió; no muestra datos crudos ni conversaciones |
+| G3 | Interfaz de la base (flight surgeon): estado por tripulante, Bundles recibidos y resumen del escalamiento, en español e inglés. [SUPOSICION] Flet por coherencia con `astronaut`; falta decidirlo | M | G2 | Solo muestra lo que el astronauta envió; no muestra datos crudos ni audio |
 | G4 | Vista de tendencias de lo recibido | S | G3 | Gráfico por indicador con la banda enviada |
 
 ## Carril P · Producto, relato y envío
