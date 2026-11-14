@@ -1,6 +1,6 @@
 # Tareas (TODO)
 
-Estado: **propuesta de reparto, 2026-11-14.** Cada tarea es una unidad con su propio test, su código y su documentación. Las decisiones D-013 a D-018 de [decisiones.md](decisiones.md) mandan; el contrato `0.3` está en [contrato-datos.md](contrato-datos.md). Dueño y rama se rellenan al tomar la tarea (una persona por tarea, [AGENTS.md](../AGENTS.md) sección 5).
+Estado: **actualizado el 2026-11-14.** Hecho: C1 a C6, A1, A9 y partes de A2, A5 y A6 (ver cada fila). Todo está en ramas locales sin fusionar (orden al final). Cada tarea es una unidad con su propio test, su código y su documentación. Las decisiones D-013 a D-023 de [decisiones.md](decisiones.md) mandan; el contrato `0.3` está en [contrato-datos.md](contrato-datos.md). Dueño y rama se rellenan al tomar la tarea (una persona por tarea, [AGENTS.md](../AGENTS.md) sección 5).
 
 Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuando` = criterio de aceptación observable.
 
@@ -54,14 +54,15 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 
 | ID | Tarea | Nivel | Dep | Hecho cuando |
 |---|---|---|---|---|
-| P1 | Leer la Project Submission Guide y la Judging & Awards Guide (publicadas el 13 nov) y completar [submission-checklist.md](submission-checklist.md) | M | — | Cada [HUECO] del checklist queda resuelto o justificado |
+| P1 | Leer la Project Submission Guide y la Judging & Awards Guide (publicadas el 13 nov) y completar [submission-checklist.md](submission-checklist.md) | M | — | Cada [HUECO] del checklist queda resuelto o justificado. **Parcial 2026-11-14:** el texto del formulario cerró varios [HUECO] ([submission-checklist.md](submission-checklist.md)); faltan las guías completas |
 | P2 | Guion y storyboard de la demo de 30 s (Tierra → nave → Marte) y versión de 7 slides | M | A7 | Guion en inglés con subtítulos; muestra el gris, el color relativo y la privacidad |
 | P3 | Grabar el video y alojarlo en un enlace público externo | M | P2 | Se abre en una ventana privada sin pedir registro |
 | P4 | Página del proyecto en inglés con todos los campos obligatorios y referencias | M | P1 | Campos completos; cita los datos de NASA y de la CSA usados |
 | P5 | Descripción del uso de IA en inglés a partir de [uso-de-ia.md](uso-de-ia.md) | M | — | Resume las herramientas usadas y qué revisó el humano |
 | P6 | Preparar el repositorio público: README, licencia, citas de datos, sin logos de NASA | M | — | Licencia decidida; ningún dato con licencia no confirmada |
 | P7 | Verificar que todos los integrantes están registrados en el mismo evento local | M | — | Lista confirmada antes del envío |
-| P8 | Envío completo con margen y verificación de enlaces | M | P3, P4, P5, P6 | Enviado antes del domingo 23:59; enlaces probados |
+| P8 | Envío completo con margen y verificación de enlaces | M | P3, P4, P5, P6, P9 | Enviado antes del domingo 23:59; enlaces probados |
+| P9 | **Marca de agua visible** en las imágenes generadas con IA (las ocho ilustraciones del pulso y cualquier diapositiva que las use), según D-023 | M | — | Cada imagen con IA muestra una marca visible que lo indica; sin marca de NASA |
 
 ## Carril Q · Integración
 
@@ -86,3 +87,14 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 **Ruta crítica:** A1 → A2 → A3 → A7 → Q1 → P2 → P3 → P8. Si A1 falla, se activa la salida a TypeScript y se replanifica el carril A.
 
 **Paralelismo seguro (archivos disjuntos):** `core/` (C), `astronaut/` (A), `ground/` (G) y `docs/`/`pitch/` (P) no comparten archivos; lo único compartido es el contrato, que solo cambia con una decisión registrada.
+
+## Orden de fusión de las ramas (2026-11-14)
+
+Ninguna rama se fusionó aún a `develop`. Están apiladas; se fusionan en este orden, con PR pequeños:
+
+1. `core/contract-types` (C1) → `core/pulse-reference` (C2) y `core/baseline-engine` (C3) → `core/status-resolution` (C4) → `core/scenario` (C5) → `core/device-source` (C6).
+2. `app/shell` (acceso por código, D-020) → `app/pulse-mission` (A5, D-021) → `app/mood-faces` (A6, parte de la encuesta, D-022).
+3. Independientes: `docs/gitattributes`, `docs/audio-log` (D-019) y `app/offline-spike` (A1).
+4. `docs/submission-pack` reúne la documentación de todas las anteriores; al fusionar el resto, puede haber conflictos simples en `tareas.md`, `decisiones.md` y `uso-de-ia.md`.
+
+**Lo que sigue (propuesta):** C8 (exportación FHIR, validada con el validador de HL7), A3 y A4 (figura corporal y tarjetas), A2 (SQLite), G1 a G3 (base en Tierra), A10 (escalamiento) y P9 (marca de agua).

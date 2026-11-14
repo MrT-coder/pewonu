@@ -3,6 +3,8 @@
 Prototype for the NASA Space Apps Challenge 2026, "Create Health Monitoring Software for Astronauts on Space Missions".
 
 > **Status: work in progress (hackathon, 14-15 Nov 2026).** This is a prototype built with simulated, analog data. It does **not** diagnose, predict disease, or replace medical care. Nothing here has been validated for use in space.
+>
+> **Built so far:** data contract, personal baseline engine, labeled population reference, status and reasons in English and Spanish, simulated Earth-spacecraft-Mars scenario, device port, and the astronaut app shell (sign-in by code, guided manual-pulse mission, five-face mood check). **Not built yet:** body figure and cards, local database, voice log, FHIR export and the ground base. See [docs/tareas.md](docs/tareas.md).
 
 ## The idea
 
@@ -10,7 +12,7 @@ An astronaut compares themselves with **their own baseline**, not with a populat
 
 - **Three spaces:** Earth, spacecraft, planet (Mars in the demo). The baseline is kept per space.
 - **Two systems:** the astronaut app (runs on board, works offline) and the ground base (receives what the astronaut chose to share, as FHIR).
-- **Private by default:** nothing leaves the astronaut without their confirmation. Conversations with the AI assistant are not sent to the ground; only numeric acoustic measures are, and only if the astronaut decides.
+- **Private by default:** nothing leaves the astronaut without their confirmation. There is no conversational AI and no emotion is inferred from the voice. The planned voice log discards the audio and keeps only numeric acoustic measures, shared only if the astronaut decides.
 - **Bilingual:** English and Spanish.
 
 ## Repository layout
@@ -47,11 +49,19 @@ Rules for people and AI agents: [AGENTS.md](AGENTS.md). Tasks: [docs/tareas.md](
 
 - All crew data in the demo is **fictional and simulated**, and is labeled as such in the app.
 - NASA and partner-agency sources used for guidance are cited in the app and listed in the project page. Research notes with verification labels are in `research/`.
-- Population reference for resting heart rate: NCHS National Health Statistics Reports No. 41 (NHANES 1999-2008). *To be completed with the exact tables.*
+- Population reference for resting heart rate: NCHS National Health Statistics Reports No. 41 (NHANES 1999-2008), six adult rows, labeled in the app. Details: [docs/pulso-referencia.md](docs/pulso-referencia.md).
+- Manual pulse technique: [MedlinePlus (NIH)](https://medlineplus.gov/ency/article/003399.htm).
+- Heart-rate export follows the [HL7 FHIR R4 Heart Rate profile](https://hl7.org/fhir/R4/heartrate.html), checked with the official HL7 validator.
 
 ## Use of AI
 
-AI tools were used during development. The log is in [docs/uso-de-ia.md](docs/uso-de-ia.md) and is summarized on the project page.
+AI ("Super Intelligence") tools were used in this project, and we say where:
+
+- **Code, tests and documentation:** written and reviewed with Claude Code (Anthropic). A person reviews and understands everything that is committed.
+- **Research notes:** collected with NotebookLM (Google).
+- **Images:** the pulse-guide illustrations in `src/crew_self_check/astronaut/assets/pulse/` were generated with Gemini and edited with Meta AI, by Kevin Toalombo. They are AI-generated and contain no NASA branding.
+
+The full log is in [docs/uso-de-ia.md](docs/uso-de-ia.md) and is summarized on the project page. Text for the NASA form and the slides: [docs/submission-pack.md](docs/submission-pack.md).
 
 ## License
 

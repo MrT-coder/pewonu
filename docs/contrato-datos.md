@@ -108,3 +108,24 @@ Versión: `0.3` (propuesta, 2026-11-14: espacios `environment`, `method`, refere
 ```
 
 - Lista qué equipos hay a bordo y qué indicadores habilitan (D-016). El perfil `iss-analog` está rotulado como análogo. [HUECO] La lista real de equipos se verifica con fuente antes de completarla.
+
+## 7. Exportación a FHIR R4 (D-010, D-018, D-021, D-022)
+
+Lo que viaja a la base en Tierra va como un **FHIR R4 Bundle**, y solo si el astronauta confirma el envío (D-006). Esta sección **no cambia los objetos 1 a 6**: la versión del contrato sigue en `0.3`. El exportador (tarea C8) aún no está escrito; lo de abajo es el mapeo acordado y lo ya verificado.
+
+**Pulso en reposo** (`Measurement` con `indicator: resting_hr`) → `Observation`. [VERIFICADO 2026-11-14, perfil Heart Rate de HL7 R4: https://hl7.org/fhir/R4/heartrate.html]
+
+| Campo de la `Observation` | Valor |
+|---|---|
+| `meta.profile` | `http://hl7.org/fhir/StructureDefinition/heartrate` |
+| `status` | `final` |
+| `category` | `vital-signs` (`http://terminology.hl7.org/CodeSystem/observation-category`) |
+| `code` | LOINC `8867-4` "Heart rate" (`http://loinc.org`) |
+| `subject` | referencia seudónima ficticia, por ejemplo `Patient/crew-01` |
+| `effectiveDateTime` | `timestamp` del `Measurement` |
+| `valueQuantity` | `value` en `beats/minute`, sistema `http://unitsofmeasure.org`, código UCUM `/min` |
+| `method` | código **local** `palpation` en `urn:crew-self-check:observation-method` (el perfil deja `method` libre; no se inventa un código SNOMED) |
+
+Otros indicadores, estados, líneas base, medidas acústicas y el `Bundle`: `Observation` con **códigos locales documentados** (D-010, D-015, D-018). [HUECO] ningún perfil FHIR verificado para ellos; se define en C8. [HUECO] definir un `CodeSystem` para los códigos locales y agregar `performer`.
+
+**Validación:** el validador oficial de HL7 (D-022), en local y con `-tx n/a`. Un ejemplo de pulso dio **0 errores** (4 advertencias); con la unidad `bpm` en vez de `/min` dio 1 error, así que detecta fallos reales.
