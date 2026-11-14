@@ -40,6 +40,7 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 | A11 | Pantalla fija de emergencia en la nave (¿respira?, ¿responde?, escalar y seguir el procedimiento oficial) | S | A2 | Sin pasos clínicos propios (D-016) |
 | A12 | Racha de adherencia: premia medir con regularidad, nunca "estar sano" | S | A5 | La racha depende de mediciones hechas, no de su valor |
 | A13 | Voz como entrada y salida (dictar datos, leer guías) | S | A2 | Un dato dictado produce el mismo `Measurement` que el manual |
+| A15 | Resumen por astronauta ("KPIs humanos", D-020): estados por sistema, chequeo de hoy, constancia, qué tan lista está la línea base aquí, qué requiere atención y las últimas lecturas | M | A3, C4 | Todo sale del estado ya calculado, sin umbrales nuevos; la constancia mide con qué frecuencia se mide, nunca cómo está la persona. **Hecho 2026-11-14** en `astronaut/summary_model.py` y `ui/summary.py`, rama `app/summary` |
 
 ## Carril G · Base en Tierra (`ground`)
 
