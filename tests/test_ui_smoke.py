@@ -9,7 +9,7 @@ ft = pytest.importorskip("flet")
 from crew_self_check.astronaut.access import simulated_directory  # noqa: E402
 from crew_self_check.astronaut.i18n import translate  # noqa: E402
 from crew_self_check.astronaut.state import AppState, Section  # noqa: E402
-from crew_self_check.astronaut.ui.common import Actions  # noqa: E402
+from crew_self_check.astronaut.ui.common import Actions, glossary_dialog  # noqa: E402
 from crew_self_check.astronaut.ui.login import build_login  # noqa: E402
 from crew_self_check.astronaut.ui.shell import build_shell  # noqa: E402
 from crew_self_check.core.reasons import Language  # noqa: E402
@@ -47,6 +47,7 @@ class Recorder:
             go=lambda section: self._log(f"go:{section.value}"),
             logout=lambda: self._log("logout"),
             show_limits=lambda: self._log("limits"),
+            show_glossary=lambda: self._log("glossary"),
             refresh=lambda: self._log("refresh"),
             rerender=lambda: self._log("rerender"),
         )
@@ -229,3 +230,27 @@ def test_after_saving_a_face_the_hub_says_which_one() -> None:
     texts = collect_texts(build_shell(state, Recorder().actions()))
     label = translate("mood.level.4", Language.ES)
     assert translate("mood.last", Language.ES, label=label) in texts
+
+
+# --- the glossary -------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_glossary_dialog_lists_every_term_with_its_meaning(language: Language) -> None:
+    from crew_self_check.astronaut.i18n import GLOSSARY
+
+    texts = collect_texts(glossary_dialog(language, lambda: None))
+    assert translate("nav.glossary", language) in texts
+    for entry in GLOSSARY:
+        term, definition = entry[language]
+        assert term in texts
+        assert definition in texts
+    assert translate("glossary.close", language) in texts
+
+
+def test_the_language_switch_shows_names_not_acronyms() -> None:
+    texts = collect_texts(build_login(state_in(Language.EN, logged_in=False), Recorder().actions()))
+    assert "English" in texts
+    assert "Español" in texts
+    assert "EN" not in texts
+    assert "ES" not in texts

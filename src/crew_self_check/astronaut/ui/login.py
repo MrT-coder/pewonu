@@ -28,6 +28,7 @@ def build_login(state: AppState, actions: Actions) -> ft.Control:
         autofocus=True,
         capitalization=ft.TextCapitalization.CHARACTERS,
         max_length=8,
+        helper=say("login.code_help"),
         width=340,
         border_radius=12,
         prefix_icon=ft.Icons.BADGE_OUTLINED,
@@ -100,6 +101,11 @@ def build_login(state: AppState, actions: Actions) -> ft.Control:
                         tight=True,
                         spacing=10,
                         controls=[
+                            ft.IconButton(
+                                icon=ft.Icons.MENU_BOOK_OUTLINED,
+                                tooltip=say("nav.glossary"),
+                                on_click=lambda _: actions.show_glossary(),
+                            ),
                             ft.IconButton(
                                 icon=ft.Icons.INFO_OUTLINE,
                                 tooltip=say("nav.limits"),

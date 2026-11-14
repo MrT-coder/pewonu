@@ -8,7 +8,7 @@ from dataclasses import dataclass
 import flet as ft
 
 from crew_self_check.astronaut import theme
-from crew_self_check.astronaut.i18n import translate
+from crew_self_check.astronaut.i18n import GLOSSARY, translate
 from crew_self_check.astronaut.state import AppState, Section
 from crew_self_check.core.reasons import Language
 
@@ -22,6 +22,7 @@ class Actions:
     go: Callable[[Section], None]
     logout: Callable[[], None]
     show_limits: Callable[[], None]
+    show_glossary: Callable[[], None]
     refresh: Callable[[], None]  # push control changes to the screen
     rerender: Callable[[], None]  # rebuild the whole view from the state
 
@@ -59,8 +60,8 @@ def language_switch(state: AppState, actions: Actions) -> ft.SegmentedButton:
         selected=[state.language.value],
         allow_empty_selection=False,
         segments=[
-            ft.Segment(value=Language.EN.value, label=ft.Text("EN")),
-            ft.Segment(value=Language.ES.value, label=ft.Text("ES")),
+            ft.Segment(value=Language.EN.value, label=ft.Text("English")),
+            ft.Segment(value=Language.ES.value, label=ft.Text("Español")),
         ],
         on_change=changed,
     )
@@ -73,5 +74,28 @@ def limits_dialog(language: Language, close: Callable[[], None]) -> ft.AlertDial
         content=ft.Container(width=460, content=ft.Text(translate("limits.body", language))),
         actions=[
             ft.TextButton(content=translate("limits.close", language), on_click=lambda _: close())
+        ],
+    )
+
+
+def glossary_dialog(language: Language, close: Callable[[], None]) -> ft.AlertDialog:
+    """Every acronym the app shows, spelled out. Reachable from every screen (D-024)."""
+    rows: list[ft.Control] = []
+    for entry in GLOSSARY:
+        term, meaning = entry[language]
+        rows.append(
+            ft.Column(
+                spacing=2,
+                controls=[
+                    ft.Text(term, size=15, weight=ft.FontWeight.BOLD, color=theme.ACCENT),
+                    ft.Text(meaning, size=13, color=theme.TEXT),
+                ],
+            )
+        )
+    return ft.AlertDialog(
+        title=ft.Text(translate("nav.glossary", language)),
+        content=ft.Container(width=460, content=ft.Column(spacing=12, tight=True, controls=rows)),
+        actions=[
+            ft.TextButton(content=translate("glossary.close", language), on_click=lambda _: close())
         ],
     )
