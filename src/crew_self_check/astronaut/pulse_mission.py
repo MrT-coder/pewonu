@@ -1,8 +1,9 @@
-"""The manual pulse as a guided mission (D-014, D-021). Pure logic: times are passed in explicitly.
+"""The manual pulse as a guided mission (D-014, D-021). Pure logic.
 
 Technique (MedlinePlus, https://medlineplus.gov/ency/article/003399.htm): rest first, index and
 middle fingers on the inside of the wrist, light pressure, then count for a full minute or for 30
-seconds and double it. The app counts the taps and calculates the beats per minute.
+seconds and double it. The astronaut counts with the fingers on the wrist and **enters** how many
+beats they counted; the app calculates the beats per minute. There is nothing to tap while counting.
 
 The game rewards the technique and the regularity of measuring, **never the value**: the points and
 the badge are the same for any pulse (AGENTS.md, section 6; A12). The plausibility limits below are
@@ -22,7 +23,7 @@ MIN_PLAUSIBLE_BPM = 20
 MAX_PLAUSIBLE_BPM = 250
 
 STEP_POINTS = 10  # for each of the three confirmed steps
-ATTEMPT_POINTS = 10  # for finishing a count, whatever it gave
+ATTEMPT_POINTS = 10  # for entering a count, whatever it gave
 MEASUREMENT_BONUS = 20  # for a count that gives a usable measurement
 
 
@@ -35,12 +36,13 @@ class Station(StrEnum):
 
 
 _STEPS = (Station.REST, Station.LOCATE, Station.PRESSURE)
+_ORDER = (*_STEPS, Station.COUNT, Station.RESULT)
 
 
 @dataclass(frozen=True, slots=True)
 class PulseResult:
-    taps: int
-    interval: int
+    beats: int  # what the astronaut counted
+    interval: int  # seconds they counted for
     bpm: int
     valid: bool  # inside the plausibility limits; if not, the app asks for a recount
 
@@ -50,9 +52,7 @@ class PulseMission:
         self._check_interval(interval)
         self.interval = interval
         self.station = Station.REST
-        self.taps = 0
         self.result: PulseResult | None = None
-        self._started_at: float | None = None
         self._attempted = False
 
     @staticmethod
@@ -62,8 +62,8 @@ class PulseMission:
 
     def set_interval(self, interval: int) -> None:
         self._check_interval(interval)
-        if self._started_at is not None or self.station is Station.RESULT:
-            raise RuntimeError("the interval can only change before counting")
+        if self.station is Station.RESULT:
+            raise RuntimeError("the interval can only change before the count is entered")
         self.interval = interval
 
     # --- the three steps -------------------------------------------------------------------
@@ -72,52 +72,21 @@ class PulseMission:
         """Confirm the current step (rest, locate, pressure) and move to the next station."""
         if self.station not in _STEPS:
             raise RuntimeError("the steps are done: use the count station")
-        self.station = Station(
-            {
-                Station.REST: Station.LOCATE,
-                Station.LOCATE: Station.PRESSURE,
-                Station.PRESSURE: Station.COUNT,
-            }[self.station]
-        )
+        self.station = _ORDER[_ORDER.index(self.station) + 1]
 
     # --- the count -------------------------------------------------------------------------
 
-    def start_count(self, now: float) -> None:
+    def submit_count(self, beats: int) -> PulseResult:
+        """Enter how many beats were counted in ``interval`` seconds and calculate the bpm."""
+        if self.station is Station.RESULT:
+            raise RuntimeError("the count was already entered: retry to count again")
         if self.station is not Station.COUNT:
-            raise RuntimeError("confirm the steps before counting")
-        if self._started_at is not None:
-            raise RuntimeError("already counting")
-        self._started_at = now
-        self.taps = 0
-
-    @property
-    def counting(self) -> bool:
-        """True while the count is running (started and not finished)."""
-        return self._started_at is not None and self.result is None
-
-    def remaining(self, now: float) -> float:
-        if self._started_at is None:
-            return float(self.interval)
-        return max(0.0, self._started_at + self.interval - now)
-
-    def tap(self, now: float) -> bool:
-        """Count one beat if the window is open; returns whether it was counted."""
-        if (
-            self._started_at is None
-            or not self._started_at <= now <= self._started_at + self.interval
-        ):
-            return False
-        self.taps += 1
-        return True
-
-    def finish(self, now: float) -> PulseResult:
-        if self._started_at is None:
-            raise RuntimeError("the count has not started")
-        if now < self._started_at + self.interval:
-            raise RuntimeError("the time is not up yet")
-        bpm = round(self.taps * 60 / self.interval)
+            raise RuntimeError("confirm the steps before entering the count")
+        if isinstance(beats, bool) or not isinstance(beats, int) or beats < 0:
+            raise ValueError(f"beats must be a whole number of 0 or more, got {beats!r}")
+        bpm = round(beats * 60 / self.interval)
         self.result = PulseResult(
-            taps=self.taps,
+            beats=beats,
             interval=self.interval,
             bpm=bpm,
             valid=MIN_PLAUSIBLE_BPM <= bpm <= MAX_PLAUSIBLE_BPM,
@@ -131,25 +100,19 @@ class PulseMission:
         if self.result is None or self.result.valid:
             raise RuntimeError("a retry only makes sense after an implausible result")
         self.result = None
-        self.taps = 0
-        self._started_at = None
         self.station = Station.COUNT
 
     # --- the game: technique, never the value ----------------------------------------------
 
     @property
     def points(self) -> int:
-        done = sum(1 for step in _STEPS if self._reached(step))
-        total = done * STEP_POINTS
+        reached = _ORDER.index(self.station)
+        total = sum(STEP_POINTS for index in range(len(_STEPS)) if reached > index)
         if self._attempted:
             total += ATTEMPT_POINTS
         if self.result is not None and self.result.valid:
             total += MEASUREMENT_BONUS
         return total
-
-    def _reached(self, step: Station) -> bool:
-        order = [*_STEPS, Station.COUNT, Station.RESULT]
-        return order.index(self.station) > order.index(step)
 
     @property
     def earned_badge(self) -> bool:

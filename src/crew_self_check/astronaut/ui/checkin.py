@@ -18,7 +18,8 @@ from crew_self_check.astronaut.ui.common import Actions, card
 Say = Callable[..., str]
 
 _STATIONS = (Station.REST, Station.LOCATE, Station.PRESSURE, Station.COUNT)
-_TICK_SECONDS = 0.2
+_TICK_SECONDS = 0.25
+_MAX_DOTS = 150  # an implausible count must not draw thousands of hearts
 
 
 def _station_number(station: Station) -> int:
@@ -315,107 +316,78 @@ def _station_action(
 
 
 def _count_area(state: AppState, mission: PulseMission, actions: Actions, say: Say) -> ft.Control:
-    area = ft.Container()
+    """Count with the fingers on the wrist, then type the number. Nothing to tap while counting."""
+    timer_text = ft.Text("", size=14, color=theme.MUTED)
+    timer_running = False
+
+    def calculate(_: object) -> None:
+        typed = (field.value or "").strip()
+        if not (typed.isascii() and typed.isdigit()):
+            field.error = say("pulse.beats_error")
+            actions.refresh()
+            return
+        mission.submit_count(int(typed))
+        actions.rerender()
+
+    field = ft.TextField(
+        label=say("pulse.beats_label", seconds=mission.interval),
+        keyboard_type=ft.KeyboardType.NUMBER,
+        max_length=3,
+        width=320,
+        border_radius=12,
+        on_submit=calculate,
+    )
 
     def choose(event: ft.Event[ft.SegmentedButton]) -> None:
         mission.set_interval(int(next(iter(event.control.selected))))
         actions.rerender()
 
-    def show_setup() -> None:
-        area.content = ft.Column(
-            spacing=14,
-            controls=[
-                ft.Text(say("pulse.interval"), size=13, color=theme.MUTED),
-                ft.SegmentedButton(
-                    selected=[str(mission.interval)],
-                    allow_empty_selection=False,
-                    segments=[
-                        ft.Segment(
-                            value=str(seconds), label=ft.Text(say(f"pulse.interval_{seconds}"))
-                        )
-                        for seconds in INTERVALS
-                    ],
-                    on_change=choose,
-                ),
-                ft.FilledButton(
-                    content=say("pulse.begin_count"),
-                    icon=ft.Icons.TIMER_OUTLINED,
-                    height=46,
-                    on_click=begin,
-                ),
-            ],
-        )
-
-    async def begin(_: object) -> None:
-        mission.start_count(time.monotonic())
-        ring = ft.ProgressRing(
-            value=0,
-            width=84,
-            height=84,
-            stroke_width=8,
-            color=theme.ACCENT,
-            bgcolor=theme.CARD_BORDER,
-        )
-        left_text = ft.Text("", size=13, color=theme.MUTED)
-        taps_text = ft.Text(say("pulse.beats", n=0), size=18, weight=ft.FontWeight.BOLD)
-
-        def tap(_: object) -> None:
-            if mission.tap(time.monotonic()):
-                taps_text.value = say("pulse.beats", n=mission.taps)
-                actions.refresh()
-
-        area.content = ft.Column(
-            spacing=14,
-            horizontal_alignment=ft.CrossAxisAlignment.START,
-            controls=[
-                ft.Row(
-                    spacing=16,
-                    controls=[ring, ft.Column(spacing=2, controls=[taps_text, left_text])],
-                ),
-                ft.Container(
-                    width=200,
-                    height=200,
-                    border_radius=100,
-                    ink=True,
-                    on_click=tap,
-                    gradient=ft.LinearGradient(
-                        begin=ft.Alignment.TOP_CENTER,
-                        end=ft.Alignment.BOTTOM_CENTER,
-                        colors=[theme.ACCENT, "#0b6a8f"],
-                    ),
-                    alignment=ft.Alignment.CENTER,
-                    content=ft.Column(
-                        tight=True,
-                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                        spacing=6,
-                        controls=[
-                            ft.Icon(ft.Icons.FAVORITE, size=44, color="#04070d"),
-                            ft.Text(
-                                say("pulse.tap"),
-                                size=14,
-                                weight=ft.FontWeight.W_600,
-                                color="#04070d",
-                            ),
-                        ],
-                    ),
-                ),
-            ],
-        )
-        actions.refresh()
-        while state.pulse is mission and mission.counting:
-            left = mission.remaining(time.monotonic())
-            ring.value = 1 - left / mission.interval
-            left_text.value = say("pulse.seconds_left", s=int(left) + (1 if left % 1 else 0))
-            actions.refresh()
+    async def run_timer(_: object) -> None:
+        # Optional helper: a countdown to watch while the fingers stay on the wrist.
+        nonlocal timer_running
+        if timer_running:
+            return
+        timer_running = True
+        end = time.monotonic() + mission.interval
+        while state.pulse is mission and mission.station is Station.COUNT:
+            left = end - time.monotonic()
             if left <= 0:
+                timer_text.value = say("pulse.timer_done")
+                actions.refresh()
                 break
+            timer_text.value = say("pulse.seconds_left", s=int(left) + 1)
+            actions.refresh()
             await asyncio.sleep(_TICK_SECONDS)
-        if state.pulse is mission and mission.counting:
-            mission.finish(time.monotonic())
-            actions.rerender()
+        timer_running = False
 
-    show_setup()
-    return area
+    return ft.Column(
+        spacing=14,
+        controls=[
+            ft.Text(say("pulse.interval"), size=13, color=theme.MUTED),
+            ft.SegmentedButton(
+                selected=[str(mission.interval)],
+                allow_empty_selection=False,
+                segments=[
+                    ft.Segment(value=str(seconds), label=ft.Text(say(f"pulse.interval_{seconds}")))
+                    for seconds in INTERVALS
+                ],
+                on_change=choose,
+            ),
+            ft.OutlinedButton(
+                content=say("pulse.timer_start", seconds=mission.interval),
+                icon=ft.Icons.TIMER_OUTLINED,
+                on_click=run_timer,
+            ),
+            timer_text,
+            field,
+            ft.FilledButton(
+                content=say("pulse.calculate"),
+                icon=ft.Icons.CALCULATE,
+                height=46,
+                on_click=calculate,
+            ),
+        ],
+    )
 
 
 # --- the result -----------------------------------------------------------------------------------
@@ -424,14 +396,15 @@ def _count_area(state: AppState, mission: PulseMission, actions: Actions, say: S
 def _result(state: AppState, mission: PulseMission, actions: Actions, say: Say) -> ft.Control:
     result = mission.result
     assert result is not None
-    formula = say(f"pulse.formula_{result.interval}", taps=result.taps, bpm=result.bpm)
+    formula = say(f"pulse.formula_{result.interval}", beats=result.beats, bpm=result.bpm)
     dots = ft.Container(
         width=480,
         content=ft.Row(
             wrap=True,
             spacing=4,
             run_spacing=4,
-            controls=[ft.Icon(ft.Icons.FAVORITE, size=14, color=theme.ACCENT)] * result.taps,
+            controls=[ft.Icon(ft.Icons.FAVORITE, size=14, color=theme.ACCENT)]
+            * min(result.beats, _MAX_DOTS),
         ),
     )
     summary: list[ft.Control] = [
