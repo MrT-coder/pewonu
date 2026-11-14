@@ -1,0 +1,105 @@
+# Registro de decisiones
+
+Una entrada por decisión, la más reciente al final. Formato: ID, fecha, estado (`propuesta` / `aceptada` / `reemplazada`), decisión y motivo. Los agentes deben respetar las decisiones `aceptada` y no reabrirlas sin que un humano lo pida.
+
+## D-001 · 2026-10-28 · propuesta
+**Decisión:** el usuario principal es el astronauta que se autoevalúa; el CMO y el flight surgeon son el destino del escalamiento.
+**Motivo:** el objetivo literal del enunciado oficial es una herramienta que ayude a los astronautas a evaluar su propia salud ([research/08](../research/08-enunciado-oficial.md)).
+
+## D-002 · 2026-10-28 · propuesta
+**Decisión:** la idea base es [idea-base.md](idea-base.md): figura corporal con color relativo a la línea base personal, estado gris por datos insuficientes, tarjeta con orientación y escalamiento con conciencia del retraso.
+**Motivo:** reanálisis de los conceptos de research/04 frente al enunciado; la propuesta combina lo que se pide (D) con el diferenciador (A + B).
+
+## D-003 · 2026-10-28 · en espera hasta el 13 nov
+**Estado:** el equipo decide el stack y la persistencia cuando lleguen los datasets oficiales. Criterios para decidir ese día:
+1. **Formato y tamaño de los datos** (CSV/JSON pequeños, imágenes, archivos grandes): ¿se pueden cargar en el navegador o hay que preprocesarlos?
+2. **Persistencia**: ¿basta con datos precargados y todo en memoria para la demo, o el usuario debe guardar mediciones entre sesiones (almacenamiento local o backend)?
+3. **Procesamiento**: ¿alcanza con estadística simple o hacen falta librerías de análisis (lo que favorece Python)?
+4. **Hosting de la demo**: tiene que ser un enlace público que no pida registro.
+
+**Lo que no depende del stack:** el [contrato de datos](contrato-datos.md) y la idea base; se puede seguir trabajando en ellos.
+
+**Propuesta inicial (por evaluar):**
+**Decisión:** web app en TypeScript; el motor de línea base corre en el navegador (estadística simple); Python solo en notebooks de preparación de datos que exportan JSON.
+**Motivo:** con un solo lenguaje en la ruta de la demo, las 3 personas pueden leerse el código. Correr en el navegador permite la entrada manual en vivo y el modo offline. Alternativa: Streamlit, más rápido si el equipo es más fuerte en Python, pero con menos control de la interfaz.
+
+## D-004 · 2026-10-28 · propuesta
+**Decisión:** `AGENTS.md` es la única fuente de reglas para cualquier agente; `CLAUDE.md`, `.gemini/settings.json` y `.github/copilot-instructions.md` solo apuntan a él.
+**Motivo:** cada persona puede usar un agente distinto sin que las reglas diverjan.
+
+## D-005 · 2026-10-28 · aceptada
+**Decisión:** los tres somos todólogos, sin roles por especialidad. El trabajo se reparte por tarea (un issue, una persona) y cada área tiene un dueño que coordina y revisa.
+**Motivo:** pedido del equipo. Tener dueños de área evita que tres agentes editen los mismos archivos a la vez.
+**Efecto en D-003:** sin un perfil Python dedicado, conviene aún más un solo lenguaje (TypeScript) en todo el proyecto.
+
+## D-006 · 2026-10-28 · propuesta
+**Decisión:** los datos son privados por defecto. El astronauta decide qué comparte con el CMO o con Tierra, y el escalamiento sugiere en lugar de notificar automáticamente.
+**Motivo:** el subreporte de síntomas por miedo a la descalificación está documentado (*Safe Passage*, IOM 2001), y IOM 2014 exige proteger la privacidad. Ver [research/09](../research/09-humanos-en-el-espacio.md), sección 4.
+
+## D-007 · 2026-10-28 · propuesta
+**Decisión:** el escenario de la demo es la llegada a Marte (días R+0 a R+3) con automediciones ortostáticas y vestibulares.
+**Motivo:** NASA lo señala como la ventana de mayor riesgo sensoriomotor y existe un análogo real (la Expedición 6). Ver [research/09](../research/09-humanos-en-el-espacio.md), sección 3.
+
+## D-008 · 2026-11-06 · propuesta
+**Decisión:** la herramienta es *offline-first* y se entrega como PWA instalable. Todo (motor de línea base, tarjetas, contenido educativo) corre y guarda de forma local sin red. El envío a Tierra se modela como un paquete listo para enviar; el transporte diferido (DTN) ya lo resuelven las naves y no lo construimos.
+**Motivo:** las naves usan sistemas heterogéneos (Debian en la ISS, iPad certificados, Surface con Windows en Artemis II) y el retraso a Marte es de ~3-22 min con cortes de enlace. Ver [research/10](../research/10-plataforma-offline-y-dispositivos.md), secciones 1, 2 y 6.
+**Efecto en D-003:** orienta el criterio 2 (persistencia local) sin cerrar el stack, que sigue en espera hasta el 13 nov. Riesgo abierto [HUECO]: soporte de service workers y Web Bluetooth en el navegador de a bordo.
+**Alcance (MoSCoW, ajustado 2026-11-06):** la capa PWA (instalable y con modo avión) es **Should**: cuesta poco y protege la demo. Lo **Must** es que todo corra sin backend (D-012).
+
+## D-009 · 2026-11-06 · propuesta
+**Decisión:** las tarjetas incluyen un modo didáctico con mini-guías de técnicas básicas de autoevaluación (por ejemplo, prueba de pie, toma de pulso, hidratación), siempre como educación con cita de NASA HRP u otra fuente pública. Sin diagnóstico, sin dosis y sin pasos clínicos que no estén en una fuente verificada.
+**Motivo:** el usuario no es médico y el CMO tiene ~25 h de entrenamiento. Es una ampliación de la tarjeta del sistema, pendiente de que el equipo la confirme como Should. Ver [idea-base.md](idea-base.md), sección 4b.
+**Condición:** no hay procedimiento oficial verificado para síncope; hasta tenerlo, el escenario solo muestra FC en vivo, preguntas de estado y escalamiento ([research/10](../research/10-plataforma-offline-y-dispositivos.md), sección 5).
+
+## D-010 · 2026-11-06 · propuesta
+**Decisión:** el almacenamiento local es IndexedDB usado como registro de eventos de solo anexado. Cada evento lleva un UUID generado en el cliente, que sirve de id idempotente para un envío posterior por lotes. Al exportar se genera un FHIR R4 Bundle JSON o NDJSON, con códigos LOINC y unidades UCUM para los signos vitales y códigos locales documentados para estados, líneas base y escalamientos. Se llama a `navigator.storage.persist()` en el primer guardado. No se usa SQLite WASM.
+**Motivo:** ningún estándar de intercambio verificado exige SQL. SQLite WASM añade una dependencia (AGENTS.md exige decisión registrada) y riesgos verificados (worker obligatorio, sin varias pestañas por defecto, borrado del almacenamiento si falla la inicialización). NASA no publica un esquema fijo: LSAH negocia el formato en cada solicitud. Ver [research/10](../research/10-plataforma-offline-y-dispositivos.md), sección 7.
+**Límites:** no hay evidencia de que NASA use FHIR. En el pitch se dice "compatible con FHIR y transportable como carga útil de DTN", nunca "NASA usa FHIR". Los patrones local-first no se verificaron con fuente. Se reevalúa si aparece una necesidad real de consultas relacionales complejas.
+**Relación con D-003:** orienta el criterio 2 (persistencia) sin cerrar el stack, que sigue en espera hasta el 13 nov.
+**Alcance (MoSCoW, ajustado 2026-11-06):** el guardado local simple en IndexedDB con UUID es **Must**. La **exportación a FHIR es Could**: suma al pitch, pero la demo funciona sin ella.
+
+## D-011 · 2026-11-06 · propuesta
+**Decisión:** la entrada de datos pasa por una capa `DeviceSource` con interfaz común (`start()`, `stop()`, flujo de lecturas `{tipo, valor, unidad, t, fuente}` y `capabilities()`) e implementaciones intercambiables: emulador desde dataset, importación de archivo, puente local por WebSocket, Bluetooth en vivo y cable serie. Se detecta la capacidad del equipo y se degrada a la siguiente fuente. La PWA se sirve desde `localhost` cuando se necesita Bluetooth o serie.
+**Motivo:** el reto puede exigir hardware real o solo datos emulados, y no lo sabremos hasta el 13 nov. Web Bluetooth y Web Serial no existen en Safari ni en iPad, y exigen contexto seguro. Ver [research/10](../research/10-plataforma-offline-y-dispositivos.md), sección 8.
+**Alcance (MoSCoW, ajustado 2026-11-06):** la interfaz `DeviceSource`, el **emulador desde dataset y la importación de archivo son Must**. **Bluetooth en vivo, cable serie y puente WebSocket son Could**, porque el GO Team aceptó datos simulados ([#1787](https://github.com/nasa/spaceapps/discussions/1787)). Suben de nivel si el 13 nov aparece un requisito de hardware.
+**Límites:** [HUECO] Web Bluetooth en Linux y `getDevices()` por defecto se prueban en un Debian real el 14 nov o después. Los datos emulados se rotulan como simulados o análogos (AGENTS.md, sección 5). Cualquier campo nuevo del modelo de lectura se propone en [contrato-datos.md](contrato-datos.md) antes de usarlo.
+
+## D-012 · 2026-11-06 · propuesta
+**Decisión:** la interfaz se construye como una SPA con Vue 3, Vite y TypeScript, sin backend. Todo el motor corre en el navegador y el modo offline se añade con `vite-plugin-pwa`. El único servidor es un hosting estático para el enlace público de la demo. Si los datasets del 13 nov son pesados, Python los preprocesa antes en notebooks que exportan JSON pequeños (como ya prevé D-003).
+**Motivo:** el GO Team confirmó en [#1787](https://github.com/nasa/spaceapps/discussions/1787) que los datos simulados o una API simulada son aceptables y que no esperan una solución terminada, por lo que no hace falta backend. Sin renderizado en servidor se evita el riesgo de que algo falle sin red. Nuxt no aporta ventajas propias a lo visual, que depende de la librería de estilos, la figura corporal en SVG y los gráficos. El módulo `@vite-pwa/nuxt` y `vite-plugin-pwa` comparten motor, así que cambiar a Nuxt en modo SPA sigue siendo posible si el equipo ya lo domina.
+**Límites:** es una inclinación, no un cierre. Depende de D-003, que se decide el 13 nov con los datasets oficiales y la experiencia real del equipo con Vue o React ([HUECO] sin confirmar). Las piezas visuales concretas (Tailwind, librería de gráficos) no se han evaluado; cualquier dependencia nueva requiere una decisión registrada (AGENTS.md, sección 4). Los resúmenes del hilo de GitHub provienen de un lector automático de páginas: verificar el texto exacto antes de citarlo en el pitch.
+
+## D-013 · 2026-11-14 · propuesta
+**Decisión:** el sistema soporta tres espacios (`environment`): `earth`, `spacecraft` y `planet` (Marte como ejemplo; la Luna y el rover son variantes de `planet`, sin lógica propia). La línea base es por persona, indicador y espacio, y arranca en `insufficient_data` en cada espacio nuevo. Durante los primeros días en un espacio nuevo, el estado se compara con la línea base del espacio anterior y se rotula `reference: transition`; cuando la línea base propia madura, esa referencia deja de usarse. El historial clínico de la Tierra es la fuente de la línea base inicial. La demo simula un viaje Tierra → nave → Marte con una tripulación ficticia, y el modo normal (entrada manual) comparte el mismo motor.
+**Motivo:** la gravedad y el entorno cambian algunos indicadores. Hay evidencia clara para el sueño (~6 h en la ISS frente a ~8,5 h programadas, Barger 2014) y para el pulso al aterrizar (más alto que en pre-vuelo, sobre todo de pie). Sustituye en lo que se oponga al modo de entorno de [idea-base.md](idea-base.md), sección 4b, y conserva D-007 como escena del tramo final.
+**Límites:** para el pulso en reposo en la ISS la evidencia encontrada indica poco cambio frente a pre-vuelo (resúmenes de J Appl Physiol 2012 y de un Holter con 7 astronautas); para Marte (0,38 g) es [HUECO] en humanos y solo hay análogos en tierra con muestras pequeñas. Las referencias salen de resúmenes de búsqueda: abrir los artículos antes de citarlos en el pitch.
+**Contexto citable:** el CSA lista los riesgos de las misiones a la Luna y a Marte: más tiempo en ingravidez, más radiación, aislamiento más largo y lejano, más retraso de comunicaciones y menos apoyo de la Tierra en comida, materiales y atención médica de emergencia, y señala que los efectos en astronautas se parecen al envejecimiento acelerado y al sedentarismo (https://www.asc-csa.gc.ca/eng/iss/science/why-do-we-conduct-science-experiments-in-space.asp, leída el 2026-11-14). Es una página divulgativa: sirve como cita de contexto, no como fuente de umbrales ni de equipos.
+
+## D-014 · 2026-11-14 · propuesta
+**Decisión:** el pulso en reposo se ingresa a mano como un solo dato (bpm); el astronauta cuenta pulsaciones en un intervalo corto y la app calcula los bpm con un gráfico explicativo (`method: palpation`). El estado del pulso es **mixto**: mientras la línea base personal no tenga datos suficientes, el estado sale de una tabla poblacional por edad y sexo (NCHS, *National Health Statistics Reports* nº 41, Ostchega et al. 2011, NHANES 1999-2008) y se rotula `reference: population`; cuando la línea base personal madura, esa pasa a mandar. Los mismos umbrales valen en los tres espacios, con una tabla de ajustes por entorno que empieza vacía. Se agregan edad y sexo al perfil de la tripulación ficticia.
+**Motivo:** pedido del equipo. Sustituye la tabla de un sitio de entrenamiento físico, que no es una fuente clínica, por una fuente citable.
+**Límites:** [HUECO] los valores exactos hay que copiarlos del PDF del CDC (https://www.cdc.gov/nchs/data/nhsr/nhsr041.pdf), que no se leyó. NHANES da percentiles de la población, no categorías: hay que definir y documentar qué percentil marca cada color. Es una excepción acotada a "los estados salen de la línea base personal" (AGENTS.md, sección 5): sigue sin haber umbrales clínicos inventados, y la referencia poblacional se rotula siempre. Marte es [HUECO]; se rotula "análogo, sin datos humanos".
+
+## D-015 · 2026-11-14 · propuesta
+**Decisión:** el ánimo se captura con una burbuja: primero una encuesta clásica de "cómo te sientes" (el dato que cuenta para el estado, determinista) y después una conversación opcional por voz con un LLM. La conversación no se envía a la base y la app no la guarda; en el prototipo el proveedor del LLM puede conservarla y eso se aclara en el pitch. Del audio se guardan solo medidas acústicas numéricas (por ejemplo tono, jitter, shimmer y velocidad del habla), sin etiquetas de emoción, junto con el dato de la encuesta. Esas medidas son experimentales, no mueven el color ni las alertas y se exportan por FHIR (códigos locales) únicamente si el astronauta decide enviarlas (D-006).
+**Motivo:** pedido del equipo, para ejemplificar la privacidad por diseño: viaja el análisis, no lo conversado. La emoción por voz no está validada (el único respaldo hallado es un resumen de congreso de SIRIUS, [VERIFICADO con reservas]).
+**Límites:** el LLM no entra en la ruta crítica de alertas ni interpreta el estado (AGENTS.md, sección 5). Un LLM en la nube choca con el enfoque offline (D-008, D-012): para el prototipo se acepta como excepción documentada. La voz como entrada y salida (dictar datos, leer guías) y el análisis acústico son **Should/Could**; el ánimo por burbuja y encuesta es **Must**. Cualquier dependencia nueva requiere su decisión (AGENTS.md, sección 4).
+
+## D-016 · 2026-11-14 · propuesta
+**Decisión:** (a) un **perfil de nave** (`SpacecraftProfile`) como configuración: lista los equipos de medición y ejercicio de una nave real usada como modelo (la ISS, rotulada como análogo, porque no existe una nave a Marte) y qué indicadores y ejercicios habilita; otras naves quedan como opción futura. (b) La interfaz va completa en **español e inglés**, con el inglés como fuente. (c) La reanimación se resuelve como una pantalla fija de emergencia en la nave (¿respira?, ¿responde?, escalar al CMO y a Tierra y seguir el procedimiento oficial de la misión), sin pasos clínicos propios (D-009). El caso con traje (EVA) queda como Could.
+**Motivo:** pedido del equipo. Un perfil configurable evita codificar equipos a mano. `AGENTS.md`, sección 3, fija la interfaz en inglés, y el español es una ampliación que se registra aquí.
+**Límites:** [HUECO] los equipos concretos de la ISS (glucosa, calcio, huesos) se verifican con fuente antes de incluirlos; ya hay evidencia de Astroskin, BEAT, manguito y termómetro ([research/10](../research/10-plataforma-offline-y-dispositivos.md)). Los ejercicios salen de NASA HRP u otra fuente pública, con cita, sin recetar. El contenido de orientación con citas va primero en inglés y luego en español. Huesos y radiación solo como datos simulados rotulados (**Could**), porque sin imagen o dosímetro la app no los mide.
+
+**Efecto en alcance (MoSCoW, ajustado 2026-11-14):** **Must:** los tres espacios con línea base y referencia de transición, pulso manual, ánimo por burbuja y encuesta, perfil de nave, figura corporal y tarjetas, escenario simulado de punta a punta, interfaz en ambos idiomas. **Should:** voz como entrada y salida, exportación FHIR (sube de Could en D-010) y pantalla de emergencia. **Could:** análisis acústico, ejercicios por equipo, radiación y huesos simulados, caso con traje.
+
+## D-017 · 2026-11-14 · propuesta
+**Decisión:** el proyecto se construye en Python, en el repositorio `crew-self-check`, como **dos sistemas** y un núcleo compartido: (1) `astronaut/`, la app del astronauta, con Flet 1.x (versión fijada) en modo dinámico, con el servidor corriendo en la misma máquina (el "computador de a bordo") y SQLite local; (2) `ground/`, el sistema de la base, con FastAPI y SQLite, que recibe FHIR R4 Bundles; (3) `core/`, con el contrato de datos, el motor de línea base y el mapeo a FHIR. El código se organiza en capas (puertos y adaptadores): `DeviceSource` (D-011) y la exportación FHIR son adaptadores del núcleo. Herramientas de desarrollo: `pytest` (el test primero, AGENTS.md sección 8), `ruff`, `mypy` y `pre-commit`.
+**Sustituye** a D-012 (SPA con Vue sin backend) y a la parte de almacenamiento de D-010 (IndexedDB de solo anexado se cambia por SQLite local); D-010 conserva el UUID idempotente, la exportación FHIR y sus límites de pitch. D-008 se mantiene en su intención (offline-first): ahora funciona sin red porque el servidor corre a bordo, y la capa PWA con service worker deja de aplicar. Cierra D-003 (stack).
+**Motivo:** pedido del equipo, que ya trabaja en Python. Un spike del 2026-11-14 (Flet 1.1.2, servidor web real, manejado con Playwright) comprobó que una figura con zonas clicables envía cada clic al servidor Python y que el cambio de idioma español/inglés actualiza los textos, con ~70 líneas de código. El sistema de la base en FastAPI y SQLite es la opción natural para recibir FHIR.
+**Límites:** el spike solo probó clics sobre formas simples y el cambio de idioma. [HUECO] sin verificar: modo offline real con `--no-cdn` y sin internet, la figura con arte SVG y zonas encima, el micrófono (`AudioRecorder`) y SQLite dentro de la app. La primera tarea de desarrollo debe cerrar el modo offline. La API de Flet 1.x difiere de la de ejemplos antiguos (por ejemplo `on_select` en lugar de `on_change`): fijar la versión. [HUECO] el reto pide un enlace público a la demo y un servidor dinámico necesita hosting; no se leyó aún la guía de envío del 13 nov. Si Flet falla en el offline o en la figura, la salida es TypeScript en el sistema del astronauta. Dependencias nuevas fuera de las nombradas aquí requieren su decisión (AGENTS.md, sección 4).
+
+## D-018 · 2026-11-14 · propuesta
+**Decisión:** el sistema de la base (`ground/`) lo usa el flight surgeon en Tierra. Muestra, por tripulante, **solo lo que el astronauta decidió enviar** (D-006): los Bundles FHIR recibidos, el estado por sistema del último envío, la tendencia de lo enviado y el resumen del escalamiento. Entre el envío y la recepción se aplica un **retraso de comunicación simulado y configurable** (el rango de ~3 a 22 min de `research/`). La base no recibe datos crudos ni conversaciones, no puede pedir datos al astronauta y no diagnostica. La interfaz va en español e inglés (D-016).
+**Motivo:** pedido del equipo: son dos sistemas, el del astronauta y el que ve la base con los datos en FHIR. Sirve para mostrar la privacidad por diseño y el retraso de comunicación sin cambiar el contrato interno, porque FHIR es la costura entre ambos sistemas.
+**Alcance (MoSCoW):** **Must:** receptor de Bundles FHIR, vista de estado por tripulante y retraso simulado. **Should:** vista de tendencias de lo recibido. **Could:** mensaje de respuesta de la base al astronauta.
+**Límites:** [SUPOSICION] el envío es un POST HTTP de un Bundle al servicio de `ground/`; el transporte real sería DTN (D-008) y no se construye. [HUECO] no hay un perfil FHIR verificado para estados, líneas base ni medidas acústicas: se usan `Observation` con códigos locales, como ya dicen D-010 y D-015. Los datos son de una tripulación ficticia y se rotulan como simulados.

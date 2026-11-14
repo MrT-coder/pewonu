@@ -1,0 +1,26 @@
+# Raw datasets stay local (see AGENTS.md section 7)
+data/
+
+# Secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# Local app state (SQLite databases created at runtime)
+*.db
+*.sqlite3
+
+# Tooling
+.ipynb_checkpoints/
+.DS_Store
+.playwright-cli/
