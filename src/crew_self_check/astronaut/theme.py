@@ -10,3 +10,11 @@ ACCENT = "#38bdf8"  # sky
 ACCENT_SOFT = "#0c2a3f"
 GOOD = "#34d399"  # emerald
 GOLD = "#fbbf24"  # badges
+
+# The four states of the contract (and "nothing measured"). Color is never the only cue: every
+# state also has a text label.
+STATUS_OK = "#34d399"
+STATUS_WATCH = "#fbbf24"
+STATUS_ACT = "#fb7185"
+STATUS_GRAY = "#64748b"
+STATUS_NONE = "#334155"
