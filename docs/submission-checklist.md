@@ -14,7 +14,7 @@ Textos listos para pegar en el formulario y esquema de las diapositivas: [submis
 ## Campos del formulario
 
 - [ ] **Nombre del proyecto.** El formulario muestra "Project PeWoNu"; el producto se llama Crew Self-Check. [HUECO] decidir cuál va. [VERIFICADO, formulario]
-- [ ] **Resumen** de 50 a 200 palabras sugeridas, máximo 1500 caracteres. Borrador de 188 palabras y 1113 caracteres en el pack. [VERIFICADO, formulario]
+- [ ] **Resumen** de 50 a 200 palabras sugeridas, máximo 1500 caracteres. Borrador de 188 palabras y 1115 caracteres en el pack. [VERIFICADO, formulario]
 - [ ] **Demostración:** presentación de **máximo 7 diapositivas, contando título e introducción**, o video de **30 segundos o menos**, en una plataforma pública (YouTube, Drive, GitHub, OneDrive, Dropbox). El enlace es la URL completa y no pide contraseña, permiso ni registro. Para optar a un premio global, el demo debe ser accesible por ese enlace y respetar el límite. [VERIFICADO, formulario]
 - [ ] **Proyecto:** enlace público (sitio, hosting o repositorio) sin contraseña, permiso ni registro. El repositorio aún es local. [VERIFICADO, formulario; HUECO publicar]
 - [ ] **Detalles del proyecto:** qué hace y cómo funciona, beneficios, impacto buscado, herramientas, creatividad y factores considerados. Borrador en el pack. [VERIFICADO, formulario]

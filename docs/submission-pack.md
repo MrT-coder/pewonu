@@ -43,18 +43,19 @@ Submission window closes **Sunday 15 November, 23:59, local event time**. Only t
 | Mood check with five faces | `[BUILT]` | A6 (survey part) |
 | Works without internet | `[BUILT]` (spike A1) | A1 |
 | Body figure whose zones are colored by each system's state, with a card per system (what is measured, what it was compared with, a trend over its band, a suggestion and a NASA source) | `[BUILT]` | A3, A4 |
-| One-page summary per astronaut ("human KPIs") | `[PENDING]` | part 4 of D-020 |
+| One-page summary per astronaut ("human KPIs"): how many systems are in range, today's check-in, regularity of measuring, how ready the personal baseline is here, what needs attention, and the latest readings | `[BUILT]` | A15 |
 | Local database (SQLite) | `[PENDING]` | A2 |
 | Voice log (audio discarded, numeric acoustic measures kept) | `[PENDING]` | A6 (audio part) |
 | Standardized export to FHIR R4, refused without the astronaut's confirmation; checked with the official HL7 validator (0 errors) | `[BUILT]` | C8 |
-| Sending that export to the ground and receiving it there | `[PENDING]` | A10, G1 |
+| The astronaut chooses what to share, confirms, and the app packs it as a FHIR Bundle; delivery after a simulated delay to a **local simulated inbox** (a package from the app: zero errors in the official HL7 validator) | `[BUILT]` | A10 |
+| A ground-base system that really receives the package | `[PENDING]` | G1 to G3 |
 | Ground base that receives FHIR with a simulated delay | `[PENDING]` | G1 to G3 |
-| Escalation the astronaut confirms before anything is sent | `[PENDING]` | A10 |
+| A suggestion of who could be told (crew medical officer or the ground), never sent by itself | `[BUILT]` | A4, A10 |
 | Journey control: move the simulated mission day by day from Earth to the planet and watch the states change | `[BUILT]` (no automatic playback) | A7 |
 | Routine reminders | `[PENDING]` | A8 |
 | ISS-analog spacecraft profile, emergency screen, adherence streak | `[PENDING]` | C7, A11, A12 |
 
-Engineering facts you can quote `[BUILT]`: 491 automated tests; strict type checking; contract of six objects; two simulated crew members over a 28-day trip (14 days on Earth, 10 in the spacecraft, 4 on arrival at Mars); engine defaults are 5 days of history, 3 sustained readings and a 2.5 robust-deviation band.
+Engineering facts you can quote `[BUILT]`: 535 automated tests; strict type checking; contract of six objects; two simulated crew members over a 28-day trip (14 days on Earth, 10 in the spacecraft, 4 on arrival at Mars); engine defaults are 5 days of history, 3 sustained readings and a 2.5 robust-deviation band.
 
 ---
 
@@ -67,12 +68,12 @@ Engineering facts you can quote `[BUILT]`: 491 automated tests; strict type chec
 
 Safe version, only claims what is built (about 188 words):
 
-> Crew Self-Check is a health self-assessment prototype for astronauts on long missions, built with simulated, analog data. Instead of comparing an astronaut with an average person, it compares them with **their own baseline**, kept separately for Earth, the spacecraft and a planet's surface. When it does not have enough data it says so (gray) instead of guessing. Each body system is shown on a figure and colored against that baseline, with a card that explains why. The astronaut signs in with a personal code, answers a five-face mood check and takes a manually counted pulse through a guided, gamified "pulse mission" that teaches the wrist technique step by step; the game rewards good technique, never the value of the pulse. The rules that decide a status are deterministic and explained in plain English and Spanish: no AI model is in the alert path, and nothing is diagnosed. The design is private by default: data stays on the crew computer and only what the astronaut chooses to share is meant to travel to the ground team, standardized as HL7 FHIR R4. The app runs locally and works without internet.
+> Crew Self-Check is a health self-assessment prototype for astronauts on long missions, built with simulated, analog data. Instead of comparing an astronaut with an average person, it compares them with **their own baseline**, kept separately for Earth, the spacecraft and a planet's surface. When it does not have enough data it says so (gray) instead of guessing. Each body system is shown on a figure and colored against that baseline, with a card that explains why. The astronaut signs in with a personal code, answers a five-face mood check and takes a manually counted pulse through a guided, gamified "pulse mission" that teaches the wrist technique step by step; the game rewards good technique, never the value of the pulse. The rules that decide a status are deterministic and explained in plain English and Spanish: no AI model is in the alert path, and nothing is diagnosed. The design is private by default: data stays on the crew computer and only what the astronaut chooses and confirms is packed for the ground team, as a standard HL7 FHIR R4 package. The app runs locally and works without internet.
 
 Add this sentence only if it is true at submission time:
 
 > `[BUILT]` Each body system is shown on a body figure and colored against the astronaut's own baseline, with a card that explains why. (Already included in the safe version above.)
-> `[PENDING A10, G1 to G3]` What the astronaut confirms is sent to a ground-base system as an HL7 FHIR Bundle, after a simulated communication delay. (The Bundle itself is built and validated; sending and receiving it are not.)
+> `[BUILT]` What the astronaut confirms is packed as an HL7 FHIR Bundle and "sent" after a simulated communication delay. `[PENDING G1 to G3]` Do not say it reaches a ground-base system: that system is not built, and today the package lands in a local simulated inbox.
 
 ### Project Details (long field)
 
@@ -82,7 +83,7 @@ Add this sentence only if it is true at submission time:
 >
 > **The astronaut experience.** The astronaut signs in with a personal code. A five-face check records how they feel. The resting pulse is taken by hand, because that is what is possible without equipment: a four-station "pulse mission" (rest, find the artery, press lightly, count) with illustrations, an optional timer, a field to enter the beats you counted and a simple explanatory graph, followed by points and a badge for **technique and regularity, never for the value of the pulse**. Everything is bilingual and a "Limits" screen is available from every screen.
 >
-> **Privacy and the ground base.** Data is private by default and stays on the crew computer. Nothing is meant to leave without the astronaut's confirmation. What is shared is standardized as HL7 FHIR R4 (a heart-rate `Observation` with LOINC 8867-4 and unit `/min`) so a ground team can read it. The exporter is built: it refuses to produce anything unless the astronaut confirmed, and a Bundle with every indicator and every state passes the official HL7 FHIR validator with zero errors. `[PENDING A10, G1 to G3]` The send button and the ground base that receives the Bundle are not finished.
+> **Privacy and the ground base.** Data is private by default and stays on the crew computer. Nothing is meant to leave without the astronaut's confirmation. What is shared is standardized as HL7 FHIR R4 (a heart-rate `Observation` with LOINC 8867-4 and unit `/min`) so a ground team can read it. The exporter is built: it refuses to produce anything unless the astronaut confirmed, and a Bundle with every indicator and every state passes the official HL7 FHIR validator with zero errors. The astronaut chooses what to share, confirms, and the app packs it and simulates the delay. `[PENDING G1 to G3]` The ground base that receives the Bundle is not built: the package lands in a local simulated inbox.
 >
 > **Benefits and intended impact.** Fewer false alarms and less false reassurance (gray instead of a guess), advice that fits each person and each environment, and a clear way to share only what the astronaut decides. It also works as a model for analog missions on Earth.
 >
@@ -190,13 +191,14 @@ Keep text short: judges read these without a presenter. Put the SI watermark on 
 - Engine: personal baseline (median and robust band), sustained deviation, labeled references.
 - Output: status per indicator and per system, with a plain reason in English and Spanish.
 - **Deterministic. No AI model in the alert path.**
-- Privacy: data stays on board; only what the astronaut confirms is shared, as HL7 FHIR R4 (exporter built and validated). `[PENDING A10, G1]` for sending and receiving.
+- Privacy: data stays on board; only what the astronaut confirms is shared, as HL7 FHIR R4 (exporter and send step built and validated). `[PENDING G1]` for a real receiver on the ground.
 - Visual: a left-to-right flow diagram.
 
 **Slide 5: Demo**
 - Sign in with a personal code. Switch English and Spanish.
 - The **pulse mission**: four stations, count with your fingers on the wrist and enter the beats, "34 beats x 2 = 68 bpm", points and a badge for technique only.
 - Mood check with five faces.
+- The **summary** and **sharing**: pick what to send, confirm, and see the FHIR package that was packed (simulated delivery).
 - The **body figure** on the simulated trip: move the journey bar from Earth to Mars and watch the zones change color. The four states (green, amber, red, gray) all appear, each with its reason and what it was compared with.
 - Visual: three or four screenshots (they exist for sign-in, pulse mission, mood and the body figure). Pulse illustrations need the SI watermark.
 

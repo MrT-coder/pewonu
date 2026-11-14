@@ -115,6 +115,8 @@ Lo que viaja a la base en Tierra va como un **FHIR R4 Bundle** de tipo `collecti
 
 **Qué contiene el Bundle:** un `Patient` ficticio (solo identificador y sexo: sin nombre ni fecha de nacimiento), una `Observation` por cada medición elegida y una `Observation` por cada estado elegido. Cada recurso lleva etiquetas con el origen del dato (`simulated-scenario`, `manual`, `derived-by-app`...) y el espacio donde se tomó. Los ids salen del contenido (UUID v5), así que reenviar lo mismo es idempotente. No incluye audio, transcripciones ni etiquetas de emoción.
 
+**Desde la app (A10):** el astronauta elige qué indicadores compartir; por cada uno viaja su última lectura del espacio actual y su estado. Nada está marcado de antemano, y el botón de enviar solo se habilita con una selección y una confirmación. Un paquete de la app con los 10 indicadores y los 10 estados del día dio **0 errores** en el validador de HL7. La base no existe aún: el paquete llega a una bandeja local simulada tras un retraso de 12 minutos de tiempo simulado ([SUPOSICION], dentro de los 3 a 22 minutos de D-018).
+
 **Puerta de consentimiento:** `ShareSelection` no se puede crear sin `confirmed=True` (si no, lanza `ConsentRequired`), solo admite datos de la persona que confirmó y no admite una selección vacía.
 
 **Indicadores con perfil de HL7** (código, unidad y categoría `vital-signs` verificados el 2026-11-14 en https://hl7.org/fhir/R4/heartrate.html, `bodytemp.html` y `oxygensat.html`):
