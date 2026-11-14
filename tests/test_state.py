@@ -100,10 +100,7 @@ def finish_a_pulse(state: AppState, taps: int = 35) -> None:
     assert state.pulse is not None
     for _ in range(3):
         state.pulse.complete_station()
-    state.pulse.start_count(0.0)
-    for i in range(taps):
-        state.pulse.tap(i * 0.8)
-    state.pulse.finish(30.0)
+    state.pulse.submit_count(taps)
 
 
 def test_a_pulse_mission_needs_a_session() -> None:

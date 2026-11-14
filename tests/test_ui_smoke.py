@@ -147,16 +147,31 @@ def test_the_count_station_offers_both_intervals(language: Language) -> None:
     texts = collect_texts(build_shell(state, Recorder().actions()))
     assert translate("pulse.interval_30", language) in texts
     assert translate("pulse.interval_60", language) in texts
-    assert translate("pulse.begin_count", language) in texts
     assert translate("pulse.count.body", language, seconds=30) in texts
 
 
-def finish(state: AppState, taps: int) -> None:
+@pytest.mark.parametrize("language", list(Language))
+def test_the_count_station_asks_for_the_beats_instead_of_a_tap_button(language: Language) -> None:
+    state = mission_state(language, 3)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("pulse.beats_label", language, seconds=30) in texts
+    assert translate("pulse.calculate", language) in texts
+    assert translate("pulse.timer_start", language, seconds=30) in texts  # optional helper
+    state.pulse.set_interval(60)  # type: ignore[union-attr]
+    again = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("pulse.beats_label", language, seconds=60) in again
+
+
+def test_there_is_no_tap_counting_left_in_the_texts() -> None:
+    from crew_self_check.astronaut.i18n import STRINGS
+
+    assert "pulse.tap" not in STRINGS
+    assert "pulse.begin_count" not in STRINGS
+
+
+def finish(state: AppState, beats: int) -> None:
     assert state.pulse is not None
-    state.pulse.start_count(0.0)
-    for i in range(taps):
-        state.pulse.tap(i * 0.5)
-    state.pulse.finish(30.0)
+    state.pulse.submit_count(beats)
 
 
 @pytest.mark.parametrize("language", list(Language))
@@ -167,7 +182,7 @@ def test_a_valid_result_shows_the_formula_the_badge_and_the_save_button(
     finish(state, 35)
     view = build_shell(state, Recorder().actions())
     texts = collect_texts(view)
-    assert translate("pulse.formula_30", language, taps=35, bpm=70) in texts
+    assert translate("pulse.formula_30", language, beats=35, bpm=70) in texts
     assert translate("pulse.badge", language) in texts
     assert translate("pulse.points_note", language) in texts
     assert translate("pulse.save", language) in texts
