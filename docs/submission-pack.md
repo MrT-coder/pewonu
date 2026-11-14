@@ -46,13 +46,14 @@ Submission window closes **Sunday 15 November, 23:59, local event time**. Only t
 | One-page summary per astronaut ("human KPIs") | `[PENDING]` | part 4 of D-020 |
 | Local database (SQLite) | `[PENDING]` | A2 |
 | Voice log (audio discarded, numeric acoustic measures kept) | `[PENDING]` | A6 (audio part) |
-| Standardized export to FHIR R4 | `[PENDING]` (mapping verified, exporter not written) | C8 |
+| Standardized export to FHIR R4, refused without the astronaut's confirmation; checked with the official HL7 validator (0 errors) | `[BUILT]` | C8 |
+| Sending that export to the ground and receiving it there | `[PENDING]` | A10, G1 |
 | Ground base that receives FHIR with a simulated delay | `[PENDING]` | G1 to G3 |
 | Escalation the astronaut confirms before anything is sent | `[PENDING]` | A10 |
 | Trip player and routine reminders | `[PENDING]` | A7, A8 |
 | ISS-analog spacecraft profile, emergency screen, adherence streak | `[PENDING]` | C7, A11, A12 |
 
-Engineering facts you can quote `[BUILT]`: 371 automated tests; strict type checking; contract of six objects; two simulated crew members over a 28-day trip (14 days on Earth, 10 in the spacecraft, 4 on arrival at Mars); engine defaults are 5 days of history, 3 sustained readings and a 2.5 robust-deviation band.
+Engineering facts you can quote `[BUILT]`: 428 automated tests; strict type checking; contract of six objects; two simulated crew members over a 28-day trip (14 days on Earth, 10 in the spacecraft, 4 on arrival at Mars); engine defaults are 5 days of history, 3 sustained readings and a 2.5 robust-deviation band.
 
 ---
 
@@ -70,7 +71,7 @@ Safe version, only claims what is built (about 170 words):
 Add this sentence only if it is true at submission time:
 
 > `[PENDING A3, A4]` Each body system is shown on a body figure and colored against the astronaut's own baseline, with a card that explains why.
-> `[PENDING C8, G1 to G3, A10]` What the astronaut confirms is sent to a ground-base system as an HL7 FHIR Bundle, after a simulated communication delay.
+> `[PENDING A10, G1 to G3]` What the astronaut confirms is sent to a ground-base system as an HL7 FHIR Bundle, after a simulated communication delay. (The Bundle itself is built and validated; sending and receiving it are not.)
 
 ### Project Details (long field)
 
@@ -80,7 +81,7 @@ Add this sentence only if it is true at submission time:
 >
 > **The astronaut experience.** The astronaut signs in with a personal code. A five-face check records how they feel. The resting pulse is taken by hand, because that is what is possible without equipment: a four-station "pulse mission" (rest, find the artery, press lightly, count) with illustrations, an optional timer, a field to enter the beats you counted and a simple explanatory graph, followed by points and a badge for **technique and regularity, never for the value of the pulse**. Everything is bilingual and a "Limits" screen is available from every screen.
 >
-> **Privacy and the ground base.** Data is private by default and stays on the crew computer. Nothing is meant to leave without the astronaut's confirmation. What is shared is standardized as HL7 FHIR R4 (a heart-rate `Observation` with LOINC 8867-4 and unit `/min`) so a ground team can read it. We checked the mapping against the official HL7 profile and validator. `[PENDING C8, G1 to G3]` The exporter and the ground base are not finished.
+> **Privacy and the ground base.** Data is private by default and stays on the crew computer. Nothing is meant to leave without the astronaut's confirmation. What is shared is standardized as HL7 FHIR R4 (a heart-rate `Observation` with LOINC 8867-4 and unit `/min`) so a ground team can read it. The exporter is built: it refuses to produce anything unless the astronaut confirmed, and a Bundle with every indicator and every state passes the official HL7 FHIR validator with zero errors. `[PENDING A10, G1 to G3]` The send button and the ground base that receives the Bundle are not finished.
 >
 > **Benefits and intended impact.** Fewer false alarms and less false reassurance (gray instead of a guess), advice that fits each person and each environment, and a clear way to share only what the astronaut decides. It also works as a model for analog missions on Earth.
 >
@@ -188,7 +189,7 @@ Keep text short: judges read these without a presenter. Put the SI watermark on 
 - Engine: personal baseline (median and robust band), sustained deviation, labeled references.
 - Output: status per indicator and per system, with a plain reason in English and Spanish.
 - **Deterministic. No AI model in the alert path.**
-- Privacy: data stays on board; only what the astronaut confirms is shared, as HL7 FHIR R4. `[PENDING C8]` for the exporter.
+- Privacy: data stays on board; only what the astronaut confirms is shared, as HL7 FHIR R4 (exporter built and validated). `[PENDING A10, G1]` for sending and receiving.
 - Visual: a left-to-right flow diagram.
 
 **Slide 5: Demo**

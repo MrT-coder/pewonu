@@ -111,21 +111,24 @@ Versión: `0.3` (propuesta, 2026-11-14: espacios `environment`, `method`, refere
 
 ## 7. Exportación a FHIR R4 (D-010, D-018, D-021, D-022)
 
-Lo que viaja a la base en Tierra va como un **FHIR R4 Bundle**, y solo si el astronauta confirma el envío (D-006). Esta sección **no cambia los objetos 1 a 6**: la versión del contrato sigue en `0.3`. El exportador (tarea C8) aún no está escrito; lo de abajo es el mapeo acordado y lo ya verificado.
+Lo que viaja a la base en Tierra va como un **FHIR R4 Bundle** de tipo `collection`, y solo con lo que el astronauta confirmó (D-006). Esta sección **no cambia los objetos 1 a 6**: la versión del contrato sigue en `0.3`. El exportador está en `src/crew_self_check/core/fhir.py` (tarea C8).
 
-**Pulso en reposo** (`Measurement` con `indicator: resting_hr`) → `Observation`. [VERIFICADO 2026-11-14, perfil Heart Rate de HL7 R4: https://hl7.org/fhir/R4/heartrate.html]
+**Qué contiene el Bundle:** un `Patient` ficticio (solo identificador y sexo: sin nombre ni fecha de nacimiento), una `Observation` por cada medición elegida y una `Observation` por cada estado elegido. Cada recurso lleva etiquetas con el origen del dato (`simulated-scenario`, `manual`, `derived-by-app`...) y el espacio donde se tomó. Los ids salen del contenido (UUID v5), así que reenviar lo mismo es idempotente. No incluye audio, transcripciones ni etiquetas de emoción.
 
-| Campo de la `Observation` | Valor |
-|---|---|
-| `meta.profile` | `http://hl7.org/fhir/StructureDefinition/heartrate` |
-| `status` | `final` |
-| `category` | `vital-signs` (`http://terminology.hl7.org/CodeSystem/observation-category`) |
-| `code` | LOINC `8867-4` "Heart rate" (`http://loinc.org`) |
-| `subject` | referencia seudónima ficticia, por ejemplo `Patient/crew-01` |
-| `effectiveDateTime` | `timestamp` del `Measurement` |
-| `valueQuantity` | `value` en `beats/minute`, sistema `http://unitsofmeasure.org`, código UCUM `/min` |
-| `method` | código **local** `palpation` en `urn:crew-self-check:observation-method` (el perfil deja `method` libre; no se inventa un código SNOMED) |
+**Puerta de consentimiento:** `ShareSelection` no se puede crear sin `confirmed=True` (si no, lanza `ConsentRequired`), solo admite datos de la persona que confirmó y no admite una selección vacía.
 
-Otros indicadores, estados, líneas base, medidas acústicas y el `Bundle`: `Observation` con **códigos locales documentados** (D-010, D-015, D-018). [HUECO] ningún perfil FHIR verificado para ellos; se define en C8. [HUECO] definir un `CodeSystem` para los códigos locales y agregar `performer`.
+**Indicadores con perfil de HL7** (código, unidad y categoría `vital-signs` verificados el 2026-11-14 en https://hl7.org/fhir/R4/heartrate.html, `bodytemp.html` y `oxygensat.html`):
 
-**Validación:** el validador oficial de HL7 (D-022), en local y con `-tx n/a`. Un ejemplo de pulso dio **0 errores** (4 advertencias); con la unidad `bpm` en vez de `/min` dio 1 error, así que detecta fallos reales.
+| Indicador | Perfil | LOINC | UCUM |
+|---|---|---|---|
+| `resting_hr` | `heartrate` | `8867-4` Heart rate | `/min` |
+| `body_temp` | `bodytemp` | `8310-5` Body temperature | `Cel` |
+| `spo2` | `oxygensat` | `2708-6` Oxygen saturation in Arterial blood | `%` |
+
+En el pulso, `method` lleva el código **local** `palpation` (`urn:crew-self-check:observation-method`): el perfil deja `method` libre y no se inventa un código SNOMED.
+
+**Resto de indicadores:** código **local** `urn:crew-self-check:indicator`, sin perfil. Unidades UCUM: presión `mm[Hg]`, glucosa `mg/dL`, sueño `h`, delta ortostático `/min`. Los puntajes (`mood`, `vestibular_symptoms`) van como `valueInteger`, sin unidad: HL7 avisa que una anotación como `{score}` "puede ser engañosa". `tandem_walk_ok` va como `valueBoolean`. [HUECO] LOINC de presión arterial (exige un panel con componentes), glucosa y sueño: sin verificar.
+
+**Estados:** una `Observation` con categoría local `derived-status`, código `indicator-status`, el estado como `valueCodeableConcept` (`ok`, `watch`, `act`, `insufficient_data`), la razón en `note` y componentes con el indicador, la referencia (`personal`, `transition`, `population`), la sugerencia de escalamiento y, si es una transición, la línea base del espacio anterior.
+
+**Validación:** revisión propia de la estructura (`check_bundle`) y el validador oficial de HL7 (D-022), en local y con `-tx n/a`. Un Bundle de 16 entradas, con los 11 indicadores y los 4 estados, da **0 errores**. Quedan 94 advertencias esperadas: los códigos locales no tienen `CodeSystem` publicado, falta `performer` y narrativa (recomendaciones) y la terminología está apagada. [HUECO] publicar un `CodeSystem` para los códigos locales; añadir `performer`; incluir las líneas base y las medidas acústicas (D-015) cuando se envíen.
