@@ -11,7 +11,7 @@ from crew_self_check.core.reasons import Language
 _EN, _ES = Language.EN, Language.ES
 
 # Keys that are the same in both languages on purpose (names and examples).
-SAME_IN_BOTH = frozenset({"app.name", "login.code_hint"})
+SAME_IN_BOTH = frozenset({"app.name", "login.code_hint", "value.no"})
 
 STRINGS: dict[str, dict[Language, str]] = {
     "app.name": {_EN: "Crew Self-Check", _ES: "Crew Self-Check"},
@@ -199,6 +199,313 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "Illustrations generated with artificial intelligence (AI).",
         _ES: "Ilustraciones generadas con inteligencia artificial (IA).",
     },
+    "journey.title": {
+        _EN: "Mission journey",
+        _ES: "Viaje de la misión",
+    },
+    "journey.day": {
+        _EN: "Day {label} · {place}",
+        _ES: "Día {label} · {place}",
+    },
+    "journey.previous": {
+        _EN: "Previous day",
+        _ES: "Día anterior",
+    },
+    "journey.next": {
+        _EN: "Next day",
+        _ES: "Día siguiente",
+    },
+    "journey.note": {
+        _EN: "Simulated time: each step moves the demo one day. E-n = days before "
+        "leaving, T+n = days in transit, R+n = days since arrival.",
+        _ES: "Tiempo simulado: cada paso avanza la demo un día. E-n = días antes de "
+        "partir, T+n = días en tránsito, R+n = días desde la llegada.",
+    },
+    "env.earth": {
+        _EN: "Earth",
+        _ES: "Tierra",
+    },
+    "env.spacecraft": {
+        _EN: "Spacecraft",
+        _ES: "Nave",
+    },
+    "env.planet": {
+        _EN: "Planet surface (Mars in the demo)",
+        _ES: "Superficie del planeta (Marte en la demo)",
+    },
+    "env.earth.short": {
+        _EN: "Earth",
+        _ES: "Tierra",
+    },
+    "env.spacecraft.short": {
+        _EN: "spacecraft",
+        _ES: "nave",
+    },
+    "env.planet.short": {
+        _EN: "planet",
+        _ES: "planeta",
+    },
+    "system.cardiovascular": {
+        _EN: "Heart and circulation",
+        _ES: "Corazón y circulación",
+    },
+    "system.vestibular": {
+        _EN: "Balance (inner ear)",
+        _ES: "Equilibrio (oído interno)",
+    },
+    "system.sleep_brain": {
+        _EN: "Sleep and brain",
+        _ES: "Sueño y cerebro",
+    },
+    "system.mood": {
+        _EN: "Mood",
+        _ES: "Ánimo",
+    },
+    "system.immune": {
+        _EN: "Immune system (body temperature)",
+        _ES: "Sistema inmune (temperatura corporal)",
+    },
+    "system.bone_muscle": {
+        _EN: "Bones and muscles",
+        _ES: "Huesos y músculos",
+    },
+    "system.cardiovascular.what": {
+        _EN: "Resting pulse, blood pressure, the pulse change when you stand up and "
+        "oxygen saturation.",
+        _ES: "Pulso en reposo, presión arterial, el cambio del pulso al ponerte de "
+        "pie y la saturación de oxígeno.",
+    },
+    "system.cardiovascular.why": {
+        _EN: "Gravity and a closed environment can change how the heart and blood "
+        "vessels behave. NASA tracks cardiovascular adaptations as a "
+        "spaceflight risk.",
+        _ES: "La gravedad y un ambiente cerrado pueden cambiar cómo se comportan el "
+        "corazón y los vasos sanguíneos. La NASA sigue las adaptaciones "
+        "cardiovasculares como un riesgo del vuelo espacial.",
+    },
+    "system.vestibular.what": {
+        _EN: "Balance and dizziness: your symptoms and the walk-in-a-line test.",
+        _ES: "Equilibrio y mareo: tus síntomas y la prueba de caminar en línea.",
+    },
+    "system.vestibular.why": {
+        _EN: "Moving between gravity levels can disturb the sense of balance. NASA "
+        "tracks sensorimotor and vestibular function as a spaceflight risk.",
+        _ES: "Pasar de un nivel de gravedad a otro puede alterar el sentido del "
+        "equilibrio. La NASA sigue la función sensoriomotora y vestibular como "
+        "un riesgo del vuelo espacial.",
+    },
+    "system.sleep_brain.what": {
+        _EN: "Hours of sleep.",
+        _ES: "Horas de sueño.",
+    },
+    "system.sleep_brain.why": {
+        _EN: "Light, schedules and isolation can change how you sleep. NASA tracks "
+        "inadequate sleep and irregular schedules as a spaceflight risk.",
+        _ES: "La luz, los horarios y el aislamiento pueden cambiar cómo duermes. La "
+        "NASA sigue el sueño inadecuado y los horarios irregulares como un "
+        "riesgo del vuelo espacial.",
+    },
+    "system.mood.what": {
+        _EN: "How you feel, from the five faces.",
+        _ES: "Cómo te sientes, según las cinco caritas.",
+    },
+    "system.mood.why": {
+        _EN: "Isolation and confinement can weigh on mood. NASA tracks behavioral "
+        "changes as a spaceflight risk.",
+        _ES: "El aislamiento y el confinamiento pueden pesar en el ánimo. La NASA "
+        "sigue los cambios conductuales como un riesgo del vuelo espacial.",
+    },
+    "system.immune.what": {
+        _EN: "Body temperature.",
+        _ES: "Temperatura corporal.",
+    },
+    "system.immune.why": {
+        _EN: "Closed environments can affect immune responses. NASA tracks altered "
+        "immune responses as a spaceflight risk.",
+        _ES: "Los ambientes cerrados pueden afectar las respuestas inmunes. La NASA "
+        "sigue las respuestas inmunes alteradas como un riesgo del vuelo "
+        "espacial.",
+    },
+    "system.bone_muscle.what": {
+        _EN: "Nothing is measured for this yet.",
+        _ES: "Todavía no se mide nada para esto.",
+    },
+    "system.bone_muscle.why": {
+        _EN: "Long stays without gravity can change bones and muscles. NASA tracks "
+        "bone changes and reduced fitness as spaceflight risks.",
+        _ES: "Las estadías largas sin gravedad pueden cambiar huesos y músculos. La "
+        "NASA sigue los cambios óseos y la menor aptitud física como riesgos "
+        "del vuelo espacial.",
+    },
+    "status.ok": {
+        _EN: "Within the range it is compared with",
+        _ES: "Dentro del rango con el que se compara",
+    },
+    "status.watch": {
+        _EN: "Outside the range it is compared with",
+        _ES: "Fuera del rango con el que se compara",
+    },
+    "status.act": {
+        _EN: "Far outside the range it is compared with",
+        _ES: "Muy fuera del rango con el que se compara",
+    },
+    "status.insufficient_data": {
+        _EN: "Not enough data yet",
+        _ES: "Aún no hay datos suficientes",
+    },
+    "status.nothing": {
+        _EN: "Nothing measured for this yet",
+        _ES: "Todavía no se mide nada para esto",
+    },
+    "body.hint": {
+        _EN: "Tap a zone to see what it shows and why.",
+        _ES: "Toca una zona para ver qué muestra y por qué.",
+    },
+    "body.legend": {
+        _EN: "What the colors mean",
+        _ES: "Qué significan los colores",
+    },
+    "body.colors_note": {
+        _EN: "A color is a comparison, not a diagnosis.",
+        _ES: "Un color es una comparación, no un diagnóstico.",
+    },
+    "card.compared": {
+        _EN: "Compared with: {what}",
+        _ES: "Comparado con: {what}",
+    },
+    "reference.personal": {
+        _EN: "your own baseline in this space",
+        _ES: "tu propia línea base en este espacio",
+    },
+    "reference.transition": {
+        _EN: "your previous baseline ({previous}); your own here is still building",
+        _ES: "tu línea base anterior ({previous}); la propia aquí aún se construye",
+    },
+    "reference.population": {
+        _EN: "a population reference for your age and sex, not your own baseline",
+        _ES: "una referencia de población para tu edad y sexo, no tu propia línea base",
+    },
+    "card.indicators": {
+        _EN: "What is measured",
+        _ES: "Qué se mide",
+    },
+    "card.latest": {
+        _EN: "Latest: {value}",
+        _ES: "Último: {value}",
+    },
+    "card.no_reading": {
+        _EN: "No reading yet",
+        _ES: "Sin lecturas todavía",
+    },
+    "card.trend": {
+        _EN: "Latest readings and the range they are compared with",
+        _ES: "Últimas lecturas y el rango con el que se comparan",
+    },
+    "card.trend_empty": {
+        _EN: "Not enough readings to draw a trend yet.",
+        _ES: "Todavía no hay lecturas suficientes para dibujar una tendencia.",
+    },
+    "card.suggestion": {
+        _EN: "Suggestion",
+        _ES: "Sugerencia",
+    },
+    "escalation.self_care": {
+        _EN: "Keep measuring and look after yourself.",
+        _ES: "Sigue midiendo y cuídate.",
+    },
+    "escalation.crew_cmo": {
+        _EN: "Consider telling the crew medical officer (CMO).",
+        _ES: "Considera avisar al oficial médico de la tripulación (CMO).",
+    },
+    "escalation.ground_surgeon": {
+        _EN: "Consider asking the flight surgeon on the ground to review it.",
+        _ES: "Considera pedir al cirujano de vuelo en Tierra que lo revise.",
+    },
+    "card.nothing_sent": {
+        _EN: "Nothing is sent unless you confirm it.",
+        _ES: "Nada se envía si no lo confirmas.",
+    },
+    "card.what_to_do": {
+        _EN: "What you can do",
+        _ES: "Qué puedes hacer",
+    },
+    "card.todo.measure": {
+        _EN: "Keep measuring: more days make your baseline more reliable.",
+        _ES: "Sigue midiendo: más días hacen tu línea base más confiable.",
+    },
+    "card.todo.read": {
+        _EN: "Read the reason: it says what the color was compared with.",
+        _ES: "Lee la razón: dice con qué se comparó el color.",
+    },
+    "card.todo.escalate": {
+        _EN: "If it stays amber or red, consider the suggestion above.",
+        _ES: "Si sigue en ámbar o rojo, considera la sugerencia de arriba.",
+    },
+    "card.source": {
+        _EN: "Source: NASA Human Research Program, risks of human spaceflight.",
+        _ES: "Fuente: Programa de Investigación Humana de la NASA, riesgos del vuelo"
+        " espacial humano.",
+    },
+    "card.source_open": {
+        _EN: "Open the NASA page",
+        _ES: "Abrir la página de la NASA",
+    },
+    "indicator.resting_hr": {
+        _EN: "Resting pulse",
+        _ES: "Pulso en reposo",
+    },
+    "indicator.systolic_bp": {
+        _EN: "Systolic blood pressure",
+        _ES: "Presión arterial sistólica",
+    },
+    "indicator.diastolic_bp": {
+        _EN: "Diastolic blood pressure",
+        _ES: "Presión arterial diastólica",
+    },
+    "indicator.blood_glucose": {
+        _EN: "Blood glucose",
+        _ES: "Glucosa en sangre",
+    },
+    "indicator.body_temp": {
+        _EN: "Body temperature",
+        _ES: "Temperatura corporal",
+    },
+    "indicator.sleep_hours": {
+        _EN: "Sleep",
+        _ES: "Sueño",
+    },
+    "indicator.mood": {
+        _EN: "Mood",
+        _ES: "Ánimo",
+    },
+    "indicator.spo2": {
+        _EN: "Oxygen saturation",
+        _ES: "Saturación de oxígeno",
+    },
+    "indicator.orthostatic_hr_delta": {
+        _EN: "Pulse change on standing",
+        _ES: "Cambio del pulso al ponerse de pie",
+    },
+    "indicator.vestibular_symptoms": {
+        _EN: "Dizziness and balance symptoms",
+        _ES: "Síntomas de mareo y equilibrio",
+    },
+    "indicator.tandem_walk_ok": {
+        _EN: "Walk-in-a-line test",
+        _ES: "Prueba de caminar en línea",
+    },
+    "value.yes": {
+        _EN: "yes",
+        _ES: "sí",
+    },
+    "value.no": {
+        _EN: "no",
+        _ES: "no",
+    },
+    "unit.points": {
+        _EN: "points",
+        _ES: "puntos",
+    },
     "limits.title": {_EN: "Limits of this prototype", _ES: "Límites de este prototipo"},
     "limits.body": {
         _EN: "Analog and simulated data: not from real astronauts. "
@@ -241,6 +548,28 @@ GLOSSARY: tuple[dict[Language, tuple[str, str]], ...] = (
             "NIH",
             "Institutos Nacionales de Salud de Estados Unidos: la principal agencia del gobierno "
             "estadounidense para la investigación en salud",
+        ),
+    },
+    {
+        _EN: (
+            "CMO",
+            "crew medical officer: the crew member trained to give first medical care",
+        ),
+        _ES: (
+            "CMO",
+            "oficial médico de la tripulación (crew medical officer): el integrante "
+            "entrenado para dar la primera atención médica",
+        ),
+    },
+    {
+        _EN: (
+            "NASA",
+            "National Aeronautics and Space Administration, the United States space agency",
+        ),
+        _ES: (
+            "NASA",
+            "Administración Nacional de Aeronáutica y del Espacio, la agencia espacial "
+            "de Estados Unidos",
         ),
     },
     {
