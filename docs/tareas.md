@@ -14,7 +14,7 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 
 | ID | Tarea | Nivel | Dep | Hecho cuando |
 |---|---|---|---|---|
-| C1 | Tipos del contrato `0.3` (`Measurement`, `IndicatorStatus`, `SystemStatus`, `CrewProfile`, `VoiceFeatures`, `SpacecraftProfile`) con (de)serialización JSON y validación | M | H1 | Tests de ida y vuelta JSON de cada objeto; un valor inválido (`environment` desconocido) se rechaza |
+| C1 | Tipos del contrato `0.3` (`Measurement`, `IndicatorStatus`, `SystemStatus`, `CrewProfile`, `VoiceFeatures`, `SpacecraftProfile`) con (de)serialización JSON y validación | M | H1 | Tests de ida y vuelta JSON de cada objeto; un valor inválido (`environment` desconocido) se rechaza. **Hecho 2026-11-14:** `core/contract.py`, rama `core/contract-types` |
 | C2 | Tabla de referencia poblacional del pulso en reposo por edad y sexo (NHSR nº 41): abrir el PDF, copiar los valores, definir qué percentil marca cada color (D-014) | M | C1 | Tabla en datos versionados con su cita; test por fila; el criterio de color está documentado |
 | C3 | Motor de línea base por persona, indicador y espacio: mediana con banda robusta, desviación sostenida, `insufficient_data` (D-013) | M | C1 | Tests: sin datos suficientes es gris; 3 lecturas sostenidas fuera de banda dan ámbar; cada espacio tiene su línea base |
 | C4 | Resolución de estado: `reference` (`personal`, `transition`, `population`), estado del sistema = peor indicador, sugerencia de escalamiento y razones con plantilla en inglés y español | M | C2, C3 | Tests de los cuatro estados; la razón nunca depende de un LLM; `population` rotula su referencia |
