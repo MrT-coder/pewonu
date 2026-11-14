@@ -13,6 +13,7 @@ from crew_self_check.astronaut.state import AppState, Section
 from crew_self_check.astronaut.ui.common import Actions, glossary_dialog, limits_dialog
 from crew_self_check.astronaut.ui.login import build_login
 from crew_self_check.astronaut.ui.shell import build_shell
+from crew_self_check.core.contract import System
 from crew_self_check.core.reasons import Language
 
 PORT = 8550
@@ -50,6 +51,14 @@ def main(page: ft.Page) -> None:
         state.logout()
         render()
 
+    def set_day(index: int) -> None:
+        state.set_day(max(0, min(index, len(state.scenario.days) - 1)))
+        render()
+
+    def select_system(system: System | None) -> None:
+        state.select_system(system)
+        render()
+
     def close_limits() -> None:
         page.pop_dialog()
 
@@ -66,6 +75,8 @@ def main(page: ft.Page) -> None:
         logout=logout,
         show_limits=show_limits,
         show_glossary=show_glossary,
+        set_day=set_day,
+        select_system=select_system,
         refresh=page.update,
         rerender=render,
     )

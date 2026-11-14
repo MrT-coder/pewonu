@@ -7,8 +7,10 @@ import flet as ft
 from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.state import AppState, Section
+from crew_self_check.astronaut.ui.body import build_body
 from crew_self_check.astronaut.ui.checkin import build_checkin
 from crew_self_check.astronaut.ui.common import Actions, cabin_background, card, language_switch
+from crew_self_check.astronaut.ui.journey import journey_bar
 
 _SECTIONS = list(Section)
 
@@ -204,6 +206,8 @@ def build_shell(state: AppState, actions: Actions) -> ft.Control:
         body = _home(state, actions)
     elif state.section is Section.CHECKIN:
         body = build_checkin(state, actions)
+    elif state.section is Section.BODY:
+        body = build_body(state, actions)
     else:
         body = _placeholder(state.section, state)
     return cabin_background(
@@ -217,7 +221,10 @@ def build_shell(state: AppState, actions: Actions) -> ft.Control:
                     expand=True,
                     padding=24,
                     content=ft.Column(
-                        expand=True, spacing=18, controls=[_top_bar(state, actions), body]
+                        expand=True,
+                        spacing=18,
+                        scroll=ft.ScrollMode.AUTO,  # long cards must stay reachable
+                        controls=[_top_bar(state, actions), journey_bar(state, actions), body],
                     ),
                 ),
             ],

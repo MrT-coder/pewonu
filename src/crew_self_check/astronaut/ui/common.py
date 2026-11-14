@@ -10,6 +10,7 @@ import flet as ft
 from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.i18n import GLOSSARY, translate
 from crew_self_check.astronaut.state import AppState, Section
+from crew_self_check.core.contract import Status, System
 from crew_self_check.core.reasons import Language
 
 
@@ -23,6 +24,8 @@ class Actions:
     logout: Callable[[], None]
     show_limits: Callable[[], None]
     show_glossary: Callable[[], None]
+    set_day: Callable[[int], None]
+    select_system: Callable[[System | None], None]
     refresh: Callable[[], None]  # push control changes to the screen
     rerender: Callable[[], None]  # rebuild the whole view from the state
 
@@ -99,3 +102,14 @@ def glossary_dialog(language: Language, close: Callable[[], None]) -> ft.AlertDi
             ft.TextButton(content=translate("glossary.close", language), on_click=lambda _: close())
         ],
     )
+
+
+def status_color(status: Status | None) -> str:
+    """The color of a state; ``None`` is a system with nothing measured."""
+    return {
+        Status.OK: theme.STATUS_OK,
+        Status.WATCH: theme.STATUS_WATCH,
+        Status.ACT: theme.STATUS_ACT,
+        Status.INSUFFICIENT_DATA: theme.STATUS_GRAY,
+        None: theme.STATUS_NONE,
+    }[status]

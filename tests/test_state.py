@@ -1,12 +1,12 @@
 """Part 1: application state, without any UI."""
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
 from crew_self_check.astronaut.access import AccessError, simulated_directory
 from crew_self_check.astronaut.state import AppState, Section
-from crew_self_check.core.contract import Environment, Indicator
+from crew_self_check.core.contract import Environment, Indicator, Reference, Status, System
 from crew_self_check.core.reasons import Language
 
 
@@ -121,7 +121,7 @@ def test_saving_the_pulse_records_a_measurement_for_the_person_in_the_current_en
     assert saved.crew_id == "crew-01"
     assert saved.value == 70
     assert saved.timestamp == FIXED
-    assert saved.environment is state.environment is Environment.SPACECRAFT
+    assert saved.environment is state.environment is Environment.EARTH  # journey start
     assert state.pulse is None
     assert state.own_measurements() == (saved,)
     assert state.last_pulse() == saved
@@ -240,3 +240,156 @@ def test_logging_out_forgets_an_unsaved_choice() -> None:
     state.choose_mood(1)
     state.logout()
     assert state.mood_choice is None
+
+
+# --- the journey and the calculated states ------------------------------------------------------
+
+
+def day_index(state: AppState, label: str) -> int:
+    return next(d.index for d in state.scenario.days if d.label == label)
+
+
+def test_the_journey_starts_on_the_last_day_on_earth() -> None:
+    state = make()
+    assert state.current_day.label == "E-1"
+    assert state.environment is Environment.EARTH
+
+
+@pytest.mark.parametrize(
+    ("label", "environment"),
+    [("E-14", Environment.EARTH), ("T+1", Environment.SPACECRAFT), ("R+0", Environment.PLANET)],
+)
+def test_each_day_of_the_journey_is_in_its_own_space(label: str, environment: Environment) -> None:
+    state = make()
+    state.set_day(day_index(state, label))
+    assert state.current_day.label == label
+    assert state.environment is environment
+
+
+def test_the_journey_cannot_leave_its_ends() -> None:
+    state = make()
+    last = len(state.scenario.days) - 1
+    with pytest.raises(IndexError):
+        state.set_day(last + 1)
+    with pytest.raises(IndexError):
+        state.set_day(-1)
+    state.set_day(last)
+    state.advance()
+    assert state.journey_day == last
+    state.set_day(0)
+    state.previous()
+    assert state.journey_day == 0
+
+
+def test_advancing_and_going_back_move_one_day() -> None:
+    state = make()
+    start = state.journey_day
+    state.advance()
+    assert state.journey_day == start + 1
+    state.previous()
+    assert state.journey_day == start
+
+
+def test_without_a_fixed_clock_the_app_uses_the_simulated_time_of_the_journey() -> None:
+    state = AppState(simulated_directory())
+    state.login("AST-0001")
+    state.set_day(day_index(state, "T+3"))
+    state.start_pulse()
+    finish_a_pulse(state)
+    saved = state.save_pulse()
+    assert saved.timestamp == state.current_day.timestamp + timedelta(hours=12)
+
+
+def test_a_reading_from_a_later_day_is_not_visible_when_going_back() -> None:
+    state = AppState(simulated_directory())
+    state.login("AST-0001")
+    state.set_day(day_index(state, "T+3"))
+    state.choose_mood(2)
+    mine = state.save_mood()
+    assert mine in state.visible_measurements()
+    state.set_day(day_index(state, "T+1"))
+    assert mine not in state.visible_measurements()
+
+
+def test_the_visible_readings_are_only_those_of_the_person_and_up_to_the_day() -> None:
+    state = make()
+    state.login("AST-0002")
+    visible = state.visible_measurements()
+    assert {m.crew_id for m in visible} == set()  # crew-02 has no readings before arrival
+    state.set_day(day_index(state, "R+1"))
+    visible = state.visible_measurements()
+    assert {m.crew_id for m in visible} == {"crew-02"}
+    assert all(m.timestamp < state.current_day.timestamp + timedelta(days=1) for m in visible)
+
+
+def test_nothing_is_resolved_without_a_session() -> None:
+    state = make()
+    assert state.resolutions() == {}
+    assert state.system_statuses() == {}
+
+
+def test_on_the_last_day_on_earth_the_pulse_is_green_against_the_personal_baseline() -> None:
+    state = make()
+    state.login("AST-0001")
+    pulse = state.resolutions()[Indicator.RESTING_HR].status
+    assert pulse.status is Status.OK
+    assert pulse.reference is Reference.PERSONAL
+
+
+def test_on_arrival_the_pulse_is_amber_against_the_spacecraft_baseline() -> None:
+    state = make()
+    state.login("AST-0001")
+    state.set_day(day_index(state, "R+3"))
+    pulse = state.resolutions()[Indicator.RESTING_HR].status
+    assert pulse.status is Status.WATCH
+    assert pulse.reference is Reference.TRANSITION
+    assert pulse.baseline_environment is Environment.SPACECRAFT
+    systems = state.system_statuses()
+    assert systems[System.CARDIOVASCULAR] is not None
+    assert systems[System.CARDIOVASCULAR].status is Status.WATCH  # type: ignore[union-attr]
+    assert systems[System.VESTIBULAR] is not None
+    assert systems[System.VESTIBULAR].status is Status.WATCH  # type: ignore[union-attr]
+    assert systems[System.BONE_MUSCLE] is None  # nothing measured for it
+
+
+def test_the_manual_pulse_without_history_reaches_red_from_the_population_table() -> None:
+    state = make()
+    state.login("AST-0002")
+    state.set_day(day_index(state, "R+2"))
+    pulse = state.resolutions()[Indicator.RESTING_HR].status
+    assert pulse.status is Status.ACT
+    assert pulse.reference is Reference.POPULATION
+
+
+def test_what_the_astronaut_records_changes_the_states() -> None:
+    state = AppState(simulated_directory())
+    state.login("AST-0002")
+    state.set_day(day_index(state, "R+0"))
+    before = state.resolutions()[Indicator.RESTING_HR].status.latest
+    state.start_pulse()
+    finish_a_pulse(state, 40)  # 80 bpm
+    state.save_pulse()
+    assert state.resolutions()[Indicator.RESTING_HR].status.latest == 80
+    assert before != 80
+
+
+def test_every_indicator_has_a_resolution_and_every_system_but_one_has_a_status() -> None:
+    state = make()
+    state.login("AST-0001")
+    assert set(state.resolutions()) == set(Indicator)
+    systems = state.system_statuses()
+    assert set(systems) == set(System)
+    assert [s for s, v in systems.items() if v is None] == [System.BONE_MUSCLE]
+
+
+def test_a_system_can_be_selected_and_the_selection_is_forgotten_on_logout() -> None:
+    state = make()
+    state.login("AST-0001")
+    assert state.selected_system is None
+    state.select_system(System.CARDIOVASCULAR)
+    assert state.selected_system is System.CARDIOVASCULAR
+    state.select_system(None)
+    assert state.selected_system is None
+    state.select_system(System.MOOD)
+    state.logout()
+    assert state.selected_system is None

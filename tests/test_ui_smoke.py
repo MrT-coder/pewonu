@@ -7,11 +7,13 @@ import pytest
 ft = pytest.importorskip("flet")
 
 from crew_self_check.astronaut.access import simulated_directory  # noqa: E402
+from crew_self_check.astronaut.body_model import reference_text  # noqa: E402
 from crew_self_check.astronaut.i18n import translate  # noqa: E402
 from crew_self_check.astronaut.state import AppState, Section  # noqa: E402
 from crew_self_check.astronaut.ui.common import Actions, glossary_dialog  # noqa: E402
 from crew_self_check.astronaut.ui.login import build_login  # noqa: E402
 from crew_self_check.astronaut.ui.shell import build_shell  # noqa: E402
+from crew_self_check.core.contract import Indicator, System  # noqa: E402
 from crew_self_check.core.reasons import Language  # noqa: E402
 
 _TEXT_FIELDS = {"label", "content", "title", "hint_text", "error", "helper"}
@@ -48,6 +50,8 @@ class Recorder:
             logout=lambda: self._log("logout"),
             show_limits=lambda: self._log("limits"),
             show_glossary=lambda: self._log("glossary"),
+            set_day=lambda index: self._log(f"day:{index}"),
+            select_system=lambda system: self._log(f"system:{system}"),
             refresh=lambda: self._log("refresh"),
             rerender=lambda: self._log("rerender"),
         )
@@ -91,6 +95,8 @@ def test_shell_builds_every_section_in_both_languages(language: Language, sectio
     elif section is Section.CHECKIN:
         assert translate("checkin.subtitle", language) in texts
         assert translate("pulse.start", language) in texts
+    elif section is Section.BODY:
+        assert translate("body.hint", language) in texts
     else:
         assert translate(f"part.{section.value}.body", language) in texts
 
@@ -254,3 +260,93 @@ def test_the_language_switch_shows_names_not_acronyms() -> None:
     assert "Español" in texts
     assert "EN" not in texts
     assert "ES" not in texts
+
+
+# --- the journey bar and the body view -----------------------------------------------------------
+
+
+def body_state(
+    language: Language, label: str = "R+3", system: System | None = None, code: str = "AST-0001"
+) -> AppState:
+    state = AppState(simulated_directory())
+    state.set_language(language)
+    state.login(code)
+    state.set_day(next(d.index for d in state.scenario.days if d.label == label))
+    state.go(Section.BODY)
+    state.select_system(system)
+    return state
+
+
+@pytest.mark.parametrize("language", list(Language))
+@pytest.mark.parametrize("section", list(Section))
+def test_the_journey_bar_is_on_every_section(language: Language, section: Section) -> None:
+    state = body_state(language)
+    state.go(section)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    place = translate("env.planet", language)
+    assert translate("journey.title", language) in texts
+    assert translate("journey.day", language, label="R+3", place=place) in texts
+    assert translate("journey.note", language) in texts
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_body_view_shows_the_six_zones_the_legend_and_the_hint(language: Language) -> None:
+    texts = collect_texts(build_shell(body_state(language), Recorder().actions()))
+    for system in System:
+        assert translate(f"system.{system.value}", language) in texts, system
+    assert translate("body.hint", language) in texts
+    assert translate("body.legend", language) in texts
+    assert translate("body.colors_note", language) in texts
+    for key in ("ok", "watch", "act", "insufficient_data", "nothing"):
+        assert translate(f"status.{key}", language) in texts, key
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_a_selected_system_explains_itself_with_its_reason_reference_and_source(
+    language: Language,
+) -> None:
+    state = body_state(language, "R+3", System.CARDIOVASCULAR)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    pulse = state.resolutions()[Indicator.RESTING_HR]
+    assert translate("system.cardiovascular.what", language) in texts
+    assert translate("system.cardiovascular.why", language) in texts
+    assert pulse.reason.text(language) in texts
+    assert (
+        translate("card.compared", language, what=reference_text(pulse.status, language)) in texts
+    )
+    assert translate("card.source", language) in texts
+    assert translate("escalation.crew_cmo", language) in texts
+    assert translate("card.nothing_sent", language) in texts
+    assert translate("card.todo.escalate", language) in texts
+    assert translate("indicator.resting_hr", language) in texts
+
+
+def test_the_trend_shows_a_chart_when_there_are_readings_and_a_message_when_there_are_not() -> None:
+    with_data = collect_texts(
+        build_shell(body_state(Language.EN, "R+3", System.CARDIOVASCULAR), Recorder().actions())
+    )
+    assert translate("card.trend", Language.EN) in with_data
+    assert translate("card.trend_empty", Language.EN) not in with_data
+    none = collect_texts(
+        build_shell(
+            body_state(Language.EN, "E-14", System.CARDIOVASCULAR, "AST-0002"), Recorder().actions()
+        )
+    )
+    assert translate("card.trend_empty", Language.EN) in none
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_a_system_with_nothing_measured_says_so_and_offers_no_chart(language: Language) -> None:
+    state = body_state(language, "R+3", System.BONE_MUSCLE)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("system.bone_muscle.what", language) in texts
+    assert translate("system.bone_muscle.why", language) in texts
+    assert translate("card.trend", language) not in texts
+
+
+def test_the_card_of_a_green_system_does_not_push_to_escalate() -> None:
+    state = body_state(Language.EN, "E-1", System.SLEEP_BRAIN)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("escalation.self_care", Language.EN) in texts
+    assert translate("escalation.crew_cmo", Language.EN) not in texts
+    assert translate("card.todo.escalate", Language.EN) not in texts

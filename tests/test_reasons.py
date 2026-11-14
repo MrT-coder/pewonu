@@ -69,3 +69,10 @@ def test_no_template_diagnoses() -> None:
     for by_language in TEMPLATES.values():
         for text in by_language.values():
             assert not any(word in text.lower() for word in forbidden), text
+
+
+def test_the_spanish_texts_have_no_contraction_mistakes() -> None:
+    for code, by_language in TEMPLATES.items():
+        text = " " + by_language[Language.ES].lower() + " "
+        assert " de el " not in text, code
+        assert " a el " not in text, code
