@@ -39,7 +39,7 @@ class ReasonCode(StrEnum):
 _EN, _ES = Language.EN, Language.ES
 
 _POPULATION_EN = "the typical population range for your age and sex (population reference, not your personal baseline)."  # noqa: E501
-_POPULATION_ES = "el rango típico de la población para tu edad y sexo (referencia poblacional, no tu línea base personal)."  # noqa: E501
+_POPULATION_ES = "rango típico de la población para tu edad y sexo (referencia poblacional, no tu línea base personal)."  # noqa: E501
 
 TEMPLATES: dict[ReasonCode, dict[Language, str]] = {
     ReasonCode.NO_DATA: {
@@ -91,23 +91,23 @@ TEMPLATES: dict[ReasonCode, dict[Language, str]] = {
     },
     ReasonCode.POPULATION_OK: {
         _EN: "Within " + _POPULATION_EN,
-        _ES: "Dentro de " + _POPULATION_ES,
+        _ES: "Dentro del " + _POPULATION_ES,
     },
     ReasonCode.POPULATION_WATCH_HIGH: {
         _EN: "Above " + _POPULATION_EN,
-        _ES: "Por encima de " + _POPULATION_ES,
+        _ES: "Por encima del " + _POPULATION_ES,
     },
     ReasonCode.POPULATION_WATCH_LOW: {
         _EN: "Below " + _POPULATION_EN,
-        _ES: "Por debajo de " + _POPULATION_ES,
+        _ES: "Por debajo del " + _POPULATION_ES,
     },
     ReasonCode.POPULATION_ACT_HIGH: {
         _EN: "Far above " + _POPULATION_EN,
-        _ES: "Muy por encima de " + _POPULATION_ES,
+        _ES: "Muy por encima del " + _POPULATION_ES,
     },
     ReasonCode.POPULATION_ACT_LOW: {
         _EN: "Far below " + _POPULATION_EN,
-        _ES: "Muy por debajo de " + _POPULATION_ES,
+        _ES: "Muy por debajo del " + _POPULATION_ES,
     },
 }
 
