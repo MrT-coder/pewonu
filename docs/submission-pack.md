@@ -78,7 +78,7 @@ Add this sentence only if it is true at submission time:
 >
 > **How it works.** A personal baseline is built per person, per indicator and per space (Earth, spacecraft, planet) from the median of the person's history with a robust band. Three consecutive readings outside the band on the same side raise amber. A new space starts gray, and during the first days it is compared with the previous space's baseline, labeled as a transition. Only while there is no personal baseline, the resting pulse is compared with a labeled population reference (NCHS National Health Statistics Reports No. 41), and every state shows which reference was used. Reasons are short templates in English and Spanish. The logic is deterministic: there is no AI model in the alert path, and the app never diagnoses.
 >
-> **The astronaut experience.** The astronaut signs in with a personal code. A five-face check records how they feel. The resting pulse is taken by hand, because that is what is possible without equipment: a four-station "pulse mission" (rest, find the artery, press lightly, count) with illustrations, a tap-to-count button and a simple explanatory graph, followed by points and a badge for **technique and regularity, never for the value of the pulse**. Everything is bilingual and a "Limits" screen is available from every screen.
+> **The astronaut experience.** The astronaut signs in with a personal code. A five-face check records how they feel. The resting pulse is taken by hand, because that is what is possible without equipment: a four-station "pulse mission" (rest, find the artery, press lightly, count) with illustrations, an optional timer, a field to enter the beats you counted and a simple explanatory graph, followed by points and a badge for **technique and regularity, never for the value of the pulse**. Everything is bilingual and a "Limits" screen is available from every screen.
 >
 > **Privacy and the ground base.** Data is private by default and stays on the crew computer. Nothing is meant to leave without the astronaut's confirmation. What is shared is standardized as HL7 FHIR R4 (a heart-rate `Observation` with LOINC 8867-4 and unit `/min`) so a ground team can read it. We checked the mapping against the official HL7 profile and validator. `[PENDING C8, G1 to G3]` The exporter and the ground base are not finished.
 >
@@ -193,7 +193,7 @@ Keep text short: judges read these without a presenter. Put the SI watermark on 
 
 **Slide 5: Demo**
 - Sign in with a personal code. Switch English and Spanish.
-- The **pulse mission**: four stations, tap to count, "34 beats x 2 = 68 bpm", points and a badge for technique only.
+- The **pulse mission**: four stations, count with your fingers on the wrist and enter the beats, "34 beats x 2 = 68 bpm", points and a badge for technique only.
 - Mood check with five faces.
 - Earth to Mars scenario with the four states (green, amber, red, gray). `[PENDING A3, A7]` for the body figure and the trip player.
 - Visual: three or four screenshots (they exist for sign-in, pulse mission and mood). Pulse illustrations need the SI watermark.
@@ -221,7 +221,7 @@ Hard limit: 30 seconds. Subtitles in English if the narration is in Spanish. Add
 |---|---|---|
 | 0 to 4 s | Earth, spacecraft, Mars line | "Far from Earth, normal is personal." |
 | 4 to 10 s | Sign in with the code, switch language | "Crew Self-Check compares each astronaut with themselves." |
-| 10 to 18 s | Pulse mission: tap to count, result, badge | "Even a manual pulse becomes a guided game that rewards good technique." |
+| 10 to 18 s | Pulse mission: enter the counted beats, result, badge | "Even a manual pulse becomes a guided game that rewards good technique." |
 | 18 to 24 s | Four states, gray highlighted `[PENDING A3, A7]` | "When it does not know, it says gray. It always shows what it compared against." |
 | 24 to 30 s | Privacy lock, FHIR, limits | "Private by default. Standard FHIR for the ground team. No diagnosis." |
 

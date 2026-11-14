@@ -47,7 +47,7 @@ Nombre: **Crew Self-Check** (el formulario del reto muestra "Project PeWoNu": co
 Escenario con base documental ([research/09](../research/09-humanos-en-el-espacio.md), sección 3): la tripulación aterriza tras meses en microgravedad y debe arreglarse sola (D-007).
 
 1. **Ingreso con código** y cambio de idioma español/inglés. *Hecho.*
-2. **Chequeo diario.** *Hecho:* caritas de ánimo (cinco niveles) y **misión del pulso** (cuatro estaciones, conteo por toques en 30 o 60 s, puntos e insignia por la técnica).
+2. **Chequeo diario.** *Hecho:* caritas de ánimo (cinco niveles) y **misión del pulso** (cuatro estaciones, la persona cuenta con los dedos en la muñeca durante 30 o 60 s y escribe cuántos latidos contó, puntos e insignia por la técnica).
 3. **Estado calculado:** gris mientras la línea base madura; en la nave el sueño se marca contra la línea base de la Tierra (transición); al llegar a Marte suben el pulso y los síntomas vestibulares; el pulso manual de `crew-02` llega a rojo con referencia poblacional. *El motor está hecho (C3, C4, C5); falta mostrarlo en la interfaz.*
 4. **Figura corporal y tarjeta del sistema** con tendencia, explicación simple, orientación con cita y checklist. *Pendiente (A3, A4).*
 5. **Caso gris:** la glucosa es un análisis ocasional; sin datos recientes se muestra gris y no "normal". *Motor hecho.*
