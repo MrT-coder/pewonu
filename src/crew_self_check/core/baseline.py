@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import math
 import statistics
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -78,14 +78,13 @@ def _build_baseline(history: list[Measurement], config: BaselineConfig) -> Basel
     return Baseline(center=center, low=center - half, high=center + half, n_days=n_days)
 
 
-def _sustained_direction(
-    recent: list[Measurement], baseline: Baseline, need: int
-) -> Direction | None:
+def sustained_direction(recent: Sequence[float], baseline: Baseline, need: int) -> Direction | None:
+    """Side of the band that ``recent`` (oldest first) sits on, if the last ``need`` all do."""
     if len(recent) < need:
         return None
-    if all(m.value > baseline.high for m in recent):
+    if all(value > baseline.high for value in recent):
         return Direction.ABOVE
-    if all(m.value < baseline.low for m in recent):
+    if all(value < baseline.low for value in recent):
         return Direction.BELOW
     return None
 
@@ -115,6 +114,6 @@ def assess(
     if baseline is None:
         return BaselineAssessment(Status.INSUFFICIENT_DATA, None, latest, trend, None)
 
-    direction = _sustained_direction(recent, baseline, config.sustained)
+    direction = sustained_direction([m.value for m in recent], baseline, config.sustained)
     status = Status.OK if direction is None else Status.WATCH
     return BaselineAssessment(status, baseline, latest, trend, direction)
