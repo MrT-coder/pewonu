@@ -11,6 +11,7 @@ from crew_self_check.astronaut.ui.body import build_body
 from crew_self_check.astronaut.ui.checkin import build_checkin
 from crew_self_check.astronaut.ui.common import Actions, cabin_background, card, language_switch
 from crew_self_check.astronaut.ui.journey import journey_bar
+from crew_self_check.astronaut.ui.summary import build_summary_view
 
 _SECTIONS = list(Section)
 
@@ -24,16 +25,7 @@ _ICONS = {
 _PARTS = (Section.CHECKIN, Section.BODY, Section.SUMMARY)
 
 
-def _coming_chip(language_text: str) -> ft.Container:
-    return ft.Container(
-        padding=ft.Padding.symmetric(horizontal=10, vertical=3),
-        border_radius=20,
-        bgcolor=theme.ACCENT_SOFT,
-        content=ft.Text(language_text, size=11, color=theme.ACCENT),
-    )
-
-
-def _part_card(section: Section, state: AppState) -> ft.Control:
+def _part_card(section: Section, state: AppState, actions: Actions) -> ft.Control:
     language = state.language
     return card(
         ft.Column(
@@ -49,7 +41,11 @@ def _part_card(section: Section, state: AppState) -> ft.Control:
                 ft.Text(
                     translate(f"part.{section.value}.body", language), size=13, color=theme.MUTED
                 ),
-                _coming_chip(translate("part.coming", language)),
+                ft.OutlinedButton(
+                    content=translate("part.open", language),
+                    icon=ft.Icons.ARROW_FORWARD,
+                    on_click=lambda _: actions.go(section),
+                ),
             ],
         )
     )
@@ -114,18 +110,11 @@ def _home(state: AppState, actions: Actions) -> ft.Control:
                 spacing=14,
                 run_spacing=14,
                 controls=[
-                    ft.Container(content=_part_card(part, state), col={"xs": 12, "md": 4})
+                    ft.Container(content=_part_card(part, state, actions), col={"xs": 12, "md": 4})
                     for part in _PARTS
                 ],
             ),
         ],
-    )
-
-
-def _placeholder(section: Section, state: AppState) -> ft.Control:
-    return ft.Container(
-        alignment=ft.Alignment.TOP_LEFT,
-        content=ft.Container(content=_part_card(section, state), width=520),
     )
 
 
@@ -209,7 +198,7 @@ def build_shell(state: AppState, actions: Actions) -> ft.Control:
     elif state.section is Section.BODY:
         body = build_body(state, actions)
     else:
-        body = _placeholder(state.section, state)
+        body = build_summary_view(state, actions)
     return cabin_background(
         ft.Row(
             expand=True,

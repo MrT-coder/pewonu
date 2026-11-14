@@ -97,6 +97,8 @@ def test_shell_builds_every_section_in_both_languages(language: Language, sectio
         assert translate("pulse.start", language) in texts
     elif section is Section.BODY:
         assert translate("body.hint", language) in texts
+    elif section is Section.SUMMARY:
+        assert translate("summary.systems", language) in texts
     else:
         assert translate(f"part.{section.value}.body", language) in texts
 
@@ -350,3 +352,86 @@ def test_the_card_of_a_green_system_does_not_push_to_escalate() -> None:
     assert translate("escalation.self_care", Language.EN) in texts
     assert translate("escalation.crew_cmo", Language.EN) not in texts
     assert translate("card.todo.escalate", Language.EN) not in texts
+
+
+# --- the summary ---------------------------------------------------------------------------------
+
+
+def summary_state(language: Language, label: str, code: str = "AST-0001") -> AppState:
+    state = body_state(language, label, None, code)
+    state.go(Section.SUMMARY)
+    return state
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_summary_shows_the_four_kpis_and_the_latest_readings(language: Language) -> None:
+    texts = collect_texts(build_shell(summary_state(language, "R+3"), Recorder().actions()))
+    for key in (
+        "summary.systems",
+        "summary.checkin",
+        "summary.regularity",
+        "summary.baseline",
+        "summary.attention",
+        "summary.latest",
+        "summary.regularity_note",
+        "summary.baseline_note",
+    ):
+        assert translate(key, language) in texts, key
+    for key in ("summary.col.indicator", "summary.col.latest", "summary.col.state"):
+        assert translate(key, language) in texts, key
+    assert translate("summary.col.compared", language) in texts
+
+
+def test_the_summary_counts_are_the_ones_of_the_model() -> None:
+    state = summary_state(Language.EN, "R+3")
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("summary.days", Language.EN, n=7) in texts
+    assert translate("summary.baseline_value", Language.EN, ready=0, total=0) not in texts
+    for key in ("ok", "watch", "act", "insufficient_data", "nothing"):
+        assert translate(f"summary.short.{key}", Language.EN) in texts, key
+
+
+def test_what_needs_attention_names_the_indicator_its_reason_and_the_suggestion() -> None:
+    state = summary_state(Language.ES, "R+3")
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    pulse = state.resolutions()[Indicator.RESTING_HR]
+    assert translate("indicator.resting_hr", Language.ES) in texts
+    assert pulse.reason.text(Language.ES) in texts
+    assert translate("escalation.crew_cmo", Language.ES) in texts
+    assert translate("summary.attention_none", Language.ES) not in texts
+
+
+def test_when_nothing_is_outside_the_range_the_summary_says_so() -> None:
+    texts = collect_texts(build_shell(summary_state(Language.EN, "E-1"), Recorder().actions()))
+    assert translate("summary.attention_none", Language.EN) in texts
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_check_in_says_what_is_still_to_do(language: Language) -> None:
+    texts = collect_texts(build_shell(summary_state(language, "T+3"), Recorder().actions()))
+    assert translate("summary.pulse_todo", language) in texts
+    assert translate("summary.mood_todo", language) in texts
+    state = summary_state(language, "T+3")
+    state.start_pulse()
+    assert state.pulse is not None
+    for _ in range(3):
+        state.pulse.complete_station()
+    state.pulse.submit_count(35)
+    state.save_pulse()
+    state.choose_mood(4)
+    state.save_mood()
+    done = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("summary.pulse_done", language) in done
+    assert translate("summary.mood_done", language) in done
+
+
+def test_where_there_are_no_readings_the_baseline_card_says_so() -> None:
+    state = summary_state(Language.EN, "E-1", "AST-0002")
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("summary.baseline_none", Language.EN) in texts
+
+
+def test_the_home_cards_no_longer_say_coming_next() -> None:
+    state = state_in(Language.EN, logged_in=True)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("part.coming", Language.EN) not in texts

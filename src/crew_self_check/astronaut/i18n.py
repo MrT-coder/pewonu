@@ -506,6 +506,114 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "points",
         _ES: "puntos",
     },
+    "part.open": {
+        _EN: "Open",
+        _ES: "Abrir",
+    },
+    "summary.systems": {
+        _EN: "Body systems",
+        _ES: "Sistemas del cuerpo",
+    },
+    "summary.short.ok": {
+        _EN: "In range",
+        _ES: "En rango",
+    },
+    "summary.short.watch": {
+        _EN: "Outside",
+        _ES: "Fuera",
+    },
+    "summary.short.act": {
+        _EN: "Far outside",
+        _ES: "Muy fuera",
+    },
+    "summary.short.insufficient_data": {
+        _EN: "No data yet",
+        _ES: "Sin datos aún",
+    },
+    "summary.short.nothing": {
+        _EN: "Not measured",
+        _ES: "Sin medición",
+    },
+    "summary.checkin": {
+        _EN: "Today's check-in",
+        _ES: "Chequeo de hoy",
+    },
+    "summary.pulse_done": {
+        _EN: "Pulse recorded",
+        _ES: "Pulso registrado",
+    },
+    "summary.pulse_todo": {
+        _EN: "Pulse not recorded yet",
+        _ES: "Pulso aún sin registrar",
+    },
+    "summary.mood_done": {
+        _EN: "Mood recorded",
+        _ES: "Ánimo registrado",
+    },
+    "summary.mood_todo": {
+        _EN: "Mood not recorded yet",
+        _ES: "Ánimo aún sin registrar",
+    },
+    "summary.regularity": {
+        _EN: "Regularity",
+        _ES: "Constancia",
+    },
+    "summary.days": {
+        _EN: "{n} of 7 days with readings",
+        _ES: "{n} de 7 días con lecturas",
+    },
+    "summary.regularity_note": {
+        _EN: "This counts how often you measure, not how you are.",
+        _ES: "Esto cuenta con qué frecuencia mides, no cómo estás.",
+    },
+    "summary.baseline": {
+        _EN: "Your baseline here",
+        _ES: "Tu línea base aquí",
+    },
+    "summary.baseline_value": {
+        _EN: "Ready for {ready} of {total} indicators",
+        _ES: "Lista para {ready} de {total} indicadores",
+    },
+    "summary.baseline_none": {
+        _EN: "No readings in this space yet",
+        _ES: "Aún no hay lecturas en este espacio",
+    },
+    "summary.baseline_note": {
+        _EN: "It gets better with every day you measure.",
+        _ES: "Mejora con cada día que mides.",
+    },
+    "summary.attention": {
+        _EN: "Needs your attention",
+        _ES: "Requiere tu atención",
+    },
+    "summary.attention_none": {
+        _EN: "Nothing is outside the range it is compared with today.",
+        _ES: "Hoy nada está fuera del rango con el que se compara.",
+    },
+    "summary.latest": {
+        _EN: "Latest readings",
+        _ES: "Últimas lecturas",
+    },
+    "summary.col.indicator": {
+        _EN: "Indicator",
+        _ES: "Indicador",
+    },
+    "summary.col.latest": {
+        _EN: "Latest",
+        _ES: "Último",
+    },
+    "summary.col.state": {
+        _EN: "State",
+        _ES: "Estado",
+    },
+    "summary.col.compared": {
+        _EN: "Compared with",
+        _ES: "Comparado con",
+    },
+    "summary.open_body": {
+        _EN: "See it on the body",
+        _ES: "Verlo en el cuerpo",
+    },
     "limits.title": {_EN: "Limits of this prototype", _ES: "Límites de este prototipo"},
     "limits.body": {
         _EN: "Analog and simulated data: not from real astronauts. "
