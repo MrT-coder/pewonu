@@ -10,6 +10,7 @@ import flet as ft
 
 from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.i18n import translate
+from crew_self_check.astronaut.mood import MOOD_LEVELS
 from crew_self_check.astronaut.pulse_mission import INTERVALS, PulseMission, Station
 from crew_self_check.astronaut.state import AppState
 from crew_self_check.astronaut.ui.common import Actions, card
@@ -58,24 +59,7 @@ def _hub(state: AppState, actions: Actions) -> ft.Control:
         )
     )
 
-    mood_card = card(
-        ft.Column(
-            spacing=10,
-            controls=[
-                ft.Icon(ft.Icons.SENTIMENT_SATISFIED_OUTLINED, size=30, color=theme.ACCENT),
-                ft.Text(
-                    say("checkin.mood.title"), size=17, weight=ft.FontWeight.W_600, color=theme.TEXT
-                ),
-                ft.Text(say("checkin.mood.body"), size=13, color=theme.MUTED),
-                ft.Container(
-                    padding=ft.Padding.symmetric(horizontal=10, vertical=3),
-                    border_radius=20,
-                    bgcolor=theme.ACCENT_SOFT,
-                    content=ft.Text(say("part.coming"), size=11, color=theme.ACCENT),
-                ),
-            ],
-        )
-    )
+    mood_card = _mood_card(state, actions, say)
     return ft.Column(
         spacing=16,
         scroll=ft.ScrollMode.AUTO,
@@ -94,6 +78,83 @@ def _hub(state: AppState, actions: Actions) -> ft.Control:
             ),
         ],
     )
+
+
+_FACES = {
+    1: ft.Icons.SENTIMENT_VERY_DISSATISFIED,
+    2: ft.Icons.SENTIMENT_DISSATISFIED,
+    3: ft.Icons.SENTIMENT_NEUTRAL,
+    4: ft.Icons.SENTIMENT_SATISFIED,
+    5: ft.Icons.SENTIMENT_VERY_SATISFIED,
+}
+
+
+def _mood_card(state: AppState, actions: Actions, say: Say) -> ft.Control:
+    chosen = state.mood_choice
+
+    def face(level: int) -> ft.Control:
+        selected = chosen == level
+
+        def pick(_: object) -> None:
+            state.choose_mood(level)
+            actions.rerender()
+
+        return ft.Container(
+            width=86,
+            padding=ft.Padding.symmetric(vertical=10),
+            border_radius=14,
+            ink=True,
+            on_click=pick,
+            bgcolor=theme.ACCENT_SOFT if selected else None,
+            border=ft.Border.all(
+                2 if selected else 1, theme.ACCENT if selected else theme.CARD_BORDER
+            ),
+            content=ft.Column(
+                spacing=4,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.Icon(
+                        _FACES[level], size=38, color=theme.ACCENT if selected else theme.MUTED
+                    ),
+                    ft.Text(
+                        say(f"mood.level.{level}"),
+                        size=12,
+                        color=theme.TEXT if selected else theme.MUTED,
+                    ),
+                ],
+            ),
+        )
+
+    def save(_: object) -> None:
+        state.save_mood()
+        actions.rerender()
+
+    last = state.last_mood()
+    lines: list[ft.Control] = [
+        ft.Icon(ft.Icons.SENTIMENT_SATISFIED_OUTLINED, size=30, color=theme.ACCENT),
+        ft.Text(say("checkin.mood.title"), size=17, weight=ft.FontWeight.W_600, color=theme.TEXT),
+        ft.Text(say("mood.prompt"), size=13, color=theme.MUTED),
+        ft.Row(wrap=True, spacing=8, run_spacing=8, controls=[face(n) for n in MOOD_LEVELS]),
+    ]
+    if last is not None:
+        lines.append(
+            ft.Text(
+                say("mood.last", label=say(f"mood.level.{round(last.value)}")),
+                size=13,
+                color=theme.GOOD,
+            )
+        )
+    lines += [
+        ft.FilledButton(
+            content=say("mood.save"),
+            icon=ft.Icons.SAVE_OUTLINED,
+            height=44,
+            disabled=chosen is None,
+            on_click=save,
+        ),
+        ft.Text(say("mood.note"), size=11, color=theme.MUTED),
+    ]
+    return card(ft.Column(spacing=10, controls=lines))
 
 
 def _start(state: AppState, actions: Actions) -> None:

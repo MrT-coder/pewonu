@@ -191,3 +191,26 @@ def test_the_hub_shows_the_last_pulse_after_saving() -> None:
     state.save_pulse()
     texts = collect_texts(build_shell(state, Recorder().actions()))
     assert translate("pulse.last", Language.EN, bpm=70) in texts
+
+
+# --- the mood faces -----------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_hub_shows_the_five_faces_in_the_language(language: Language) -> None:
+    state = state_in(language, logged_in=True, section=Section.CHECKIN)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("mood.prompt", language) in texts
+    for level in range(1, 6):
+        assert translate(f"mood.level.{level}", language) in texts
+    assert translate("mood.save", language) in texts
+    assert translate("mood.note", language) in texts
+
+
+def test_after_saving_a_face_the_hub_says_which_one() -> None:
+    state = state_in(Language.ES, logged_in=True, section=Section.CHECKIN)
+    state.choose_mood(4)
+    state.save_mood()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    label = translate("mood.level.4", Language.ES)
+    assert translate("mood.last", Language.ES, label=label) in texts

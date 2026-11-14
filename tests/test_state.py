@@ -6,7 +6,7 @@ import pytest
 
 from crew_self_check.astronaut.access import AccessError, simulated_directory
 from crew_self_check.astronaut.state import AppState, Section
-from crew_self_check.core.contract import Environment
+from crew_self_check.core.contract import Environment, Indicator
 from crew_self_check.core.reasons import Language
 
 
@@ -179,3 +179,67 @@ def test_saving_without_a_finished_mission_is_an_error() -> None:
     state.start_pulse()
     with pytest.raises(RuntimeError, match="result"):
         state.save_pulse()
+
+
+# --- the mood survey ----------------------------------------------------------------------------
+
+
+def test_choosing_a_face_keeps_it_until_it_is_saved() -> None:
+    state = make_with_clock()
+    state.login("AST-0001")
+    assert state.mood_choice is None
+    state.choose_mood(4)
+    assert state.mood_choice == 4
+    state.choose_mood(2)
+    assert state.mood_choice == 2
+
+
+def test_an_invalid_face_is_refused_and_keeps_the_previous_choice() -> None:
+    state = make_with_clock()
+    state.login("AST-0001")
+    state.choose_mood(3)
+    with pytest.raises(ValueError, match="level"):
+        state.choose_mood(9)
+    assert state.mood_choice == 3
+
+
+def test_saving_the_mood_records_a_survey_measurement_and_clears_the_choice() -> None:
+    state = make_with_clock()
+    state.login("AST-0001")
+    state.choose_mood(4)
+    saved = state.save_mood()
+    assert saved.indicator is Indicator.MOOD
+    assert saved.value == 4
+    assert saved.crew_id == "crew-01"
+    assert saved.timestamp == FIXED
+    assert state.mood_choice is None
+    assert state.own_measurements() == (saved,)
+    assert state.last_mood() == saved
+
+
+def test_the_mood_needs_a_choice_and_a_session() -> None:
+    state = make_with_clock()
+    with pytest.raises(RuntimeError, match="mood"):
+        state.save_mood()
+    state.login("AST-0001")
+    with pytest.raises(RuntimeError, match="mood"):
+        state.save_mood()
+
+
+def test_mood_and_pulse_do_not_mix_and_each_person_sees_their_own() -> None:
+    state = make_with_clock()
+    state.login("AST-0001")
+    state.choose_mood(5)
+    state.save_mood()
+    assert state.last_pulse() is None
+    state.logout()
+    state.login("AST-0002")
+    assert state.last_mood() is None
+
+
+def test_logging_out_forgets_an_unsaved_choice() -> None:
+    state = make_with_clock()
+    state.login("AST-0001")
+    state.choose_mood(1)
+    state.logout()
+    assert state.mood_choice is None

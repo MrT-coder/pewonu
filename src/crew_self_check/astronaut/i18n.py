@@ -87,9 +87,20 @@ STRINGS: dict[str, dict[Language, str]] = {
         _ES: "Dos registros rápidos hoy: tu pulso y cómo te sientes.",
     },
     "checkin.mood.title": {_EN: "How you feel", _ES: "Cómo te sientes"},
-    "checkin.mood.body": {
-        _EN: "Five faces, one tap.",
-        _ES: "Cinco caritas, un toque.",
+    "mood.prompt": {
+        _EN: "How do you feel at the end of this shift?",
+        _ES: "¿Cómo te sientes al cerrar este turno?",
+    },
+    "mood.level.1": {_EN: "Very low", _ES: "Muy bajo"},
+    "mood.level.2": {_EN: "Low", _ES: "Bajo"},
+    "mood.level.3": {_EN: "Okay", _ES: "Regular"},
+    "mood.level.4": {_EN: "Good", _ES: "Bien"},
+    "mood.level.5": {_EN: "Very good", _ES: "Muy bien"},
+    "mood.save": {_EN: "Save how I feel", _ES: "Guardar cómo me siento"},
+    "mood.last": {_EN: "Last check-in: {label}", _ES: "Último registro: {label}"},
+    "mood.note": {
+        _EN: "Saved on this computer. Nothing is sent without your confirmation.",
+        _ES: "Se guarda en este equipo. Nada se envía sin tu confirmación.",
     },
     "pulse.title": {_EN: "Pulse mission", _ES: "Misión del pulso"},
     "pulse.hub_body": {

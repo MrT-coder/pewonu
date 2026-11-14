@@ -2,8 +2,8 @@
 
 Eight JPEG files, one per step (1 to 4) and language (`en`, `es`): `<lang>-step<n>.jpg`.
 
-- Origin: two images supplied by the team (Spanish and English), **generated with AI**. The tool is
-  to be recorded in `docs/uso-de-ia.md`.
+- Origin: two images (Spanish and English) made by Kevin Toalombo, **generated with AI**: Gemini
+  for the generation and Meta AI for the editing (also recorded in `docs/uso-de-ia.md`).
 - Each file is the drawing of one step cropped from those images, without the caption block below.
   Crop boxes (x0, x1) over the panels, top to bottom:
   - `es` (1808x1136): y 64-728; x 0-455, 462-905, 912-1350, 1357-1808.

@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 
 from crew_self_check.astronaut.access import AccessDirectory, AccessError
+from crew_self_check.astronaut.mood import check_level, mood_measurement
 from crew_self_check.astronaut.pulse_mission import PulseMission
 from crew_self_check.core.contract import CrewProfile, Environment, Indicator, Measurement
 from crew_self_check.core.reasons import Language
@@ -39,6 +40,7 @@ class AppState:
         # In memory for now: SQLite behind a storage port comes with A2.
         self.measurements: list[Measurement] = []
         self.pulse: PulseMission | None = None
+        self.mood_choice: int | None = None  # the face tapped and not saved yet
 
     @property
     def logged_in(self) -> bool:
@@ -56,6 +58,7 @@ class AppState:
         self.profile, self.code = result.profile, result.code
         self.section = Section.HOME
         self.pulse = None
+        self.mood_choice = None
         return True
 
     def logout(self) -> None:
@@ -64,6 +67,7 @@ class AppState:
         self.error = None
         self.section = Section.HOME
         self.pulse = None  # an unfinished mission is abandoned; what was saved stays
+        self.mood_choice = None
 
     def set_language(self, language: Language) -> None:
         self.language = language
@@ -92,6 +96,22 @@ class AppState:
         self.pulse = None
         return measurement
 
+    # --- the mood survey -------------------------------------------------------------------
+
+    def choose_mood(self, level: int) -> None:
+        self.mood_choice = check_level(level)
+
+    def save_mood(self) -> Measurement:
+        """Record the chosen face as a contract measurement of this person."""
+        if self.profile is None or self.mood_choice is None:
+            raise RuntimeError("there is no mood choice to save")
+        measurement = mood_measurement(
+            self.profile.crew_id, self.mood_choice, self.environment, self._clock()
+        )
+        self.measurements.append(measurement)
+        self.mood_choice = None
+        return measurement
+
     # --- what this person recorded ---------------------------------------------------------
 
     def own_measurements(self) -> tuple[Measurement, ...]:
@@ -99,6 +119,12 @@ class AppState:
             return ()
         return tuple(m for m in self.measurements if m.crew_id == self.profile.crew_id)
 
+    def _last(self, indicator: Indicator) -> Measurement | None:
+        found = [m for m in self.own_measurements() if m.indicator is indicator]
+        return found[-1] if found else None
+
     def last_pulse(self) -> Measurement | None:
-        pulses = [m for m in self.own_measurements() if m.indicator is Indicator.RESTING_HR]
-        return pulses[-1] if pulses else None
+        return self._last(Indicator.RESTING_HR)
+
+    def last_mood(self) -> Measurement | None:
+        return self._last(Indicator.MOOD)
