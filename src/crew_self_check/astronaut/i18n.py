@@ -121,26 +121,40 @@ STRINGS: dict[str, dict[Language, str]] = {
     },
     "pulse.count.title": {_EN: "Count the beats", _ES: "Cuenta los latidos"},
     "pulse.count.body": {
-        _EN: "Tap the big button on every beat you feel. We count for {seconds} seconds.",
-        _ES: "Toca el botón grande con cada latido que sientas. "
-        "Contamos durante {seconds} segundos.",
+        _EN: "Count the beats you feel for {seconds} seconds, then enter how many you counted.",
+        _ES: "Cuenta los latidos que sientas durante {seconds} segundos "
+        "y escribe cuántos contaste.",
     },
     "pulse.interval": {_EN: "How long to count", _ES: "Cuánto tiempo contar"},
     "pulse.interval_30": {_EN: "30 seconds (×2)", _ES: "30 segundos (×2)"},  # noqa: RUF001
     "pulse.interval_60": {_EN: "60 seconds", _ES: "60 segundos"},
     "pulse.next": {_EN: "Done, next", _ES: "Listo, siguiente"},
-    "pulse.begin_count": {_EN: "Start counting", _ES: "Empezar a contar"},
-    "pulse.tap": {_EN: "Tap on each beat", _ES: "Toca con cada latido"},
-    "pulse.beats": {_EN: "{n} beats", _ES: "{n} latidos"},
+    "pulse.timer_start": {
+        _EN: "Start a {seconds}-second timer (optional)",
+        _ES: "Iniciar un temporizador de {seconds} segundos (opcional)",
+    },
+    "pulse.timer_done": {
+        _EN: "Time's up. Enter how many beats you counted.",
+        _ES: "Se acabó el tiempo. Escribe cuántos latidos contaste.",
+    },
+    "pulse.beats_label": {
+        _EN: "Beats counted in {seconds} seconds",
+        _ES: "Latidos contados en {seconds} segundos",
+    },
+    "pulse.calculate": {_EN: "Calculate my pulse", _ES: "Calcular mi pulso"},
+    "pulse.beats_error": {
+        _EN: "Enter a whole number of beats.",
+        _ES: "Escribe un número entero de latidos.",
+    },
     "pulse.seconds_left": {_EN: "{s} s left", _ES: "{s} s restantes"},
     "pulse.result_title": {_EN: "Your count", _ES: "Tu conteo"},
     "pulse.formula_30": {
-        _EN: "{taps} beats × 2 = {bpm} bpm",  # noqa: RUF001
-        _ES: "{taps} latidos × 2 = {bpm} lpm",  # noqa: RUF001
+        _EN: "{beats} beats × 2 = {bpm} bpm",  # noqa: RUF001
+        _ES: "{beats} latidos × 2 = {bpm} lpm",  # noqa: RUF001
     },
     "pulse.formula_60": {
-        _EN: "{taps} beats in 60 s = {bpm} bpm",
-        _ES: "{taps} latidos en 60 s = {bpm} lpm",
+        _EN: "{beats} beats in 60 s = {bpm} bpm",
+        _ES: "{beats} latidos en 60 s = {bpm} lpm",
     },
     "pulse.recount_body": {
         _EN: "That count looks off, you may have lost count. Try again.",
