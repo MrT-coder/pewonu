@@ -161,7 +161,7 @@ Astronauts will soon be too far from Earth for real-time medical help. Averages 
 
 ## 4. Slides (maximum 7 including title and introduction)
 
-Keep text short: judges read these without a presenter. Put the SI watermark on every generated image. Cite sources in small print on the slide.
+Keep text short: judges read these without a presenter. Put the SI watermark on every generated image. Cite sources in small print on the slide. **Spell out every acronym the first time it appears on a slide**, for example "beats per minute (bpm)"; the glossary in section 7 has the expansions.
 
 **Slide 1: Title and introduction**
 - Crew Self-Check. "Know your own baseline."
@@ -237,3 +237,33 @@ Hard limit: 30 seconds. Subtitles in English if the narration is in Spanish. Add
 | One-way delay Earth to Mars about 3 to 22 minutes | From the team's research note ([research/10](../research/10-plataforma-offline-y-dispositivos.md)); confirm the source before quoting |
 | Heart-rate Observation: category vital-signs, LOINC 8867-4, unit `/min` | `[VERIFICADO]` HL7 FHIR R4 Heart Rate profile; official validator gave 0 errors on a sample |
 | Wrist technique: index and middle fingers, light pressure, count 30 s x 2 or 60 s, rest 10 minutes | `[VERIFICADO]` MedlinePlus (the team's illustrations differ in a few labels, see D-021) |
+
+---
+
+## 7. Glossary (spell these out on first use in the form and on the slides)
+
+| Acronym | Meaning |
+|---|---|
+| AI | Artificial intelligence |
+| SI | "Super Intelligence": the term NASA Space Apps uses for AI tools |
+| ARCHeR | Artemis Research for Crew Health & Readiness (a NASA study) |
+| bpm | Beats per minute (Spanish: lpm, latidos por minuto) |
+| CSA | Canadian Space Agency |
+| FHIR | Fast Healthcare Interoperability Resources: the HL7 standard for exchanging health data |
+| HL7 | Health Level Seven International: the standards organization behind FHIR |
+| HRP | Human Research Program (NASA) |
+| ISS | International Space Station |
+| JSON | JavaScript Object Notation: a plain-text data format |
+| KPIs | Key performance indicators: here, a short summary per astronaut |
+| LOINC | Logical Observation Identifiers Names and Codes: standard codes for measurements |
+| NASA | National Aeronautics and Space Administration |
+| NCHS | National Center for Health Statistics (United States) |
+| NHANES | National Health and Nutrition Examination Survey (United States) |
+| NHSR | National Health Statistics Reports |
+| NIH | National Institutes of Health (United States) |
+| QR | Quick-response code |
+| SQLite | A small database stored in a single file |
+| UCUM | Unified Code for Units of Measure |
+| URL | Web address |
+
+The astronaut app has the same idea built in: every acronym it shows is spelled out where it matters and listed in a Glossary dialog, available from every screen (D-024).
