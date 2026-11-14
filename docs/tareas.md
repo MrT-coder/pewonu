@@ -27,7 +27,7 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 
 | ID | Tarea | Nivel | Dep | Hecho cuando |
 |---|---|---|---|---|
-| A1 | **Spike de offline:** probar `flet build web --no-cdn` o el servidor local sin internet, con la versión fijada; registrar el resultado | M | H1 | La app abre y responde con la red desconectada, o queda registrado el fallo y la salida a TypeScript (D-017). **Bloquea todo el carril** |
+| A1 | **Spike de offline:** probar `flet build web --no-cdn` o el servidor local sin internet, con la versión fijada; registrar el resultado | M | H1 | La app abre y responde con la red desconectada, o queda registrado el fallo y la salida a TypeScript (D-017). **Bloquea todo el carril.** **Hecho 2026-11-14:** pasa con `no_cdn=True` ([spike-offline-flet.md](spike-offline-flet.md)); rama `app/offline-spike` |
 | A2 | Estructura de la app, cambio de idioma español/inglés y persistencia local en SQLite detrás de un puerto de almacenamiento | M | A1, C1 | Cambiar de idioma actualiza toda la pantalla; los datos sobreviven a un reinicio; el almacenamiento se puede sustituir en un test. **Parcial 2026-11-14:** carcasa, idioma y acceso por código (D-020) en `astronaut/`, rama `app/shell`; falta el almacenamiento SQLite |
 | A3 | Figura corporal con arte SVG y zonas clicables, coloreada por `SystemStatus` | M | A2, C4 | Cada sistema abre su tarjeta; el color sale del estado y no está fijo en el código |
 | A4 | Tarjeta del sistema: tendencia con banda, explicación simple, orientación con cita y checklist | M | A3 | Cada afirmación de orientación tiene su cita; sin diagnóstico ni dosis |
