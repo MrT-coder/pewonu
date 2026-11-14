@@ -22,7 +22,8 @@ class Actions:
     go: Callable[[Section], None]
     logout: Callable[[], None]
     show_limits: Callable[[], None]
-    refresh: Callable[[], None]
+    refresh: Callable[[], None]  # push control changes to the screen
+    rerender: Callable[[], None]  # rebuild the whole view from the state
 
 
 def cabin_background(content: ft.Control) -> ft.Container:

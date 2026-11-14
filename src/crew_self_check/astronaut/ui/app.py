@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import flet as ft
 
 from crew_self_check.astronaut import theme
@@ -14,6 +16,7 @@ from crew_self_check.astronaut.ui.shell import build_shell
 from crew_self_check.core.reasons import Language
 
 PORT = 8550
+ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
 
 
 def main(page: ft.Page) -> None:
@@ -60,10 +63,18 @@ def main(page: ft.Page) -> None:
         logout=logout,
         show_limits=show_limits,
         refresh=page.update,
+        rerender=render,
     )
     render()
 
 
 def run() -> None:
     """Serve the app on this computer only. ``no_cdn`` keeps it working without internet (A1)."""
-    ft.run(main, view=ft.AppView.WEB_BROWSER, host="127.0.0.1", port=PORT, no_cdn=True)
+    ft.run(
+        main,
+        view=ft.AppView.WEB_BROWSER,
+        host="127.0.0.1",
+        port=PORT,
+        no_cdn=True,
+        assets_dir=str(ASSETS_DIR),
+    )

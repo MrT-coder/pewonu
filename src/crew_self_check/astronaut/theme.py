@@ -9,3 +9,4 @@ MUTED = "#8fa0b8"
 ACCENT = "#38bdf8"  # sky
 ACCENT_SOFT = "#0c2a3f"
 GOOD = "#34d399"  # emerald
+GOLD = "#fbbf24"  # badges
