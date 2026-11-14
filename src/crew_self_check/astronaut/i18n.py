@@ -26,9 +26,10 @@ STRINGS: dict[str, dict[Language, str]] = {
     "login.code_label": {_EN: "Astronaut code", _ES: "Código de astronauta"},
     "login.code_hint": {_EN: "AST-0000", _ES: "AST-0000"},
     "login.enter": {_EN: "Enter", _ES: "Entrar"},
+    "login.code_help": {_EN: "AST stands for astronaut.", _ES: "AST significa astronauta."},
     "login.error.invalid_format": {
-        _EN: "Use the format AST-0000.",
-        _ES: "Usa el formato AST-0000.",
+        _EN: "Use the format AST-0000 (AST = astronaut, then four digits).",
+        _ES: "Usa el formato AST-0000 (AST = astronauta, luego cuatro dígitos).",
     },
     "login.error.unknown_code": {
         _EN: "Code not registered on this computer.",
@@ -48,6 +49,8 @@ STRINGS: dict[str, dict[Language, str]] = {
     "nav.body": {_EN: "Body", _ES: "Cuerpo"},
     "nav.summary": {_EN: "Summary", _ES: "Resumen"},
     "nav.limits": {_EN: "Limits", _ES: "Límites"},
+    "nav.glossary": {_EN: "Glossary", _ES: "Glosario"},
+    "glossary.close": {_EN: "Close", _ES: "Cerrar"},
     "nav.logout": {_EN: "Sign out", _ES: "Salir"},
     "home.greeting": {_EN: "Hello, {code}", _ES: "Hola, {code}"},
     "home.subtitle": {
@@ -109,8 +112,8 @@ STRINGS: dict[str, dict[Language, str]] = {
     },
     "pulse.start": {_EN: "Start the mission", _ES: "Empezar la misión"},
     "pulse.last": {
-        _EN: "Last pulse recorded: {bpm} bpm",
-        _ES: "Último pulso registrado: {bpm} lpm",
+        _EN: "Last pulse recorded: {bpm} beats per minute (bpm)",
+        _ES: "Último pulso registrado: {bpm} latidos por minuto (lpm)",
     },
     "pulse.station": {_EN: "Station {n} of 4", _ES: "Estación {n} de 4"},
     "pulse.rest.title": {_EN: "Rest first", _ES: "Descansa primero"},
@@ -160,12 +163,12 @@ STRINGS: dict[str, dict[Language, str]] = {
     "pulse.seconds_left": {_EN: "{s} s left", _ES: "{s} s restantes"},
     "pulse.result_title": {_EN: "Your count", _ES: "Tu conteo"},
     "pulse.formula_30": {
-        _EN: "{beats} beats × 2 = {bpm} bpm",  # noqa: RUF001
-        _ES: "{beats} latidos × 2 = {bpm} lpm",  # noqa: RUF001
+        _EN: "{beats} beats × 2 = {bpm} beats per minute (bpm)",  # noqa: RUF001
+        _ES: "{beats} latidos × 2 = {bpm} latidos por minuto (lpm)",  # noqa: RUF001
     },
     "pulse.formula_60": {
-        _EN: "{beats} beats in 60 s = {bpm} bpm",
-        _ES: "{beats} latidos en 60 s = {bpm} lpm",
+        _EN: "{beats} beats in 60 s = {bpm} beats per minute (bpm)",
+        _ES: "{beats} latidos en 60 s = {bpm} latidos por minuto (lpm)",
     },
     "pulse.recount_body": {
         _EN: "That count looks off, you may have lost count. Try again.",
@@ -188,10 +191,13 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "Pulse saved to your record.",
         _ES: "Pulso guardado en tu registro.",
     },
-    "pulse.source": {_EN: "Technique: MedlinePlus (NIH).", _ES: "Técnica: MedlinePlus (NIH)."},
+    "pulse.source": {
+        _EN: "Technique: MedlinePlus, from the United States National Institutes of Health (NIH).",
+        _ES: "Técnica: MedlinePlus, de los Institutos Nacionales de Salud de Estados Unidos (NIH).",
+    },
     "pulse.illustrations": {
-        _EN: "Illustrations generated with AI.",
-        _ES: "Ilustraciones generadas con IA.",
+        _EN: "Illustrations generated with artificial intelligence (AI).",
+        _ES: "Ilustraciones generadas con inteligencia artificial (IA).",
     },
     "limits.title": {_EN: "Limits of this prototype", _ES: "Límites de este prototipo"},
     "limits.body": {
@@ -206,6 +212,46 @@ STRINGS: dict[str, dict[Language, str]] = {
     },
     "limits.close": {_EN: "Close", _ES: "Cerrar"},
 }
+
+
+# Every acronym the interface shows is spelled out here (D-024). A test fails if a new acronym
+# appears in ``STRINGS`` without an entry, so nothing is left unexplained by accident.
+GLOSSARY: tuple[dict[Language, tuple[str, str]], ...] = (
+    {
+        _EN: ("bpm", "beats per minute: how many times the heart beats in one minute"),
+        _ES: (
+            "lpm",
+            "latidos por minuto (bpm en inglés): cuántas veces late el corazón en un minuto",
+        ),
+    },
+    {
+        _EN: ("AI", "artificial intelligence: software that can generate images or text"),
+        _ES: (
+            "IA",
+            "inteligencia artificial (AI en inglés): software que puede generar imágenes o texto",
+        ),
+    },
+    {
+        _EN: (
+            "NIH",
+            "National Institutes of Health: the main United States government agency "
+            "for health research",
+        ),
+        _ES: (
+            "NIH",
+            "Institutos Nacionales de Salud de Estados Unidos: la principal agencia del gobierno "
+            "estadounidense para la investigación en salud",
+        ),
+    },
+    {
+        _EN: ("AST", "astronaut: the first letters of your personal code, AST-0000"),
+        _ES: ("AST", "astronauta: las primeras letras de tu código personal, AST-0000"),
+    },
+)
+
+
+def glossary_terms(language: Language) -> frozenset[str]:
+    return frozenset(entry[language][0] for entry in GLOSSARY)
 
 
 def translate(key: str, language: Language, **params: object) -> str:

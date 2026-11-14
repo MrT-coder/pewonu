@@ -155,6 +155,11 @@ def _top_bar(state: AppState, actions: Actions) -> ft.Control:
                     ),
                     language_switch(state, actions),
                     ft.IconButton(
+                        icon=ft.Icons.MENU_BOOK_OUTLINED,
+                        tooltip=translate("nav.glossary", language),
+                        on_click=lambda _: actions.show_glossary(),
+                    ),
+                    ft.IconButton(
                         icon=ft.Icons.INFO_OUTLINE,
                         tooltip=translate("nav.limits", language),
                         on_click=lambda _: actions.show_limits(),

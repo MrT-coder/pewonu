@@ -10,7 +10,7 @@ from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.access import simulated_directory
 from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.state import AppState, Section
-from crew_self_check.astronaut.ui.common import Actions, limits_dialog
+from crew_self_check.astronaut.ui.common import Actions, glossary_dialog, limits_dialog
 from crew_self_check.astronaut.ui.login import build_login
 from crew_self_check.astronaut.ui.shell import build_shell
 from crew_self_check.core.reasons import Language
@@ -56,12 +56,16 @@ def main(page: ft.Page) -> None:
     def show_limits() -> None:
         page.show_dialog(limits_dialog(state.language, close_limits))
 
+    def show_glossary() -> None:
+        page.show_dialog(glossary_dialog(state.language, close_limits))
+
     actions = Actions(
         login=login,
         set_language=set_language,
         go=go,
         logout=logout,
         show_limits=show_limits,
+        show_glossary=show_glossary,
         refresh=page.update,
         rerender=render,
     )
