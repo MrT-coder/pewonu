@@ -28,10 +28,17 @@ An astronaut compares themselves with **their own baseline**, not with a populat
 Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-uv sync --group dev          # add --extra astronaut for the app
+uv sync --group dev --extra astronaut
 uv run pytest
 uv run ruff check . && uv run ruff format --check .
 uv run mypy
+```
+
+Run the astronaut app (local only, works without internet) and open http://127.0.0.1:8550. The simulated
+demo crew signs in with the codes `AST-0001` and `AST-0002`:
+
+```bash
+uv run python -m crew_self_check.astronaut
 ```
 
 Rules for people and AI agents: [AGENTS.md](AGENTS.md). Tasks: [docs/tareas.md](docs/tareas.md).

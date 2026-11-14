@@ -28,14 +28,14 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 | ID | Tarea | Nivel | Dep | Hecho cuando |
 |---|---|---|---|---|
 | A1 | **Spike de offline:** probar `flet build web --no-cdn` o el servidor local sin internet, con la versión fijada; registrar el resultado | M | H1 | La app abre y responde con la red desconectada, o queda registrado el fallo y la salida a TypeScript (D-017). **Bloquea todo el carril** |
-| A2 | Estructura de la app, cambio de idioma español/inglés y persistencia local en SQLite detrás de un puerto de almacenamiento | M | A1, C1 | Cambiar de idioma actualiza toda la pantalla; los datos sobreviven a un reinicio; el almacenamiento se puede sustituir en un test |
+| A2 | Estructura de la app, cambio de idioma español/inglés y persistencia local en SQLite detrás de un puerto de almacenamiento | M | A1, C1 | Cambiar de idioma actualiza toda la pantalla; los datos sobreviven a un reinicio; el almacenamiento se puede sustituir en un test. **Parcial 2026-11-14:** carcasa, idioma y acceso por código (D-020) en `astronaut/`, rama `app/shell`; falta el almacenamiento SQLite |
 | A3 | Figura corporal con arte SVG y zonas clicables, coloreada por `SystemStatus` | M | A2, C4 | Cada sistema abre su tarjeta; el color sale del estado y no está fijo en el código |
 | A4 | Tarjeta del sistema: tendencia con banda, explicación simple, orientación con cita y checklist | M | A3 | Cada afirmación de orientación tiene su cita; sin diagnóstico ni dosis |
 | A5 | Entrada manual del pulso: el astronauta cuenta y la app calcula, con el gráfico explicativo | M | A2, C3 | Un conteo produce un `Measurement` con `method: palpation` |
 | A6 | Burbuja de ánimo: encuesta clásica, luego conversación opcional por voz con un LLM; la conversación no se guarda; se guardan solo medidas acústicas numéricas (D-015) | M | A2 | La encuesta mueve el estado de `mood`; la conversación no queda en SQLite; las medidas acústicas no mueven ningún estado |
 | A7 | Reproductor del viaje: cambio de espacio y rótulos de referencia de transición | M | A3, C5 | Se recorre Tierra → nave → Marte y la figura cambia; cada estado muestra contra qué referencia se comparó |
 | A8 | Recordatorios de rutina del escenario simulado | M | A7 | Aparece el recordatorio del día con la medición pedida |
-| A9 | Pantalla "Limits": datos análogos, nada validado en órbita, sin diagnóstico | M | A2 | Visible desde cualquier pantalla, en ambos idiomas |
+| A9 | Pantalla "Limits": datos análogos, nada validado en órbita, sin diagnóstico | M | A2 | Visible desde cualquier pantalla, en ambos idiomas. **Hecho 2026-11-14** en la carcasa (login y app), rama `app/shell` |
 | A10 | Escalamiento: sugiere, el astronauta confirma y se envía un Bundle a la base con el retraso simulado | S | A4, C8, G1 | Sin confirmación no sale nada; con ella llega a `ground` |
 | A11 | Pantalla fija de emergencia en la nave (¿respira?, ¿responde?, escalar y seguir el procedimiento oficial) | S | A2 | Sin pasos clínicos propios (D-016) |
 | A12 | Racha de adherencia: premia medir con regularidad, nunca "estar sano" | S | A5 | La racha depende de mediciones hechas, no de su valor |
