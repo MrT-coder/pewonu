@@ -229,6 +229,151 @@ STRINGS: dict[str, dict[Language, str]] = {
         _ES: "En una misión real las lecturas llegarían de los dispositivos de la tripulación; "
         "los casos siguen los peligros del Programa de Investigación Humana de la NASA.",
     },
+    "nav.hazards": {
+        _EN: "Hazards",
+        _ES: "Peligros",
+    },
+    "part.hazards.title": {
+        _EN: "Mission hazards",
+        _ES: "Peligros de la misión",
+    },
+    "part.hazards.body": {
+        _EN: "The five NASA hazards of spaceflight and which of your indicators each one touches.",
+        _ES: "Los cinco peligros del vuelo espacial de la NASA y qué indicadores tuyos toca cada "
+        "uno.",
+    },
+    "hazards.title": {
+        _EN: "The five hazards of human spaceflight",
+        _ES: "Los cinco peligros del vuelo espacial humano",
+    },
+    "hazards.intro": {
+        _EN: "NASA's Human Research Program groups the risks of a long mission into five hazards. "
+        "Here is what each one means where you are now and which of your own indicators it "
+        "touches.",
+        _ES: "El Programa de Investigación Humana de la NASA agrupa los riesgos de una misión "
+        "larga en cinco peligros. Aquí ves qué significa cada uno donde estás ahora y qué "
+        "indicadores tuyos toca.",
+    },
+    "hazards.you_are": {
+        _EN: "You are in: {place}",
+        _ES: "Estás en: {place}",
+    },
+    "hazards.assumption": {
+        _EN: "Which indicator belongs to which hazard is our reading of the NASA pages, not an "
+        "official list.",
+        _ES: "Qué indicador pertenece a qué peligro es nuestra lectura de las páginas de la NASA, "
+        "no es una lista oficial.",
+    },
+    "hazards.touches": {
+        _EN: "Your indicators it touches",
+        _ES: "Tus indicadores que toca",
+    },
+    "hazards.not_measured": {
+        _EN: "Not measured by this prototype",
+        _ES: "Este prototipo no lo mide",
+    },
+    "hazards.not_measured.radiation": {
+        _EN: "Radiation needs a dosimeter. The Canadian Space Agency is developing a "
+        "compact, autonomous instrument (the Canadian Active Neutron Spectrometer) to "
+        "measure neutron radiation exposure in space.",
+        _ES: "La radiación necesita un dosímetro. La Agencia Espacial Canadiense desarrolla "
+        "un instrumento compacto y autónomo (el espectrómetro activo canadiense de "
+        "neutrones) para medir la exposición a neutrones en el espacio.",
+    },
+    "hazards.comm": {
+        _EN: "A message to the ground takes about {minutes} minutes in this demo, so you act first"
+        " on board and then ask the ground.",
+        _ES: "Un mensaje a Tierra tarda unos {minutes} minutos en esta demostración, así que "
+        "actúas primero a bordo y luego consultas a Tierra.",
+    },
+    "hazards.comm.what": {
+        _EN: "The app keeps working without the ground and sends nothing until you confirm.",
+        _ES: "La app funciona sin Tierra y no envía nada hasta que lo confirmes.",
+    },
+    "hazards.matrix_title": {
+        _EN: "Where each hazard applies",
+        _ES: "Dónde aplica cada peligro",
+    },
+    "hazards.stressed_by": {
+        _EN: "Stressed by the case of {code}",
+        _ES: "Lo pone a prueba el caso de {code}",
+    },
+    "hazards.state.flagged": {
+        _EN: "Needs attention",
+        _ES: "Requiere atención",
+    },
+    "hazards.state.ok": {
+        _EN: "In range",
+        _ES: "En rango",
+    },
+    "hazards.state.unknown": {
+        _EN: "Not enough data yet",
+        _ES: "Aún sin datos suficientes",
+    },
+    "hazards.here": {
+        _EN: "Where you are now",
+        _ES: "Donde estás ahora",
+    },
+    "hazard.radiation.here.earth": {
+        _EN: "The atmosphere and Earth's magnetic field protect you.",
+        _ES: "La atmósfera y el campo magnético de la Tierra te protegen.",
+    },
+    "hazard.radiation.here.spacecraft": {
+        _EN: "Beyond Earth's protection: exposure to space radiation.",
+        _ES: "Fuera de la protección de la Tierra: exposición a la radiación espacial.",
+    },
+    "hazard.radiation.here.planet": {
+        _EN: "On the surface the thin atmosphere gives little protection.",
+        _ES: "En la superficie la atmósfera delgada protege poco.",
+    },
+    "hazard.isolation.here.earth": {
+        _EN: "Your usual people and surroundings are close.",
+        _ES: "Tu gente y tu entorno habitual están cerca.",
+    },
+    "hazard.isolation.here.spacecraft": {
+        _EN: "A small crew in a small space, far from home.",
+        _ES: "Una tripulación pequeña en un espacio pequeño, lejos de casa.",
+    },
+    "hazard.isolation.here.planet": {
+        _EN: "A small crew in a base, far from home.",
+        _ES: "Una tripulación pequeña en una base, lejos de casa.",
+    },
+    "hazard.distance.here.earth": {
+        _EN: "Help and supplies are close.",
+        _ES: "La ayuda y los suministros están cerca.",
+    },
+    "hazard.distance.here.spacecraft": {
+        _EN: "Messages take minutes and help cannot arrive quickly.",
+        _ES: "Los mensajes tardan minutos y la ayuda no puede llegar rápido.",
+    },
+    "hazard.distance.here.planet": {
+        _EN: "Messages take minutes and help is far away.",
+        _ES: "Los mensajes tardan minutos y la ayuda está lejos.",
+    },
+    "hazard.gravity.here.earth": {
+        _EN: "Normal gravity.",
+        _ES: "Gravedad normal.",
+    },
+    "hazard.gravity.here.spacecraft": {
+        _EN: "Microgravity: the body adjusts and loses conditioning.",
+        _ES: "Microgravedad: el cuerpo se adapta y pierde acondicionamiento.",
+    },
+    "hazard.gravity.here.planet": {
+        _EN: "Partial gravity: the body adjusts again.",
+        _ES: "Gravedad parcial: el cuerpo se adapta de nuevo.",
+    },
+    "hazard.environment.here.earth": {
+        _EN: "A familiar, open environment.",
+        _ES: "Un entorno conocido y abierto.",
+    },
+    "hazard.environment.here.spacecraft": {
+        _EN: "A closed environment: the ship manages air, temperature and pressure.",
+        _ES: "Un entorno cerrado: la nave maneja el aire, la temperatura y la presión.",
+    },
+    "hazard.environment.here.planet": {
+        _EN: "A habitat: the base manages air, temperature and pressure.",
+        _ES: "Un hábitat: la base maneja el aire, la temperatura y la presión.",
+    },
     "nav.limits": {_EN: "Limits", _ES: "Límites"},
     "nav.glossary": {_EN: "Glossary", _ES: "Glosario"},
     "glossary.close": {_EN: "Close", _ES: "Cerrar"},

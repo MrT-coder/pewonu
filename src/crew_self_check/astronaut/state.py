@@ -46,6 +46,7 @@ class Section(StrEnum):
     BODY = "body"
     SUMMARY = "summary"
     DATA = "data"
+    HAZARDS = "hazards"
 
 
 class AppState:

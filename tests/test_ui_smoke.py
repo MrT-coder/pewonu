@@ -8,7 +8,7 @@ ft = pytest.importorskip("flet")
 
 from crew_self_check.astronaut.access import simulated_directory  # noqa: E402
 from crew_self_check.astronaut.body_model import reference_text  # noqa: E402
-from crew_self_check.astronaut.cases import CASES  # noqa: E402
+from crew_self_check.astronaut.cases import CASES, Hazard  # noqa: E402
 from crew_self_check.astronaut.i18n import translate  # noqa: E402
 from crew_self_check.astronaut.state import AppState, Section  # noqa: E402
 from crew_self_check.astronaut.ui.common import Actions, glossary_dialog  # noqa: E402
@@ -107,6 +107,11 @@ def test_shell_builds_every_section_in_both_languages(language: Language, sectio
         assert translate("intake.sources_title", language) in texts
         assert translate("intake.feed_title", language) in texts
         assert translate("intake.origin_simulated", language) in texts
+    elif section is Section.HAZARDS:
+        assert translate("hazards.title", language) in texts
+        assert translate("hazards.assumption", language) in texts
+        for hazard in Hazard:
+            assert translate(f"hazard.{hazard.value}", language) in texts, hazard
     else:
         assert translate(f"part.{section.value}.body", language) in texts
 

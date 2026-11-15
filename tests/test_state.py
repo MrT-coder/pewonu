@@ -84,7 +84,7 @@ def test_the_language_can_be_switched_at_any_time() -> None:
 
 
 def test_the_sections_are_the_four_parts() -> None:
-    assert [s.value for s in Section] == ["home", "checkin", "body", "summary", "data"]
+    assert [s.value for s in Section] == ["home", "checkin", "body", "summary", "data", "hazards"]
 
 
 # --- the pulse mission and what it records ------------------------------------------------------

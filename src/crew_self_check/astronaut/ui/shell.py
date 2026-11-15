@@ -11,6 +11,7 @@ from crew_self_check.astronaut.ui.body import build_body
 from crew_self_check.astronaut.ui.cases import case_card
 from crew_self_check.astronaut.ui.checkin import build_checkin
 from crew_self_check.astronaut.ui.common import Actions, cabin_background, card, language_switch
+from crew_self_check.astronaut.ui.hazards import build_hazards_view
 from crew_self_check.astronaut.ui.intake import build_intake_view
 from crew_self_check.astronaut.ui.journey import journey_bar
 from crew_self_check.astronaut.ui.summary import build_summary_view
@@ -23,9 +24,16 @@ _ICONS = {
     Section.BODY: ft.Icons.ACCESSIBILITY_NEW,
     Section.SUMMARY: ft.Icons.DASHBOARD_OUTLINED,
     Section.DATA: ft.Icons.INPUT,
+    Section.HAZARDS: ft.Icons.WARNING_AMBER,
 }
 
-_PARTS = (Section.CHECKIN, Section.DATA, Section.BODY, Section.SUMMARY)
+_PARTS = (
+    Section.CHECKIN,
+    Section.HAZARDS,
+    Section.BODY,
+    Section.SUMMARY,
+    Section.DATA,
+)
 
 
 def _part_card(section: Section, state: AppState, actions: Actions) -> ft.Control:
@@ -115,7 +123,7 @@ def _home(state: AppState, actions: Actions) -> ft.Control:
                 spacing=14,
                 run_spacing=14,
                 controls=[
-                    ft.Container(content=_part_card(part, state, actions), col={"xs": 12, "md": 3})
+                    ft.Container(content=_part_card(part, state, actions), col={"xs": 12, "md": 4})
                     for part in _PARTS
                 ],
             ),
@@ -204,6 +212,8 @@ def build_shell(state: AppState, actions: Actions) -> ft.Control:
         body = build_body(state, actions)
     elif state.section is Section.DATA:
         body = build_intake_view(state, actions)
+    elif state.section is Section.HAZARDS:
+        body = build_hazards_view(state, actions)
     else:
         body = build_summary_view(state, actions)
     return cabin_background(
