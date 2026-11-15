@@ -209,5 +209,6 @@ def build_intake_view(state: AppState, actions: Actions) -> ft.Control:
     )
     return ft.Column(
         spacing=14,
+        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
         controls=[header, sources, feed, _shows_now(state, actions), _origin(intake, language)],
     )
