@@ -4,7 +4,7 @@ Prototype for the NASA Space Apps Challenge 2026, "Create Health Monitoring Soft
 
 > **Status: work in progress (hackathon, 14-15 Nov 2026).** This is a prototype built with simulated, analog data. It does **not** diagnose, predict disease, or replace medical care. Nothing here has been validated for use in space.
 >
-> **Built so far:** data contract, personal baseline engine, labeled population reference, status and reasons in English and Spanish, simulated Earth-spacecraft-Mars scenario, device port, FHIR R4 export (only what the astronaut confirms, validated with the official HL7 validator), and the astronaut app (sign-in by code, guided manual-pulse mission, five-face mood check, a body figure colored by each system's state with a card per system, a journey bar from Earth to the planet, a summary per astronaut, and sharing: the astronaut chooses what to send, confirms, and the app packs it as a FHIR package with a simulated delay). **Not built yet:** local database, voice log and the ground base that would receive the package (today it lands in a local simulated inbox). See [docs/tareas.md](docs/tareas.md).
+> **Built so far:** data contract, personal baseline engine, labeled population reference, status and reasons in English and Spanish, simulated Earth-spacecraft-Mars scenario, device port, FHIR R4 export (only what the astronaut confirms, validated with the official HL7 validator), and the astronaut app (sign-in by code, guided manual-pulse mission, five-face mood check, a body figure colored by each system's state with a card per system, a journey bar from Earth to the planet, a summary per astronaut, and sharing: the astronaut chooses what to send, confirms, and the app packs it as a FHIR package with a simulated delay). a local SQLite database, and the ground base (FastAPI): it receives the confirmed package over HTTP, validates it, shows it only after a configurable communication delay, and has a bilingual view per crew member. **Not built yet:** voice log, reminders, emergency screen and adherence streak. See [docs/tareas.md](docs/tareas.md).
 
 ## The idea
 
@@ -30,7 +30,7 @@ An astronaut compares themselves with **their own baseline**, not with a populat
 Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 
 ```bash
-uv sync --group dev --extra astronaut
+uv sync --group dev --extra astronaut --extra ground
 uv run pytest
 uv run ruff check . && uv run ruff format --check .
 uv run mypy
@@ -41,6 +41,14 @@ demo crew signs in with the codes `AST-0001` and `AST-0002`:
 
 ```bash
 uv run python -m crew_self_check.astronaut
+```
+
+Run the ground base in a second terminal (local only) and open http://127.0.0.1:8560. The astronaut app
+sends to it by default; `CREW_SELF_CHECK_GROUND_URL` changes the address (empty turns the link off), and
+`CREW_SELF_CHECK_DB` / `CREW_SELF_CHECK_GROUND_DB` choose the SQLite files (default `data/`):
+
+```bash
+uv run python -m crew_self_check.ground
 ```
 
 Rules for people and AI agents: [AGENTS.md](AGENTS.md). Tasks: [docs/tareas.md](docs/tareas.md).
