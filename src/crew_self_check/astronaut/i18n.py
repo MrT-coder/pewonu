@@ -1586,6 +1586,20 @@ STRINGS: dict[str, dict[Language, str]] = {
             "este plan siempre incluye trabajo de resistencia."
         ),
     },
+    "wod.bone_earth": {
+        _EN: (
+            "Your preflight bone density was {baseline} g/cm². In space, without "
+            "exercise, bone loss is about 1 to 2 percent a month (NASA Human "
+            "Research Program). Loading the bones is why this plan always includes "
+            "resistive work."
+        ),
+        _ES: (
+            "Tu densidad ósea antes del vuelo fue {baseline} g/cm². En el espacio, "
+            "sin ejercicio, la pérdida ósea es de 1 a 2 por ciento al mes (Programa "
+            "de Investigación Humana de la NASA). Cargar los huesos es la razón por "
+            "la que este plan siempre incluye trabajo de resistencia."
+        ),
+    },
     "wod.disclaimer": {
         _EN: (
             "Educational and simulated. The ground exercise specialists set your real prescription."

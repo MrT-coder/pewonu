@@ -14,13 +14,28 @@ from crew_self_check.astronaut.state import AppState
 from crew_self_check.astronaut.ui.common import Actions, card
 from crew_self_check.core.nutrition import FOODS, summarize_intake
 from crew_self_check.core.nutrition import food_by_id as food_of
-from crew_self_check.core.wod import Wod, rpe_range
+from crew_self_check.core.reasons import Language
+from crew_self_check.core.wod import BoneNote, Wod, rpe_range
 
 _MACHINE_ICONS = {
     "treadmill": ft.Icons.DIRECTIONS_RUN,
     "cycle": ft.Icons.PEDAL_BIKE,
     "resistive": ft.Icons.FITNESS_CENTER,
 }
+
+
+def bone_text(bone: BoneNote, language: Language) -> str:
+    """The bone note; with no time in space yet there is no projection to show."""
+    if bone.months <= 0:
+        return translate("wod.bone_earth", language, baseline=f"{bone.baseline:.2f}")
+    return translate(
+        "wod.bone",
+        language,
+        baseline=f"{bone.baseline:.2f}",
+        months=f"{bone.months:.1f}",
+        low=f"{bone.expected_low_pct:.1f}",
+        high=f"{bone.expected_high_pct:.1f}",
+    )
 
 
 def _pillar(
@@ -185,19 +200,7 @@ def build_wod(state: AppState, actions: Actions) -> ft.Control:
     if wod.energy_kcal is not None:
         controls.append(_note(translate("wod.energy", language, kcal=wod.energy_kcal)))
     if wod.bone is not None:
-        bone = wod.bone
-        controls.append(
-            _note(
-                translate(
-                    "wod.bone",
-                    language,
-                    baseline=f"{bone.baseline:.2f}",
-                    months=f"{bone.months:.1f}",
-                    low=f"{bone.expected_low_pct:.1f}",
-                    high=f"{bone.expected_high_pct:.1f}",
-                )
-            )
-        )
+        controls.append(_note(bone_text(wod.bone, language)))
     controls += [
         _note(translate("wod.disclaimer", language)),
         ft.FilledButton(
