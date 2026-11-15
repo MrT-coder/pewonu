@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Crew Self-Check · UX v2 mockup</title>
+<style>
+:root{
+  --bg0:#02050d;--bg1:#081226;--glass:rgba(13,24,44,.66);--line:rgba(125,170,255,.18);
+  --text:#e8eefb;--muted:#93a4c0;--accent:#38bdf8;--gold:#fbbf24;
+  --ok:#34d399;--watch:#fbbf24;--act:#fb7185;--gray:#64748b;
+  --earth:#38bdf8;--ship:#a78bfa;--mars:#fb923c;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(1200px 700px at 20% -10%,#0f2a55 0%,transparent 60%),
+ radial-gradient(900px 600px at 110% 110%,#2a1245 0%,transparent 55%),var(--bg0);
+ color:var(--text);font:15px/1.45 system-ui,Segoe UI,Roboto,sans-serif;overflow:hidden}
+#stars{position:fixed;inset:0;z-index:0}
+.app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;padding:12px 16px;gap:12px}
+button{font:inherit;color:inherit;cursor:pointer}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:20px;
+ backdrop-filter:blur(14px);box-shadow:0 10px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)}
+.muted{color:var(--muted)}.small{font-size:12px}
+
+/* login */
+#login{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center}
+.login-card{width:min(440px,92vw);padding:30px;text-align:center}
+.login-card h1{margin:.2rem 0;font-size:30px;letter-spacing:.5px}
+.login-card input{width:100%;margin:14px 0 6px;padding:13px 16px;border-radius:14px;border:1px solid var(--line);
+ background:#071022;color:var(--text);font-size:18px;text-align:center;letter-spacing:3px}
+.btn{border:0;border-radius:999px;padding:11px 20px;background:linear-gradient(135deg,#38bdf8,#6366f1);color:#04101f;font-weight:700}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text);font-weight:500}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.case-row{display:block;width:100%;text-align:left;margin-top:8px;padding:10px 14px;border-radius:14px;
+ border:1px solid var(--line);background:rgba(8,18,38,.6)}
+.case-row:hover{border-color:var(--accent)}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:12px;padding:8px 14px;flex-wrap:wrap}
+.logo{font-weight:800;letter-spacing:.4px;display:flex;gap:8px;align-items:center}
+.seg{display:flex;background:#06101f;border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;padding:7px 16px;border-radius:999px;color:var(--muted)}
+.seg button.on{background:rgba(56,189,248,.18);color:var(--text)}
+.spacer{flex:1}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border-radius:999px;border:1px solid var(--line);font-size:13px;background:rgba(6,16,31,.7)}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:rgba(6,16,31,.7)}
+
+/* main grid */
+.main{flex:1;min-height:0;display:grid;grid-template-columns:280px 1fr 350px;gap:14px}
+.col{min-height:0;display:flex;flex-direction:column;gap:12px}
+.panel{padding:14px 16px}
+.panel h3{margin:0 0 8px;font-size:14px;letter-spacing:.8px;text-transform:uppercase;color:#bcd0ee}
+
+/* mission ring */
+.ring-wrap{position:relative;width:240px;height:240px;margin:2px auto}
+.ring-wrap svg{width:240px;height:240px}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.ring-center .big{font-size:30px;line-height:1}
+.ring-center .day{font-size:20px;font-weight:800;margin-top:4px}
+.marker{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ font-size:24px;background:#0a1730;border:2px solid #fff;box-shadow:0 0 22px rgba(255,255,255,.55);transition:left .55s cubic-bezier(.4,.1,.2,1),top .55s cubic-bezier(.4,.1,.2,1)}
+.mars{display:inline-block;width:1em;height:1em;border-radius:50%;vertical-align:-.12em;
+ background:radial-gradient(circle at 35% 30%,#ffb089,#e2582b 55%,#8a2e14)}
+.ring-btns{display:flex;justify-content:center;gap:10px;margin-top:4px}
+.legend{display:flex;justify-content:center;gap:12px;font-size:12px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+
+/* body stage */
+.stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.stage::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;
+ background:radial-gradient(circle,rgba(56,189,248,.14),transparent 65%);animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.08);opacity:.8}}
+.body-wrap{position:relative;height:min(100%,660px);aspect-ratio:480/560;max-width:100%}
+.body-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.zone-label{transform:translate(0,-50%)}
+.zone-label.l{transform:translate(-100%,-50%)}
+.zone{cursor:pointer;transition:filter .2s,transform .2s;transform-box:fill-box;transform-origin:center}
+.zone:hover{filter:brightness(1.35)}
+.zone.flag{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.12)}}
+.zone-label{position:absolute;display:flex;gap:6px;align-items:center;font-size:12px;padding:4px 10px;border-radius:999px;
+ background:rgba(6,16,31,.78);border:1px solid var(--line);pointer-events:none;white-space:nowrap}
+.hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%)}
+
+/* data panel */
+.ind{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:12px;cursor:pointer}
+.ind:hover{background:rgba(56,189,248,.08)}
+.ind .name{flex:1}.ind .val{font-variant-numeric:tabular-nums}
+.scroll{overflow:auto;min-height:0}
+.src{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.src div{padding:8px 4px;border-radius:12px;background:rgba(6,16,31,.6);border:1px solid var(--line)}
+.src b{display:block;font-size:18px}
+
+/* bubble */
+#bubble{position:fixed;z-index:3;right:28px;bottom:28px;width:66px;height:66px;border-radius:50%;cursor:grab;touch-action:none;
+ display:flex;align-items:center;justify-content:center;font-size:30px;user-select:none;
+ background:radial-gradient(circle at 30% 25%,#7dd3fc,#6366f1 70%);border:3px solid var(--ring,#34d399);
+ box-shadow:0 0 0 0 var(--ring,#34d399),0 10px 30px rgba(0,0,0,.5);animation:glow 2.6s infinite}
+#bubble:active{cursor:grabbing}
+@keyframes glow{70%{box-shadow:0 0 0 18px rgba(52,211,153,0),0 10px 30px rgba(0,0,0,.5)}}
+#bubble .tip{position:absolute;right:76px;top:50%;transform:translateY(-50%);font-size:12px;white-space:nowrap;padding:5px 10px;
+ border-radius:999px;background:rgba(6,16,31,.85);border:1px solid var(--line);pointer-events:none}
+
+/* modal */
+.scrim{position:fixed;inset:0;z-index:10;background:rgba(1,4,12,.62);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:16px}
+.scrim.open{display:flex;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.modal{width:min(720px,100%);max-height:92vh;overflow:auto;padding:22px 24px;position:relative;animation:rise .25s}
+@keyframes rise{from{transform:translateY(14px) scale(.98);opacity:0}}
+.modal h2{margin:0 0 4px;font-size:22px}
+.x{position:absolute;right:14px;top:12px}
+.tabs{display:flex;gap:6px;margin:12px 0}
+.tab{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted)}
+.tab.on{background:rgba(56,189,248,.16);color:var(--text);border-color:var(--accent)}
+.card{padding:12px 14px;border-radius:16px;background:rgba(6,16,31,.62);border:1px solid var(--line);margin:10px 0}
+.todo li{margin:6px 0}
+.faces{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.face{width:94px;padding:12px 6px;text-align:center;border-radius:18px;border:1px solid var(--line);background:rgba(6,16,31,.6);font-size:34px}
+.face small{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.face.on{border-color:var(--accent);background:rgba(56,189,248,.16);transform:scale(1.05)}
+.meter{height:12px;border-radius:99px;background:#0a1730;overflow:hidden;border:1px solid var(--line)}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#38bdf8,#a78bfa);transition:width .12s}
+.prompt{font-size:21px;font-weight:700;padding:18px;border-radius:18px;background:rgba(56,189,248,.1);border:1px solid var(--line)}
+.step-art{height:150px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:64px;
+ background:linear-gradient(135deg,rgba(99,102,241,.25),rgba(56,189,248,.15));border:1px dashed var(--line)}
+.dots{display:flex;gap:8px;justify-content:center;margin:10px 0}
+.dots i{width:9px;height:9px;border-radius:50%;background:#1b2b4a}.dots i.on{background:var(--accent)}
+input.num{width:120px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#071022;color:var(--text);font-size:20px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:12px}
+
+/* hazards screen */
+#hazards{display:none;flex:1;min-height:0;overflow:auto}
+.hz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:12px}
+.hz{padding:16px 18px;border-left:6px solid var(--c,var(--gray))}
+.hz .ico{font-size:30px}
+.strip{display:flex;gap:8px;flex-wrap:wrap}
+
+@media (max-width:1100px){
+  body{overflow:auto}.app{height:auto;min-height:100vh}
+  .main{grid-template-columns:1fr}.stage{min-height:560px}
+  .ring-wrap{margin:0 auto}
+}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="glass login-card">
+    <div style="font-size:44px">🚀</div>
+    <h1>Crew Self-Check</h1>
+    <div class="muted">Know your own baseline.</div>
+    <input id="code" maxlength="8" placeholder="AST-0000" aria-label="Astronaut code" autocomplete="off">
+    <button class="btn" id="enter" style="width:100%">Enter</button>
+    <div class="muted small" style="margin-top:14px">Simulated demo crew · tap one to fill the code</div>
+    <button class="case-row" data-code="AST-0001"><b>AST-0001</b> · Arrival adaptation · <span class="muted">Gravity fields</span></button>
+    <button class="case-row" data-code="AST-0002"><b>AST-0002</b> · No history, pulse by hand · <span class="muted">Distance from Earth</span></button>
+    <button class="case-row" data-code="AST-0003"><b>AST-0003</b> · Isolation: sleep and mood · <span class="muted">Isolation and confinement</span></button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <div class="glass top">
+    <div class="logo">🚀 Crew Self-Check</div>
+    <div class="seg" role="tablist">
+      <button class="on" id="nav-body">🧍 Body</button>
+      <button id="nav-haz">⚠️ Hazards</button>
+    </div>
+    <div class="spacer"></div>
+    <span class="chip" id="who"></span>
+    <button class="chip" id="lang" aria-label="Language">EN · <span class="muted">ES</span></button>
+    <button class="icon-btn" id="btn-glossary" aria-label="Glossary" title="Glossary">📖</button>
+    <button class="icon-btn" id="btn-limits" aria-label="Limits" title="Limits">ⓘ</button>
+    <button class="icon-btn" id="btn-dev" aria-label="Flet build notes" title="Flet build notes">🛠</button>
+    <button class="icon-btn" id="btn-out" aria-label="Sign out" title="Sign out">⎋</button>
+  </div>
+
+  <div class="main" id="main">
+    <!-- LEFT: mission ring + case -->
+    <div class="col">
+      <div class="glass panel">
+        <h3>Mission journey</h3>
+        <div class="ring-wrap" id="ringwrap">
+          <svg viewBox="0 0 240 240" aria-label="Mission journey ring">
+            <defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <circle cx="120" cy="120" r="100" fill="none" stroke="#0e1d38" stroke-width="22"/>
+            <g id="arcs" transform="rotate(-90 120 120)" filter="url(#glow)"></g>
+            <circle cx="120" cy="120" r="76" fill="none" stroke="rgba(125,170,255,.14)" stroke-dasharray="2 6"/>
+          </svg>
+          <div class="ring-center"><div class="big" id="rc-icon"></div><div class="day" id="rc-day"></div><div class="muted small" id="rc-place"></div></div>
+          <div class="marker" id="marker"></div>
+        </div>
+        <div class="ring-btns">
+          <button class="icon-btn" id="prev" aria-label="Previous day">‹</button>
+          <button class="btn ghost" id="auto">▶ Play journey</button>
+          <button class="icon-btn" id="next" aria-label="Next day">›</button>
+        </div>
+        <div class="legend"><span>🌍 Earth</span><span>🚀 Spacecraft</span><span><i class="mars"></i> Mars</span></div>
+      </div>
+      <div class="glass panel" id="casecard"></div>
+    </div>
+
+    <!-- CENTER: body -->
+    <div class="glass stage" id="stage">
+      <div class="body-wrap"><svg class="body-svg" id="body" viewBox="-90 0 480 560" aria-label="Body figure with clickable zones">
+        <defs>
+          <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a63a0"/><stop offset="1" stop-color="#14264a"/></linearGradient>
+        </defs>
+        <g stroke="#6fa0e6" stroke-opacity=".55" stroke-width="1.5" fill="url(#skin)" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="150" cy="66" r="40"/>
+          <rect x="138" y="100" width="24" height="26" rx="8"/>
+          <path d="M104 122 Q150 108 196 122 L206 252 Q150 276 94 252 Z"/>
+          <path d="M98 128 L66 290" fill="none" stroke="url(#skin)" stroke-width="26"/>
+          <path d="M202 128 L234 290" fill="none" stroke="url(#skin)" stroke-width="26"/>
+          <path d="M128 256 L120 506" fill="none" stroke="url(#skin)" stroke-width="36"/>
+          <path d="M172 256 L180 506" fill="none" stroke="url(#skin)" stroke-width="36"/>
+        </g>
+        <g id="lines"></g>
+        <g id="zones"></g>
+      </svg>
+      <div id="labels"></div></div>
+      <div class="hint chip muted small">Tap a zone · the wrist opens your pulse</div>
+    </div>
+
+    <!-- RIGHT: data -->
+    <div class="col">
+      <div class="glass panel" style="flex:1;min-height:0;display:flex;flex-direction:column">
+        <h3>Your data</h3>
+        <div id="totals" class="muted small" style="margin-bottom:8px"></div>
+        <div class="scroll" id="inds"></div>
+        <div style="margin-top:10px"><h3>Where it comes from</h3><div class="src" id="srcs"></div></div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn" id="share">Share with ground</button>
+          <button class="btn ghost" id="to-haz">Hazards</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HAZARDS SCREEN -->
+  <div id="hazards" class="glass panel">
+    <h2 style="margin:.1rem 0">The five hazards of human spaceflight</h2>
+    <div class="muted">NASA's Human Research Program groups the risks of a long mission into five hazards. What each means where you are now, and which of your indicators it touches.</div>
+    <div class="strip" id="hz-strip" style="margin-top:12px"></div>
+    <div class="hz-grid" id="hz-grid"></div>
+    <div class="muted small" style="margin-top:12px">Which indicator belongs to which hazard is our reading of the NASA pages, not an official list. Source: nasa.gov/hrp/hazards</div>
+  </div>
+</div>
+
+<!-- Mental health bubble (draggable) -->
+<div id="bubble" role="button" tabindex="0" aria-label="Open the mood and voice log (drag to move)" style="display:none">
+  🫧<span class="tip">How are you? · drag me</span>
+</div>
+
+<!-- Generic modal -->
+<div class="scrim" id="scrim"><div class="glass modal" id="modal" role="dialog" aria-modal="true"><button class="icon-btn x" id="mx" aria-label="Close">✕</button><div id="mbody"></div></div></div>
+
+<script>
+/* ============================ data (simulated, like the real scenario) ============================ */
+const LABELS=[];for(let i=14;i>=1;i--)LABELS.push('E-'+i);for(let i=1;i<=10;i++)LABELS.push('T+'+i);for(let i=0;i<4;i++)LABELS.push('R+'+i);
+const N=LABELS.length, EARTH=14, SHIP=24;
+const env=d=>d<EARTH?'earth':d<SHIP?'ship':'mars';
+const PLACE={earth:'Earth',ship:'Spacecraft',mars:'Mars (demo)'};
+const CASES={
+ 'AST-0001':{title:'Arrival adaptation',hazard:'gravity',story:'Two weeks of history on Earth. Sleep dips in transit; on arrival the pulse, the pulse change on standing and the balance symptoms rise.',how:'Each reading is compared with this astronaut’s own baseline in each place, labelled when they change place.'},
+ 'AST-0002':{title:'No history: pulse counted by hand',hazard:'distance',story:'No personal history, only a hand-counted resting pulse. On arrival it climbs far above the usual.',how:'With no baseline the pulse is compared with a labelled population reference; everything else stays gray instead of guessing.'},
+ 'AST-0003':{title:'Isolation: sleep and mood',hazard:'isolation',story:'Two weeks of history on Earth. In transit sleep falls and mood slips while pulse, pressure and balance stay in range.',how:'Sleep and mood are flagged against the Earth baseline, then the own range in the ship. What stays in range stays green.'}
+};
+const wig=(d,a)=>[0,1,-1,.5,-.5,1,-1][d%7]*a;
+const R=(x,n=0)=>Number(x.toFixed(n));
+/* each indicator: {key,name,unit,sys,value(c,d),status(c,d)} ; status: ok|watch|act|gray */
+function mk(){
+ const I=[];
+ const add=(key,name,unit,sys,val,st)=>I.push({key,name,unit,sys,val,st});
+ add('hr','Resting pulse','bpm','cardio',(c,d)=>{
+   if(c==='AST-0002'){const m={22:70,23:72,24:72,25:94,26:108,27:80};return m[d]??null}
+   if(c==='AST-0001'&&d>=24)return [72,74,76,77][d-24];
+   return R((d<EARTH?60:62)+wig(d,2)+(c==='AST-0003'?3:0))},
+  (c,d)=>{const v=I[0].val(c,d);if(v==null)return'gray';
+   if(c==='AST-0002'){return d===25?'watch':d===26?'act':'ok'}
+   if(c==='AST-0001'&&d>=26)return'watch';return 'ok'});
+ add('sys','Systolic pressure','mmHg','cardio',(c,d)=>c==='AST-0002'?null:R(118+wig(d,3)),(c,d)=>c==='AST-0002'?'gray':'ok');
+ add('dia','Diastolic pressure','mmHg','cardio',(c,d)=>c==='AST-0002'?null:R(76+wig(d,2)),(c,d)=>c==='AST-0002'?'gray':'ok');
+ add('ortho','Pulse change on standing','bpm','cardio',(c,d)=>c==='AST-0002'?null:(c==='AST-0001'&&d>=24?[30,32,33,31][d-24]:R(12+wig(d,2))),(c,d)=>c==='AST-0002'?'gray':(c==='AST-0001'&&d>=26?'watch':'ok'));
+ add('spo2','Oxygen saturation','%','cardio',(c,d)=>c==='AST-0002'?null:98,(c,d)=>c==='AST-0002'?'gray':'ok');
+ add('vest','Balance symptoms','pts','vest',(c,d)=>c==='AST-0002'?null:(c==='AST-0001'&&d>=24?[6,7,7,6][d-24]:0),(c,d)=>c==='AST-0002'?'gray':(c==='AST-0001'&&d>=26?'watch':'ok'));
+ add('tandem','Line-walk test','','vest',(c,d)=>c==='AST-0002'?null:(c==='AST-0001'&&d>=25?'no':'yes'),(c,d)=>c==='AST-0002'?'gray':(c==='AST-0001'&&d>=26?'watch':'ok'));
+ add('sleep','Sleep','h','sleep',(c,d)=>{
+   if(c==='AST-0002')return null;
+   if(c==='AST-0003'){const m=[5.8,5.5,5.6,5.7,5.4,4.8,4.6,4.5,4.4,4.3,4.4,4.6,4.9,5.2];return d<EARTH?R(7.2+wig(d,.3),1):m[d-EARTH]}
+   return d<EARTH?R(7.5+wig(d,.3),1):d<SHIP?R(6.0+wig(d,.3),1):[6.0,6.1,5.9,6.0][d-SHIP]},
+  (c,d)=>{if(c==='AST-0002')return'gray';
+   if(c==='AST-0003'){return d>=16&&d<=23?'watch':(d===24||d===25)?'gray':'ok'}
+   return d>=16&&d<=20?'watch':'ok'});
+ add('temp','Body temperature','°C','immune',(c,d)=>c==='AST-0002'?null:R(36.6+wig(d,.1),1),(c,d)=>c==='AST-0002'?'gray':'ok');
+ add('gluc','Blood glucose','mg/dL','immune',(c,d)=>c==='AST-0002'?null:(d%7===0?90:null),(c,d)=>'gray');
+ add('mood','Mood','/5','mood',(c,d)=>{
+   if(c==='AST-0002')return null;
+   if(c==='AST-0003'){const m=[3,3,3,3,2,2,2,2,2,2,2,2,3,3];return d<EARTH?4:m[d-EARTH]}
+   return 4},
+  (c,d)=>{if(c==='AST-0002')return'gray';if(c==='AST-0003')return d>=17&&d<=21?'watch':(d>=22&&d<=23)?'ok':d>=24&&d<=25?'gray':'ok';return'ok'});
+ return I;
+}
+const IND=mk();
+const SYS={cardio:'Heart & circulation',vest:'Balance',sleep:'Sleep & brain',mood:'Mood',immune:'Immune (temperature)',bone:'Bone & muscle'};
+const SEV={ok:0,gray:1,watch:2,act:3};
+const worst=a=>a.length?a.reduce((x,y)=>SEV[y]>SEV[x]?y:x):'none';
+const COLOR={ok:'var(--ok)',watch:'var(--watch)',act:'var(--act)',gray:'var(--gray)',none:'#334155'};
+const WORD={ok:'In range',watch:'Outside',act:'Far outside',gray:'Not enough data',none:'Not measured'};
+let S={code:null,day:13,face:null,userPulse:{}};
+
+const st=(k,d=S.day)=>{const i=IND.find(x=>x.key===k);return i.st(S.code,d)};
+const sysStatus=(sys,d=S.day)=>worst(IND.filter(i=>i.sys===sys).map(i=>i.st(S.code,d)));
+
+/* ============================ stars ============================ */
+(function stars(){
+ const c=document.getElementById('stars'),x=c.getContext('2d');let W,H,P=[];
+ function size(){W=c.width=innerWidth;H=c.height=innerHeight;P=Array.from({length:Math.round(W*H/7000)},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+.2,t:Math.random()*6,s:Math.random()*.02+.005}))}
+ size();addEventListener('resize',size);
+ let shoot=null;
+ (function frame(){x.clearRect(0,0,W,H);
+  for(const p of P){p.t+=p.s;x.globalAlpha=.35+.65*Math.abs(Math.sin(p.t));x.fillStyle='#cfe3ff';x.beginPath();x.arc(p.x,p.y,p.r,0,6.3);x.fill()}
+  if(!shoot&&Math.random()<.004)shoot={x:Math.random()*W*.6,y:Math.random()*H*.4,l:0};
+  if(shoot){x.globalAlpha=1-shoot.l/60;x.strokeStyle='#bcd7ff';x.lineWidth=1.5;x.beginPath();x.moveTo(shoot.x+shoot.l*7,shoot.y+shoot.l*3.5);x.lineTo(shoot.x+shoot.l*7-60,shoot.y+shoot.l*3.5-30);x.stroke();if(++shoot.l>60)shoot=null}
+  requestAnimationFrame(frame)})();
+})();
+
+/* ============================ login ============================ */
+const $=id=>document.getElementById(id);
+document.querySelectorAll('.case-row').forEach(b=>b.onclick=()=>{$('code').value=b.dataset.code});
+function enter(){const v=$('code').value.trim().toUpperCase();if(!CASES[v]){$('code').style.borderColor='var(--act)';return}
+ S.code=v;S.day=13;S.userPulse={};S.face=null;$('login').style.display='none';$('app').style.display='flex';$('bubble').style.display='flex';
+ $('who').innerHTML='🧑‍🚀 '+v;render();}
+$('enter').onclick=enter;$('code').onkeydown=e=>{if(e.key==='Enter')enter()};
+$('btn-out').onclick=()=>{$('app').style.display='none';$('bubble').style.display='none';$('login').style.display='flex';closeModal()};
+
+/* ============================ mission ring ============================ */
+const ARCS=[{n:EARTH,c:'#38bdf8'},{n:SHIP-EARTH,c:'#a78bfa'},{n:N-SHIP,c:'#fb923c'}];
+function drawRing(){
+ const C=2*Math.PI*100;let off=0;let h='';
+ ARCS.forEach((a,i)=>{const len=C*a.n/N;
+  h+=`<circle cx="120" cy="120" r="100" fill="none" stroke="${a.c}" stroke-width="14" stroke-linecap="butt" stroke-dasharray="${len-4} ${C}" stroke-dashoffset="${-off}" opacity=".9" data-arc="${i}" style="cursor:pointer"/>`;off+=len});
+ $('arcs').innerHTML=h;
+ $('arcs').querySelectorAll('circle').forEach(c=>c.onclick=()=>{const i=+c.dataset.arc;S.day=[0,EARTH,SHIP][i];render()});
+}
+function placeMarker(){
+ const a=((S.day+.5)/N)*2*Math.PI-Math.PI/2;const r=100;
+ const m=$('marker');m.style.left=(120+r*Math.cos(a))+'px';m.style.top=(120+r*Math.sin(a))+'px';
+ const e=env(S.day);m.innerHTML=e==='earth'?'🌍':e==='ship'?'🚀':'<i class="mars" style="font-size:26px"></i>';
+ $('rc-icon').innerHTML=m.innerHTML.replace('font-size:26px','font-size:34px');
+ $('rc-day').textContent=LABELS[S.day];$('rc-place').textContent=PLACE[e];
+}
+$('prev').onclick=()=>{if(S.day>0){S.day--;render()}};
+$('next').onclick=()=>{if(S.day<N-1){S.day++;render()}};
+let timer=null;$('auto').onclick=()=>{
+ if(timer){clearInterval(timer);timer=null;$('auto').textContent='▶ Play journey';return}
+ $('auto').textContent='❚❚ Pause';if(S.day>=N-1)S.day=0;
+ timer=setInterval(()=>{if(S.day>=N-1){clearInterval(timer);timer=null;$('auto').textContent='▶ Play journey';return}S.day++;render()},900)};
+
+/* ============================ body zones ============================ */
+const ZONES=[
+ {id:'head',sys:'sleep',name:'Sleep & brain',shape:'<circle cx="150" cy="66" r="30"/>',cx:150,cy:66,side:'r'},
+ {id:'ear',sys:'vest',name:'Balance',shape:'<ellipse cx="110" cy="68" rx="9" ry="14"/>',cx:110,cy:68,side:'l'},
+ {id:'chest',sys:'cardio',name:'Heart & circulation',shape:'<ellipse cx="138" cy="172" rx="30" ry="34"/>',cx:138,cy:172,side:'r'},
+ {id:'torso',sys:'immune',name:'Immune',shape:'<rect x="108" y="222" width="84" height="36" rx="16"/>',cx:150,cy:240,side:'r'},
+ {id:'wrist',sys:'wrist',name:'Pulse · wrist',shape:'<circle cx="68" cy="284" r="17"/>',cx:68,cy:284,side:'l'},
+ {id:'legs',sys:'bone',name:'Bone & muscle',shape:'<rect x="104" y="340" width="92" height="140" rx="30"/>',cx:150,cy:410,side:'r'}
+];
+function drawBody(){
+ let z='',l='',ln='';
+ ZONES.forEach(zn=>{
+  const s=zn.sys==='wrist'?st('hr'):zn.sys==='bone'?'none':sysStatus(zn.sys);
+  const flag=(s==='watch'||s==='act');
+  z+=`<g class="zone ${flag?'flag':''}" data-z="${zn.id}" tabindex="0" role="button" aria-label="${zn.name}: ${WORD[s]}" style="fill:${COLOR[s]};fill-opacity:.28;stroke:${COLOR[s]};stroke-width:3">${zn.shape}</g>`;
+  const ax=zn.side==='r'?282:8;
+  ln+=`<line x1="${zn.cx}" y1="${zn.cy}" x2="${ax}" y2="${zn.cy}" stroke="${COLOR[s]}" stroke-opacity=".55" stroke-dasharray="3 4"/>`;
+  const lx=((ax+90)/480*100).toFixed(2),ly=(zn.cy/560*100).toFixed(2);
+  l+=`<div class="zone-label ${zn.side}" style="left:${lx}%;top:${ly}%"><span class="dot" style="background:${COLOR[s]}"></span>${zn.name} · <span class="muted">${WORD[s]}</span></div>`;
+ });
+ $('lines').innerHTML=ln;$('zones').innerHTML=z;$('labels').innerHTML=l;
+ $('zones').querySelectorAll('.zone').forEach(g=>{g.onclick=()=>openZone(g.dataset.z);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')openZone(g.dataset.z)}});
+ const mood=sysStatus('mood');$('bubble').style.setProperty('--ring',COLOR[mood==='none'?'gray':mood]);
+}
+
+/* ============================ right panel ============================ */
+function fmt(i,d=S.day){const v=i.val(S.code,d);return v==null?'—':v+(i.unit?' '+i.unit:'')}
+function drawData(){
+ const rows=IND.map(i=>{const s=i.st(S.code,S.day);const open=i.key==='hr'?'wrist':i.sys==='cardio'?'chest':i.sys==='sleep'?'head':i.sys==='vest'?'ear':i.sys==='immune'?'torso':'mood';
+  return `<div class="ind" data-open="${open}"><span class="dot" style="background:${COLOR[s]}"></span><span class="name">${i.name}</span><span class="val">${fmt(i)}</span></div>`}).join('');
+ $('inds').innerHTML=rows;
+ $('inds').querySelectorAll('.ind').forEach(r=>r.onclick=()=>r.dataset.open==='mood'?openBubble():openZone(r.dataset.open));
+ let tot=0,cov=new Set();for(let d=0;d<=S.day;d++)IND.forEach(i=>{if(i.val(S.code,d)!=null){tot++;cov.add(i.key)}});
+ $('totals').innerHTML=`<b style="color:var(--ok);font-size:16px">${tot} readings</b> · ${cov.size} of ${IND.length} indicators · simulated analog data`;
+ const w=IND.filter(i=>['sys','dia','temp','spo2','ortho','sleep','gluc'].includes(i.key)).length;
+ $('srcs').innerHTML=`<div>⌚<b>${S.code==='AST-0002'?0:w}</b><span class="small muted">device</span></div><div>❓<b>${S.code==='AST-0002'?0:3}</b><span class="small muted">questions</span></div><div>✋<b>${Object.keys(S.userPulse).length+((S.code==='AST-0002')?3:1)}</b><span class="small muted">by hand</span></div><div>✍️<b>${S.face?1:0}</b><span class="small muted">entered</span></div>`;
+}
+$('share').onclick=()=>openShare();$('to-haz').onclick=()=>showScreen('haz');
+
+/* ============================ case card ============================ */
+function drawCase(){const c=CASES[S.code];
+ $('casecard').innerHTML=`<h3>Your case</h3><div style="font-weight:800;font-size:17px">${c.title}</div><div class="small muted" style="margin:6px 0">${c.story}</div><div class="small"><span style="color:var(--gold)">How the system approaches it</span><br>${c.how}</div><div class="small muted" style="margin-top:8px">Fictitious astronaut, simulated data.</div>`;
+}
+
+/* ============================ hazards screen ============================ */
+const HZ=[
+ {k:'radiation',ico:'☢️',name:'Space radiation',sys:null,what:'Invisible radiation is one of the most dangerous parts of spaceflight.',here:{earth:'The atmosphere and Earth’s magnetic field protect you.',ship:'Beyond Earth’s protection: exposure to space radiation.',mars:'On the surface the thin atmosphere gives little protection.'},note:'Not measured by this prototype: radiation needs a dosimeter.'},
+ {k:'isolation',ico:'👥',name:'Isolation and confinement',keys:['sleep','mood'],what:'Crews living in small spaces far from Earth for long periods can show behavioral changes.',here:{earth:'Your usual people and surroundings are close.',ship:'A small crew in a small space, far from home.',mars:'A small crew in a base, far from home.'}},
+ {k:'distance',ico:'🛰️',name:'Distance from Earth',sys:null,what:'Getting supplies, instructions and medical care from home gets harder the farther astronauts travel.',here:{earth:'Help and supplies are close.',ship:'Messages take minutes and help cannot arrive quickly.',mars:'Messages take minutes and help is far away.'},note:'A message to the ground takes about 12 minutes in this demo: act first on board, then ask the ground.'},
+ {k:'gravity',ico:'🏋️',name:'Gravity fields',keys:['ortho','vest','tandem','hr','sys','dia'],what:'The body must adjust to different gravity levels, including the return to Earth.',here:{earth:'Normal gravity.',ship:'Microgravity: the body adjusts and loses conditioning.',mars:'Partial gravity: the body adjusts again.'}},
+ {k:'environment',ico:'🌬️',name:'Hostile and closed environments',keys:['spo2','temp'],what:'Keeping a spacecraft’s temperature, pressure, light and air safe is difficult.',here:{earth:'A familiar, open environment.',ship:'A closed environment: the ship manages air, temperature and pressure.',mars:'A habitat: the base manages air, temperature and pressure.'}}
+];
+function drawHazards(){
+ const e=env(S.day);let strip='',grid='';
+ HZ.forEach(h=>{const sts=(h.keys||[]).map(k=>st(k));const w=h.keys?worst(sts):'none';
+  strip+=`<span class="chip"><span style="font-size:16px">${h.ico}</span>${h.name}<span class="dot" style="background:${COLOR[w]}"></span></span>`;
+  const chips=(h.keys||[]).map(k=>{const i=IND.find(x=>x.key===k);const s=i.st(S.code,S.day);return `<span class="chip"><span class="dot" style="background:${COLOR[s]}"></span>${i.name} · ${fmt(i)}</span>`}).join(' ');
+  const stressed=Object.entries(CASES).find(([c,v])=>v.hazard===h.k);
+  grid+=`<div class="glass hz" style="--c:${COLOR[w]}"><div style="display:flex;gap:12px;align-items:center"><span class="ico">${h.ico}</span><div><b style="font-size:17px">${h.name}</b><div class="small" style="color:${COLOR[w]}">${h.keys?WORD[w]:(h.note&&h.k==='distance'?'About communication':'Not measured by this prototype')}</div></div></div>
+   <div class="small muted" style="margin:8px 0">${h.what}</div>
+   <div class="small" style="color:var(--gold);font-weight:600">Where you are now</div><div>${h.here[e]}</div>
+   ${h.note?`<div class="small" style="margin-top:8px;color:#bcd">${h.note}</div>`:''}
+   ${chips?`<div class="small" style="color:var(--accent);font-weight:600;margin:8px 0 4px">Your indicators it touches</div><div style="display:flex;gap:6px;flex-wrap:wrap">${chips}</div>`:''}
+   ${stressed?`<div class="small muted" style="margin-top:8px">Stressed by the case of ${stressed[0]}</div>`:''}</div>`});
+ $('hz-strip').innerHTML=`<span class="chip" style="color:var(--gold)">You are in: ${PLACE[e]}</span>`+strip;$('hz-grid').innerHTML=grid;
+}
+function showScreen(w){const haz=w==='haz';$('main').style.display=haz?'none':'grid';$('hazards').style.display=haz?'block':'none';
+ $('nav-body').classList.toggle('on',!haz);$('nav-haz').classList.toggle('on',haz);$('bubble').style.display=S.code?'flex':'none'}
+$('nav-body').onclick=()=>showScreen('body');$('nav-haz').onclick=()=>showScreen('haz');
+
+/* ============================ modals ============================ */
+function openModal(html){$('mbody').innerHTML=html;$('scrim').classList.add('open');$('modal').scrollTop=0}
+function closeModal(){$('scrim').classList.remove('open');stopVoice()}
+$('mx').onclick=closeModal;$('scrim').onclick=e=>{if(e.target===$('scrim'))closeModal()};
+addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+function spark(vals,low,high,color){
+ const pts=vals.filter(v=>v!=null);if(pts.length<1)return'<div class="muted small">No readings yet.</div>';
+ const w=480,h=110,p=10;const all=[...pts,...(low!=null?[low,high]:[])];const mn=Math.min(...all),mx=Math.max(...all),sp=(mx-mn)||1;
+ const y=v=>h-p-(v-mn)/sp*(h-2*p),x=i=>p+i*(w-2*p)/Math.max(vals.length-1,1);
+ let path='',started=false;vals.forEach((v,i)=>{if(v==null)return;path+=(started?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1);started=true});
+ const band=low!=null?`<rect x="0" y="${y(high)}" width="${w}" height="${Math.max(y(low)-y(high),3)}" fill="#38bdf8" opacity=".16"/>`:'';
+ const dots=vals.map((v,i)=>v==null?'':`<circle cx="${x(i)}" cy="${y(v)}" r="3.2" fill="${color}"/>`).join('');
+ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%" role="img" aria-label="Trend with the usual range">${band}<path d="${path}" fill="none" stroke="${color}" stroke-width="2.2"/>${dots}</svg>`;
+}
+const series=(key)=>{const i=IND.find(x=>x.key===key);const out=[];for(let d=Math.max(0,S.day-13);d<=S.day;d++){const v=i.val(S.code,d);out.push(typeof v==='number'?v:null)}return out};
+function band(vals){const a=vals.filter(v=>v!=null).slice(0,Math.max(5,vals.length-3));if(a.length<5)return[null,null];const m=a.reduce((x,y)=>x+y,0)/a.length;const sd=Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length)||m*.04;return[m-2.2*sd,m+2.2*sd]}
+const chip=s=>`<span class="chip"><span class="dot" style="background:${COLOR[s]}"></span>${WORD[s]}</span>`;
+
+function openZone(id){
+ if(id==='wrist')return openPulse();
+ const z=ZONES.find(x=>x.id===id);
+ if(id==='legs'){return openModal(`<h2>🦴 Bone & muscle</h2><div class="muted">Not measured by this prototype.</div><div class="card">Nothing is measured here yet, so the zone stays gray instead of guessing. Bone density and muscle strength need equipment that the crew does not carry in this demo.</div><div class="small muted">Source: NASA Human Research Program, risks of human spaceflight.</div>`)}
+ const items=IND.filter(i=>i.sys===z.sys);const s=sysStatus(z.sys);
+ const first=items[0];const vals=series(first.key);const [lo,hi]=band(vals);
+ const todo={ok:['Keep measuring: more days make your baseline more reliable.','Read the reason: it says what the color was compared with.'],gray:['Keep measuring: more days make your baseline more reliable.'],watch:['If it stays amber or red, consider telling the crew medical officer.','Keep measuring at the same time of day so the comparison stays fair.'],act:['Consider asking the flight surgeon on the ground to review it.']}[s]||[];
+ openModal(`<h2>${z.name}</h2><div style="margin:6px 0">${chip(s)} <span class="muted small">compared with your own baseline in ${PLACE[env(S.day)]}</span></div>
+  <div class="card"><b>Your indicators</b><table><tr><th>Indicator</th><th>Latest</th><th>State</th></tr>${items.map(i=>`<tr><td>${i.name}</td><td>${fmt(i)}</td><td>${chip(i.st(S.code,S.day))}</td></tr>`).join('')}</table></div>
+  <div class="card"><b>${first.name} · last 14 days</b>${spark(vals,lo,hi,COLOR[s==='gray'?'gray':s])}<div class="muted small">${lo!=null?'Usual range '+lo.toFixed(1)+' to '+hi.toFixed(1):'No usual range yet'}</div></div>
+  <div class="card todo"><b>What you can do</b><ul>${todo.map(t=>`<li>${t}</li>`).join('')}</ul></div>
+  <div class="small muted">Source: NASA Human Research Program, risks of human spaceflight. Nothing is sent unless you confirm it.</div>`);
+}
+
+/* ----- pulse modal: collected data + measure by hand, in the same modal ----- */
+let PM={tab:'data',step:0,interval:30,beats:'',result:null};
+function pulseGuidance(bpm){
+ const [lo,hi]=band(series('hr'));const out=lo!=null&&(bpm<lo||bpm>hi);
+ if(S.code==='AST-0002'&&bpm>=100)return {lvl:'act',title:'Far outside the population reference',todo:['Rest sitting down for 10 minutes, then count again.','If the beats feel uneven, say so: an irregular pulse can also be a sign of a problem.'],who:'Consider asking the flight surgeon on the ground to review it.'};
+ if(out)return {lvl:'one',title:'One count outside your usual range',todo:['One count is not a trend: the state only turns amber when several counts in a row stay outside.','Rest sitting down for 10 minutes, then count again.','If the new count is still outside your range, the change is real and worth telling someone.']};
+ return {lvl:'ok',title:'Within your usual range',todo:['Measure again tomorrow at the same time of day, at rest.','Remember: rest for 10 minutes before every count.']};
+}
+function openPulse(){PM={tab:'data',step:0,interval:30,beats:'',result:null};renderPulse();$('scrim').classList.add('open')}
+function renderPulse(){
+ const vals=series('hr'),[lo,hi]=band(vals);const s=st('hr'),cur=S.userPulse[S.day]??IND[0].val(S.code,S.day);
+ let body=`<h2>🫀 Pulse · wrist</h2><div class="muted small">Resting heart rate, in beats per minute (bpm)</div>
+  <div class="tabs"><button class="tab ${PM.tab==='data'?'on':''}" data-t="data">Collected data</button><button class="tab ${PM.tab==='hand'?'on':''}" data-t="hand">✋ Measure by hand</button></div>`;
+ if(PM.tab==='data'){
+  body+=`<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div style="font-size:44px;font-weight:800">${cur??'—'}<span class="muted" style="font-size:16px"> bpm</span></div>${chip(s)}</div>
+   <div class="card"><b>Last 14 days</b>${spark(vals,lo,hi,COLOR[s==='gray'?'gray':s])}<div class="muted small">${lo!=null?'Usual range '+Math.round(lo)+' to '+Math.round(hi)+' bpm':'No usual range yet: compared with a labelled population reference'}</div></div>
+   <div class="card"><b>Where it came from</b><div class="small muted">Counted by hand at the wrist${S.code==='AST-0002'?'':' · simulated scenario'} · ${vals.filter(v=>v!=null).length} readings in the window</div></div>
+   <div class="card todo"><b>What to do</b><ul><li>Read the reason: it says what the color was compared with.</li><li>If it stays amber or red, consider telling the crew medical officer.</li></ul></div>
+   <button class="btn" data-t="hand">Take my pulse now</button>`;
+ }else{
+  const steps=[{ico:'🪑',t:'Rest first',d:'Sit quietly. A resting pulse needs at least 10 minutes of rest.'},{ico:'☝️',t:'Find the artery',d:'Place two fingers on the inside of the opposite wrist.'},{ico:'🤏',t:'Press lightly',d:'Light pressure: pressing hard can hide the beat.'},{ico:'⏱️',t:'Count the beats',d:'Count for 30 seconds and double it, or count a full 60 seconds.'}];
+  if(PM.result==null){
+   const sp=steps[Math.min(PM.step,3)];
+   body+=`<div class="dots">${steps.map((_,i)=>`<i class="${i<=PM.step?'on':''}"></i>`).join('')}</div>
+    <div class="step-art" title="Real app: the AI-generated illustrations, with their visible watermark">${sp.ico}</div>
+    <div style="margin:10px 0"><b style="font-size:18px">Station ${PM.step+1} of 4 · ${sp.t}</b><div class="muted">${sp.d}</div></div>`;
+   if(PM.step<3){body+=`<button class="btn" id="stepnext">Done, next</button>`}
+   else{body+=`<div class="seg" style="display:inline-flex;margin-bottom:10px"><button class="${PM.interval===30?'on':''}" data-i="30">30 s (×2)</button><button class="${PM.interval===60?'on':''}" data-i="60">60 s</button></div>
+     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><input class="num" id="beats" type="number" min="0" placeholder="beats" aria-label="Beats counted" value="${PM.beats}"><button class="btn" id="calc">Calculate my pulse</button><button class="btn ghost" id="timer">⏱ ${PM.interval}-second timer</button></div><div id="tleft" class="muted small" style="margin-top:6px"></div>`}
+  }else{
+   const bpm=Math.round(PM.result*60/PM.interval),g=pulseGuidance(bpm),col=g.lvl==='ok'?'ok':g.lvl==='act'?'act':'watch';
+   body+=`<div style="font-size:26px;font-weight:800">${PM.result} beats ${PM.interval===30?'× 2':'in 60 s'} = ${bpm} bpm</div>
+    <div class="card" style="border-color:${COLOR[col]}"><b>What your count means</b><div style="margin:6px 0"><span class="dot" style="background:${COLOR[col]}"></span> ${g.title}</div>${lo!=null?`<div class="small">Your usual range here: ${Math.round(lo)} to ${Math.round(hi)} bpm.</div>`:'<div class="small">Compared with a labelled population reference (no history of your own).</div>'}</div>
+    <div class="card todo"><b>What to do now</b><ul>${g.todo.map(t=>`<li>${t}</li>`).join('')}</ul>${g.who?`<div style="color:var(--gold);margin-top:6px">Who to tell: ${g.who}</div>`:''}<div class="muted small" style="margin-top:6px">Technique: MedlinePlus (NIH).</div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="savep">Save to my record</button><button class="btn ghost" id="again">Count again</button><span class="chip">⭐ 60 points · technique, never the value</span></div>`;
+  }
+ }
+ $('mbody').innerHTML=body;
+ $('mbody').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{PM.tab=b.dataset.t;PM.result=null;PM.step=0;renderPulse()});
+ $('mbody').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{PM.interval=+b.dataset.i;PM.beats=$('beats')?.value||'';renderPulse()});
+ const sn=$('stepnext');if(sn)sn.onclick=()=>{PM.step++;renderPulse()};
+ const calc=$('calc');if(calc)calc.onclick=()=>{const v=parseInt($('beats').value,10);if(!(v>=0))return;PM.result=v;renderPulse()};
+ const tm=$('timer');if(tm)tm.onclick=()=>{let t=PM.interval;const el=$('tleft');const iv=setInterval(()=>{el.textContent=t>0?(t--)+' s left':'Time is up: enter how many beats you counted';if(t<0)clearInterval(iv)},1000)};
+ const sv=$('savep');if(sv)sv.onclick=()=>{S.userPulse[S.day]=Math.round(PM.result*60/PM.interval);closeModal();render()};
+ const ag=$('again');if(ag)ag.onclick=()=>{PM.result=null;PM.step=3;renderPulse()};
+}
+
+/* ----- bubble modal: faces -> voice log in the same modal ----- */
+const FACES=[['😞','Very low'],['🙁','Low'],['😐','Okay'],['🙂','Good'],['😄','Very good']];
+const Q=['Tell me about someone at home you are thinking of today.','What has been on your mind about the mission lately?','Describe a place from home that you miss, as if you were walking through it.','What is something that has surprised you since you left?','Talk about what you want to do when this mission is over.','What was the hardest part of this week, and how did you get through it?','Tell a story about a moment with your crew that you will remember.','What do you wish people on Earth understood about where you are?'];
+let VM={stage:'faces',q:0,rec:false,t:0,iv:null};
+function stopVoice(){if(VM.iv){clearInterval(VM.iv);VM.iv=null}VM.rec=false}
+function openBubble(){stopVoice();VM={stage:'faces',q:Math.floor(Math.random()*Q.length),rec:false,t:0,iv:null};renderBubble();$('scrim').classList.add('open')}
+function renderBubble(){
+ let h='';
+ if(VM.stage==='faces'){
+  h=`<h2>How do you feel?</h2><div class="muted">At the end of this shift. Saved on this computer.</div>
+   <div class="faces">${FACES.map((f,i)=>`<button class="face ${S.face===i+1?'on':''}" data-f="${i+1}">${f[0]}<small>${f[1]}</small></button>`).join('')}</div>
+   <button class="btn" id="fsave" ${S.face?'':'disabled'}>Save and continue →</button>`;
+ }else if(VM.stage==='voice'){
+  h=`<h2>Voice log</h2><div class="muted">A moment to let it out. Talk for as long as you want. What you say is not recorded or saved: only a few numbers about how your voice sounds.</div>
+   <div class="prompt" style="margin:14px 0">${Q[VM.q]}</div>
+   ${VM.rec?`<div class="muted" style="color:var(--ok)">Listening… take your time. <span id="el">0 s</span></div><div class="meter" style="margin:10px 0"><i id="mt"></i></div><button class="btn" id="vstop">■ I am done</button>`
+   :`<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="vstart">🎙 Start talking</button><button class="btn ghost" id="vq">Another question</button><button class="btn ghost" id="vskip">Skip</button></div>`}`;
+ }else{
+  const slow=S.code==='AST-0003'&&S.day>=16;
+  const rows=[['Pitch','as usual',1],['Pitch variation',slow?'flatter':'as usual',!slow],['Speech rate',slow?'slower':'as usual',!slow],['Pauses',slow?'more pauses':'as usual',!slow],['Loudness',slow?'softer':'as usual',!slow]];
+  h=`<h2>Your voice today compared with your usual</h2>
+   <div class="card"><div style="font-weight:800;color:${slow?'var(--gold)':'var(--ok)'};font-size:17px">${slow?'Your voice differs from your usual in several ways.':'Your voice sounds like your usual.'}</div>
+   <div class="muted small" style="margin:4px 0 8px">${env(S.day)==='earth'?'Compared with your own notes in this place.':'Compared with your notes in the previous place (Earth), while your notes here build up.'}</div>
+   ${rows.map(r=>`<div style="display:flex;gap:14px"><span style="width:150px">${r[0]}</span><b style="color:${r[2]?'var(--ok)':'var(--gold)'}">${r[1]}</b></div>`).join('')}</div>
+   <div class="small" style="color:var(--ok)">The audio was discarded. Only these numbers were kept.</div>
+   <div class="small muted">Shared with the ground base: only these numbers. You agreed to this when you joined the mission.</div>
+   <div class="small muted">Experimental. These numbers do not say how you feel and do not change any color.</div>
+   <div style="margin-top:12px"><button class="btn" id="vdone">Done</button></div>`;
+ }
+ $('mbody').innerHTML=h;
+ $('mbody').querySelectorAll('.face').forEach(b=>b.onclick=()=>{S.face=+b.dataset.f;renderBubble()});
+ const fs=$('fsave');if(fs)fs.onclick=()=>{VM.stage='voice';renderBubble();drawData()};
+ const vs=$('vstart');if(vs)vs.onclick=()=>{VM.rec=true;VM.t=0;renderBubble();VM.iv=setInterval(()=>{VM.t+=.15;const m=$('mt');if(m)m.style.width=(20+Math.random()*70)+'%';const e=$('el');if(e)e.textContent=Math.floor(VM.t)+' s'},150)};
+ const vq=$('vq');if(vq)vq.onclick=()=>{VM.q=(VM.q+1+Math.floor(Math.random()*(Q.length-1)))%Q.length;renderBubble()};
+ const sk=$('vskip');if(sk)sk.onclick=closeModal;
+ const st2=$('vstop');if(st2)st2.onclick=()=>{stopVoice();VM.stage='result';renderBubble()};
+ const dn=$('vdone');if(dn)dn.onclick=closeModal;
+}
+/* draggable bubble */
+(function drag(){
+ const b=$('bubble');let sx,sy,ox,oy,moved=false,down=false;
+ b.addEventListener('pointerdown',e=>{down=true;moved=false;sx=e.clientX;sy=e.clientY;const r=b.getBoundingClientRect();ox=r.left;oy=r.top;b.setPointerCapture(e.pointerId)});
+ b.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;
+  const x=Math.min(Math.max(8,ox+dx),innerWidth-74),y=Math.min(Math.max(8,oy+dy),innerHeight-74);b.style.left=x+'px';b.style.top=y+'px';b.style.right='auto';b.style.bottom='auto'});
+ b.addEventListener('pointerup',e=>{down=false;if(!moved)openBubble()});
+ b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')openBubble()});
+})();
+
+/* ----- share modal ----- */
+function openShare(){
+ const rows=IND.filter(i=>i.val(S.code,S.day)!=null);
+ openModal(`<h2>Share with the ground team</h2><div class="muted">Nothing is sent unless you confirm it. You choose what goes.</div>
+  <div style="display:flex;gap:8px;margin:10px 0"><button class="btn ghost" id="sa">Select all</button><button class="btn ghost" id="sn">Clear</button></div>
+  <div class="card scroll" style="max-height:230px">${rows.map(i=>`<label style="display:flex;gap:10px;padding:4px 0"><input type="checkbox" class="sc"> <span class="dot" style="background:${COLOR[i.st(S.code,S.day)]};margin-top:6px"></span>${i.name} · ${fmt(i)}</label>`).join('')}</div>
+  <label style="display:flex;gap:10px;margin:8px 0"><input type="checkbox" id="conf"> I confirm I want to send this to the ground team.</label>
+  <button class="btn" id="send" disabled>Send to the ground team</button><div class="muted small" id="sres" style="margin-top:8px">Arrives after about 12 minutes of simulated time, as a standard HL7 FHIR package.</div>`);
+ const upd=()=>{$('send').disabled=!($('conf').checked&&document.querySelectorAll('.sc:checked').length)};
+ $('sa').onclick=()=>{document.querySelectorAll('.sc').forEach(c=>c.checked=true);upd()};$('sn').onclick=()=>{document.querySelectorAll('.sc').forEach(c=>c.checked=false);upd()};
+ document.querySelectorAll('.sc').forEach(c=>c.onchange=upd);$('conf').onchange=upd;
+ $('send').onclick=()=>{$('sres').innerHTML='<span style="color:var(--ok)">Sent. In transit: it arrives after 12 minutes of simulated time.</span>';$('send').disabled=true};
+}
+
+/* ----- limits, glossary, Flet notes ----- */
+$('btn-limits').onclick=()=>openModal(`<h2>Limits of this prototype</h2><div class="card">Analog and simulated data: not from real astronauts. Nothing here is a diagnosis. Colors compare your readings with your own baseline or with a labelled reference. Voice numbers are experimental and never change a color.</div>`);
+$('btn-glossary').onclick=()=>openModal(`<h2>Glossary</h2><div class="card"><b>bpm</b> · beats per minute.<br><b>HRP</b> · NASA Human Research Program.<br><b>FHIR</b> · a standard format for health data.<br><b>CMO</b> · crew medical officer.</div>`);
+$('lang').onclick=()=>openModal(`<h2>Language</h2><div class="card">The real app keeps English and Spanish. This mockup is English only.</div>`);
+$('btn-dev').onclick=()=>openModal(`<h2>🛠 How to build this in Flet 1.1.2</h2>
+ <div class="muted small">Everything below uses controls the app already imports (no new dependency). Reuse the existing state, models and texts: only the views change.</div>
+ <table><tr><th>Element</th><th>Flet</th></tr>
+ <tr><td>Space background</td><td><code>ft.Stack</code>: <code>ft.Container(gradient=ft.RadialGradient)</code> + <code>ft.canvas.Canvas</code> with ~120 <code>cv.Circle</code> stars; twinkle by changing a few <code>opacity</code> values every 600 ms (<code>actions.run_task</code>).</td></tr>
+ <tr><td>One screen layout</td><td><code>ft.Row</code>: left column (ring + case), center <code>ft.Stack</code> (body), right column (data). On narrow widths <code>ft.ResponsiveRow</code>.</td></tr>
+ <tr><td>Body + zones</td><td><code>ft.Stack(width=300,height=560)</code>: <code>ft.Image(src="body.svg")</code> + one <code>ft.GestureDetector(on_tap=open_zone, left=, top=, content=ft.Container(shape=CIRCLE, bgcolor=status, animate_scale=…))</code> per zone. Pulse glow: <code>animate_scale</code> toggled by a task.</td></tr>
+ <tr><td>Mission ring</td><td><code>cv.Canvas</code> with three <code>cv.Arc(start_angle, sweep_angle, paint=Paint(style=STROKE, stroke_width=14))</code>; the marker is a <code>ft.Container</code> in the Stack with <code>animate_position=ft.Animation(550, EASE_IN_OUT)</code>, <code>left/top</code> from sin/cos of the day. Icon: <code>ft.Text("🌍")</code>, <code>ft.Text("🚀")</code> and a Mars <code>ft.Container(gradient=RadialGradient, shape=CIRCLE)</code>.</td></tr>
+ <tr><td>Data panel</td><td>Glass <code>ft.Container(blur=ft.Blur(12,12), bgcolor=with_opacity)</code> with a <code>ft.ListView</code>; each row is the existing <code>summary_model</code> / <code>intake</code> data.</td></tr>
+ <tr><td>Modals</td><td><code>page.show_dialog(ft.AlertDialog(content=…))</code> and swap <code>dialog.content</code> + <code>dialog.update()</code> to move between steps (pulse tabs, faces → voice). Same pattern for system card, share and limits.</td></tr>
+ <tr><td>Draggable bubble</td><td>Last child of the page <code>ft.Stack</code>: <code>ft.GestureDetector(on_pan_update=…, on_tap=open_mood, left=x, top=y, content=ft.Container(width=66,height=66,shape=CIRCLE,border=ring_by_mood))</code>. Clamp x/y with <code>page.width/height</code> (<code>page.on_resize</code>).</td></tr>
+ <tr><td>Voice meter</td><td>Existing <code>voice.py</code> loop with <code>actions.run_task</code> updating <code>ft.ProgressBar.value</code>.</td></tr>
+ <tr><td>Hazards screen</td><td>Existing <code>ui/hazards.py</code>; top <code>ft.SegmentedButton</code> switches Body / Hazards.</td></tr>
+ <tr><td>Pulse by hand</td><td>Existing <code>PulseMission</code>, <code>preview_pulse</code> and <code>pulse_guidance</code>; the 8 illustrations stay (with the watermark, task P9).</td></tr></table>
+ <div class="card"><b>Reuse, do not rewrite:</b> <code>AppState</code>, <code>hazards.py</code>, <code>intake.py</code>, <code>voice_*</code>, <code>pulse_guidance.py</code> and <code>i18n.py</code>. Only <code>ui/shell.py</code> and a new <code>ui/stage.py</code> change; the sections Home, Check-in, Summary and Data collapse into the stage.</div>`);
+
+/* ============================ main render ============================ */
+function render(){drawRing();placeMarker();drawBody();drawData();drawCase();drawHazards()}
+</script>
+</body>
+</html>
