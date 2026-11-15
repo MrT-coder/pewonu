@@ -151,6 +151,84 @@ STRINGS: dict[str, dict[Language, str]] = {
     "nav.checkin": {_EN: "Check-in", _ES: "Chequeo"},
     "nav.body": {_EN: "Body", _ES: "Cuerpo"},
     "nav.summary": {_EN: "Summary", _ES: "Resumen"},
+    "nav.data": {_EN: "Data", _ES: "Datos"},
+    "part.data.title": {_EN: "Data intake", _ES: "Ingreso de datos"},
+    "part.data.body": {
+        _EN: "Every reading that came in, from which source, and what it shows.",
+        _ES: "Cada lectura que entró, de qué fuente y qué muestra.",
+    },
+    "intake.empty": {
+        _EN: "No data has come in yet.",
+        _ES: "Todavía no ha entrado ningún dato.",
+    },
+    "intake.title": {_EN: "Data intake", _ES: "Ingreso de datos"},
+    "intake.intro": {
+        _EN: "In real use your devices send these readings by themselves. In this demo they "
+        "are pre-loaded and arrive as the journey moves, so you can see them in the system.",
+        _ES: "En uso real tus dispositivos envían estas lecturas solos. En esta demostración "
+        "están precargadas y entran a medida que avanza el viaje, para que las veas en el "
+        "sistema.",
+    },
+    "intake.totals": {
+        _EN: "{n} readings in · {covered} of {total} indicators",
+        _ES: "{n} lecturas ingresadas · {covered} de {total} indicadores",
+    },
+    "intake.sources_title": {_EN: "Where the data comes from", _ES: "De dónde vienen los datos"},
+    "intake.source.wearable": {_EN: "Watch and band", _ES: "Reloj y pulsera"},
+    "intake.source.wearable.what": {
+        _EN: "Sends blood pressure, temperature, sleep and more by itself (simulated).",
+        _ES: "Envía presión, temperatura, sueño y más por sí solo (simulado).",
+    },
+    "intake.source.survey": {_EN: "Short questions", _ES: "Preguntas cortas"},
+    "intake.source.survey.what": {
+        _EN: "Mood, balance symptoms and the line-walk test.",
+        _ES: "Ánimo, síntomas de equilibrio y la prueba de caminar en línea.",
+    },
+    "intake.source.hand_pulse": {_EN: "Pulse counted by hand", _ES: "Pulso contado a mano"},
+    "intake.source.hand_pulse.what": {
+        _EN: "The resting pulse, counted on the wrist.",
+        _ES: "El pulso en reposo, contado en la muñeca.",
+    },
+    "intake.source.entered": {_EN: "Entered by you here", _ES: "Ingresado por ti aquí"},
+    "intake.source.entered.what": {
+        _EN: "What you record in the check-in.",
+        _ES: "Lo que registras en el chequeo.",
+    },
+    "intake.readings": {
+        _EN: "{n} readings · last on {last}",
+        _ES: "{n} lecturas · la última el {last}",
+    },
+    "intake.feed_title": {_EN: "Latest days", _ES: "Últimos días"},
+    "intake.feed_line": {
+        _EN: "{total} readings: {parts}",
+        _ES: "{total} lecturas: {parts}",
+    },
+    "intake.short.wearable": {_EN: "device", _ES: "dispositivo"},
+    "intake.short.survey": {_EN: "questions", _ES: "preguntas"},
+    "intake.short.hand_pulse": {_EN: "by hand", _ES: "a mano"},
+    "intake.short.entered": {_EN: "entered", _ES: "ingresadas"},
+    "intake.shows_title": {_EN: "What this data shows now", _ES: "Qué muestra ahora este dato"},
+    "intake.shows_body": {
+        _EN: "Each color compares your readings with your own baseline in this place.",
+        _ES: "Cada color compara tus lecturas con tu propia línea base en este lugar.",
+    },
+    "intake.open_body": {_EN: "Open the body view", _ES: "Abrir la vista del cuerpo"},
+    "intake.origin_title": {_EN: "Origin of the data", _ES: "Origen de los datos"},
+    "intake.origin_simulated": {
+        _EN: "Simulated analog scenario: fictitious crew, not data of real astronauts.",
+        _ES: "Escenario análogo simulado: tripulación ficticia, no son datos de astronautas "
+        "reales.",
+    },
+    "intake.origin_other": {
+        _EN: "Data from the sources listed above.",
+        _ES: "Datos de las fuentes listadas arriba.",
+    },
+    "intake.origin_real": {
+        _EN: "In a real mission the readings would arrive from the crew's devices; the cases "
+        "follow the NASA Human Research Program hazards.",
+        _ES: "En una misión real las lecturas llegarían de los dispositivos de la tripulación; "
+        "los casos siguen los peligros del Programa de Investigación Humana de la NASA.",
+    },
     "nav.limits": {_EN: "Limits", _ES: "Límites"},
     "nav.glossary": {_EN: "Glossary", _ES: "Glosario"},
     "glossary.close": {_EN: "Close", _ES: "Cerrar"},

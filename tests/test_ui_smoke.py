@@ -8,6 +8,7 @@ ft = pytest.importorskip("flet")
 
 from crew_self_check.astronaut.access import simulated_directory  # noqa: E402
 from crew_self_check.astronaut.body_model import reference_text  # noqa: E402
+from crew_self_check.astronaut.cases import CASES  # noqa: E402
 from crew_self_check.astronaut.i18n import translate  # noqa: E402
 from crew_self_check.astronaut.state import AppState, Section  # noqa: E402
 from crew_self_check.astronaut.ui.common import Actions, glossary_dialog  # noqa: E402
@@ -88,7 +89,7 @@ def test_shell_builds_every_section_in_both_languages(language: Language, sectio
     view = build_shell(state, Recorder().actions())
     assert isinstance(view, ft.Control)
     texts = collect_texts(view)
-    for key in ("nav.home", "nav.checkin", "nav.body", "nav.summary", "nav.logout"):
+    for key in ("nav.home", "nav.checkin", "nav.body", "nav.summary", "nav.data", "nav.logout"):
         assert translate(key, language) in texts, (key, language)
     assert any("AST-0001" in text for text in texts)  # who is logged in
     if section is Section.HOME:
@@ -101,6 +102,11 @@ def test_shell_builds_every_section_in_both_languages(language: Language, sectio
         assert translate("body.hint", language) in texts
     elif section is Section.SUMMARY:
         assert translate("summary.systems", language) in texts
+    elif section is Section.DATA:
+        assert translate("intake.title", language) in texts
+        assert translate("intake.sources_title", language) in texts
+        assert translate("intake.feed_title", language) in texts
+        assert translate("intake.origin_simulated", language) in texts
     else:
         assert translate(f"part.{section.value}.body", language) in texts
 
@@ -542,3 +548,55 @@ def test_the_package_dialog_shows_the_fhir_data_that_was_sent() -> None:
     assert translate("share.data_title", Language.EN) in texts
     assert any('"resourceType": "Bundle"' in text for text in texts)
     assert any("8867-4" in text for text in texts)  # the LOINC code of the pulse
+
+
+# --- the three cases, the data intake and the pulse guidance -------------------------------
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_login_lists_the_three_cases_and_the_hazard_each_stresses(language: Language) -> None:
+    texts = collect_texts(build_login(state_in(language, logged_in=False), Recorder().actions()))
+    for crew_id, case in CASES.items():
+        assert any(translate(case.title_key, language) in text for text in texts), crew_id
+        assert any(translate(f"hazard.{case.hazard.value}", language) in text for text in texts)
+
+
+@pytest.mark.parametrize("language", list(Language))
+@pytest.mark.parametrize("code", ["AST-0001", "AST-0002", "AST-0003"])
+def test_the_home_shows_the_case_of_the_person_in_session(language: Language, code: str) -> None:
+    state = AppState(simulated_directory())
+    state.set_language(language)
+    state.login(code)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert state.profile is not None
+    case = CASES[state.profile.crew_id]
+    for key in (case.title_key, case.story_key, case.system_key, "hazard.source"):
+        assert translate(key, language) in texts, key
+    assert translate(f"hazard.{case.hazard.value}", language) in texts
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_pulse_result_says_what_it_means_and_what_to_do_before_saving(
+    language: Language,
+) -> None:
+    state = AppState(simulated_directory())
+    state.set_language(language)
+    state.login("AST-0001")
+    state.start_pulse()
+    assert state.pulse is not None
+    for _ in range(3):
+        state.pulse.complete_station()
+    state.pulse.set_interval(60)
+    state.pulse.submit_count(110)  # far above this person's usual 60
+    state.go(Section.CHECKIN)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    for key in (
+        "pulse.meaning_title",
+        "pulse.todo_title",
+        "pulse.outside_one",
+        "pulse.todo.single",
+    ):
+        assert translate(key, language) in texts, key
+    assert translate("pulse.todo.rest", language) in texts
+    assert translate("pulse.save", language) in texts
+    assert state.own_measurements() == ()  # explained, not saved yet
