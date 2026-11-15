@@ -25,3 +25,13 @@ Branch: `app/hazards` (then `app/voice`, `ground/console`). Delivery: local merg
 - L2: Flet 1.1.2 has no `AudioRecorder` (needs a separate package) and in web mode a recording stays in the browser, so the voice capture must come from the local server (sounddevice) or fall back to a labelled synthetic sample. numpy is not installed: the analysis is pure Python.
 - L3 (user): "en el repo debe ir lo necesario para que los jueces si desean puedan clonar y levantar el ecosistema tanto el sistema astronauta y el sistema base"; "cuando ya subamos esto al origin todo esto de pruebas y mas, no iria, solo va el tema del sistema de astronauta y sistema de la base".
 - L4: the pasted body image was NOT used (unknown license; the submission form requires permission for every external asset): an original silhouette was drawn instead (.qa/make_body.py).
+
+## PeWoNu scope (L5, 2026-11-15)
+
+- S6: "se llama PeWoNu el sistema en general por que se enfoca en peace, wod y nutrition, el tema peace ya tenemos con salud mental, nos faltaria el tema wod y el tema nutrition, el tema wod lo deberiamos aliar con datos que tengamos como edad, peso, datos oseos y mas, y en base a eso recomendar ejercicios en las 3 maquinas que tienen las naves y estaciones ... caminadora, bicicleta y para peso, con esto tambien puede venir el tema de nutrition con la comida que consuman ahi en las misiones".
+- T7 research (DONE): ISS devices T2 treadmill, CEVIS cycle ergometer, ARED resistive; ~2.5 h/day scheduled; bone loss 1-2%/month without countermeasures (NASA HRP); ARED + energy + vitamin D kept BMD near preflight (NTRS 2014); nutrition standards follow NIH DRI (NASA-STD-3001 Vol 2 7.1); CSA: 1,900-3,200 kcal by weight, sex, needs; shelf-stable food, fresh limited.
+- T8 profile data (weight, height, preflight bone mineral density), simulated: pending
+- T9 WOD engine (core/wod.py) + modal: pending
+- T10 Nutrition engine (core/nutrition.py) + modal: pending
+- T11 rename to PeWoNu in the interface, README and docs; decision D-030: pending
+- Rules for T9/T10: educational, cite sources, label every assumption, no doses or supplements, no clinical thresholds, no medical diagnosis; effort by perceived exertion; ground exercise specialists set the real prescription.
