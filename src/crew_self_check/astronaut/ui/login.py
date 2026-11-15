@@ -54,7 +54,7 @@ def build_login(state: AppState, actions: Actions) -> ft.Control:
             spacing=14,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
-                ft.Icon(ft.Icons.ROCKET_LAUNCH, size=40, color=theme.ACCENT),
+                ft.Image(src="brand/pewonu.png", height=150, fit=ft.BoxFit.CONTAIN),
                 ft.Text(say("app.name"), size=30, weight=ft.FontWeight.BOLD, color=theme.TEXT),
                 ft.Text(say("app.tagline"), size=14, color=theme.MUTED),
                 ft.Divider(height=8, color=theme.CARD_BORDER),

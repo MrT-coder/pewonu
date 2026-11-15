@@ -1,7 +1,7 @@
 [project]
 name = "crew-self-check"
 version = "0.0.0"
-description = "Crew Self-Check: astronaut health self-assessment (NASA Space Apps 2026 prototype)."
+description = "PeWoNu (Crew Self-Check): astronaut health self-assessment (NASA Space Apps 2026 prototype)."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []

@@ -1,6 +1,8 @@
-# Crew Self-Check
+# PeWoNu
 
-Prototype for the NASA Space Apps Challenge 2026, "Create Health Monitoring Software for Astronauts on Space Missions".
+<img src="src/crew_self_check/astronaut/assets/brand/pewonu.png" alt="PeWoNu logo" width="160">
+
+PeWoNu (Peace, WOD, Nutrition; internal package `crew_self_check`) is a prototype for the NASA Space Apps Challenge 2026, "Create Health Monitoring Software for Astronauts on Space Missions".
 
 > **Status: work in progress (hackathon, 14-15 Nov 2026).** This is a prototype built with simulated, analog data. It does **not** diagnose, predict disease, or replace medical care. Nothing here has been validated for use in space.
 >

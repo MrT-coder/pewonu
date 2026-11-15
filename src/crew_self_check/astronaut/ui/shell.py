@@ -43,7 +43,7 @@ def _top_bar(state: AppState, actions: Actions) -> ft.Control:
                         ft.Row(
                             spacing=8,
                             controls=[
-                                ft.Icon(ft.Icons.ROCKET_LAUNCH, size=24, color=theme.ACCENT),
+                                ft.Image(src="brand/pewonu.png", height=40, fit=ft.BoxFit.CONTAIN),
                                 ft.Text(
                                     translate("app.name", language),
                                     size=18,

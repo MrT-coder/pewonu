@@ -16,7 +16,7 @@ SAME_IN_BOTH = frozenset(
 )
 
 STRINGS: dict[str, dict[Language, str]] = {
-    "app.name": {_EN: "Crew Self-Check", _ES: "Crew Self-Check"},
+    "app.name": {_EN: "PeWoNu", _ES: "PeWoNu"},
     "app.tagline": {
         _EN: "Know your own baseline.",
         _ES: "Conoce tu propia línea base.",

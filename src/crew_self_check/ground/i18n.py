@@ -11,7 +11,7 @@ from crew_self_check.core.reasons import Language
 _EN, _ES = Language.EN, Language.ES
 
 STRINGS: dict[str, dict[Language, str]] = {
-    "app.name": {_EN: "Crew Self-Check · Ground base", _ES: "Crew Self-Check · Base en Tierra"},
+    "app.name": {_EN: "PeWoNu · Ground base", _ES: "PeWoNu · Base en Tierra"},
     "banner": {
         _EN: "Simulated crew and simulated data. This is a prototype, not a medical system.",
         _ES: "Tripulación y datos simulados. Es un prototipo, no un sistema médico.",

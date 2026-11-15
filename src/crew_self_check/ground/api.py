@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from pydantic import AwareDatetime, BaseModel, Field, StrictInt
 
 from crew_self_check.core.inbox import ReceivedBundle
@@ -41,8 +42,11 @@ def _clock(service: GroundService) -> dict[str, Any]:
     return {"now": service.now().isoformat(), "simulated": service.clock_is_simulated}
 
 
+_LOGO = Path(__file__).parent / "static" / "pewonu.png"
+
+
 def create_app(service: GroundService) -> FastAPI:
-    app = FastAPI(title="Crew Self-Check ground base", version="0.0.0")
+    app = FastAPI(title="PeWoNu ground base", version="0.0.0")
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -104,6 +108,10 @@ def create_app(service: GroundService) -> FastAPI:
     def delete_clock() -> dict[str, Any]:
         service.clear_clock()
         return _clock(service)
+
+    @app.get("/brand/pewonu.png")
+    def logo() -> FileResponse:
+        return FileResponse(_LOGO, media_type="image/png")
 
     @app.get("/", response_class=HTMLResponse)
     def home(lang: str | None = None) -> str:

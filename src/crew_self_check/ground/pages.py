@@ -54,9 +54,7 @@ box-shadow:0 10px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
 padding:10px 18px;margin-bottom:12px}
 .brand{display:flex;gap:12px;align-items:center}
-.orb{width:30px;height:30px;border-radius:50%;flex:none;
-background:radial-gradient(circle at 32% 28%,#bfe9ff,#38bdf8 45%,#1d3a8a 80%);
-box-shadow:0 0 18px rgba(56,189,248,.6)}
+.logo{height:50px;width:auto;flex:none}
 .brand b{font-size:1.1rem;letter-spacing:.3px}.tag{font-size:.8rem;color:#8fa0b8}
 nav{display:flex;gap:16px}
 h1{font-size:1.5rem;margin:.3rem 0 .2rem}
@@ -126,9 +124,10 @@ def _page(language: Language, title: str, body: str) -> str:
     return (
         f'<!doctype html><html lang="{language.value}"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
-        '<link rel="icon" href="data:,">'
+        '<link rel="icon" type="image/png" href="/brand/pewonu.png">'
         f"<title>{escape(title)}</title><style>{_CSS}</style></head><body><main>"
-        '<header class="glass top"><div class="brand"><span class="orb"></span><div>'
+        '<header class="glass top"><div class="brand">'
+        '<img class="logo" src="/brand/pewonu.png" alt="" width="44" height="50"><div>'
         f'<b>{escape(STRINGS["app.name"][language])}</b><div class="tag">'
         f"{escape(STRINGS['app.tagline'][language])}</div></div></div><nav>"
         f'<a href="?lang={language.value}">{escape(STRINGS["action.refresh"][language])}</a>'
