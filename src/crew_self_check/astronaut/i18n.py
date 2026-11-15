@@ -378,6 +378,224 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "A habitat: the base manages air, temperature and pressure.",
         _ES: "Un hábitat: la base maneja el aire, la temperatura y la presión.",
     },
+    "voice.prompt.1": {
+        _EN: "Tell me about someone at home you are thinking of today.",
+        _ES: "Cuéntame de alguien de casa en quien piensas hoy.",
+    },
+    "voice.prompt.2": {
+        _EN: "What has been on your mind about the mission lately?",
+        _ES: "¿Qué ha estado en tu mente últimamente sobre la misión?",
+    },
+    "voice.prompt.3": {
+        _EN: "Describe a place from home that you miss, as if you were walking through it.",
+        _ES: "Describe un lugar de casa que extrañas, como si caminaras por él.",
+    },
+    "voice.prompt.4": {
+        _EN: "What is something that has surprised you since you left?",
+        _ES: "¿Qué es algo que te ha sorprendido desde que partiste?",
+    },
+    "voice.prompt.5": {
+        _EN: "Talk about what you want to do when this mission is over.",
+        _ES: "Habla de lo que quieres hacer cuando termine esta misión.",
+    },
+    "voice.prompt.6": {
+        _EN: "What was the hardest part of this week, and how did you get through it?",
+        _ES: "¿Qué fue lo más difícil de esta semana y cómo lo superaste?",
+    },
+    "voice.prompt.7": {
+        _EN: "Tell a story about a moment with your crew that you will remember.",
+        _ES: "Cuenta una historia de un momento con tu tripulación que recordarás.",
+    },
+    "voice.prompt.8": {
+        _EN: "What do you wish people on Earth understood about where you are?",
+        _ES: "¿Qué te gustaría que la gente en la Tierra entendiera de dónde estás?",
+    },
+    "nav.voice": {
+        _EN: "Voice log",
+        _ES: "Bitácora de voz",
+    },
+    "voice.title": {
+        _EN: "Voice log",
+        _ES: "Bitácora de voz",
+    },
+    "voice.intro": {
+        _EN: "A moment to let it out. Talk for as long as you want about the question below. What "
+        "you say is not recorded or saved: only a few numbers about how your voice sounds.",
+        _ES: "Un momento para desahogarte. Habla el tiempo que quieras sobre la pregunta de abajo."
+        " Lo que digas no se graba ni se guarda: solo unos números sobre cómo suena tu voz.",
+    },
+    "voice.another": {
+        _EN: "Another question",
+        _ES: "Otra pregunta",
+    },
+    "voice.start": {
+        _EN: "Start talking",
+        _ES: "Empezar a hablar",
+    },
+    "voice.stop": {
+        _EN: "I am done",
+        _ES: "Terminé",
+    },
+    "voice.listening": {
+        _EN: "Listening… take your time.",
+        _ES: "Escuchando… tómate tu tiempo.",
+    },
+    "voice.elapsed": {
+        _EN: "{seconds} s elapsed",
+        _ES: "{seconds} s transcurridos",
+    },
+    "voice.analyzing": {
+        _EN: "Turning your voice into numbers…",
+        _ES: "Convirtiendo tu voz en números…",
+    },
+    "voice.no_mic": {
+        _EN: "No microphone was found on this computer.",
+        _ES: "No se encontró un micrófono en este equipo.",
+    },
+    "voice.use_sample": {
+        _EN: "Use a sample voice note (synthetic)",
+        _ES: "Usar una nota de voz de muestra (sintética)",
+    },
+    "voice.synthetic": {
+        _EN: "This is a generated sample, not your voice.",
+        _ES: "Esta es una muestra generada, no tu voz.",
+    },
+    "voice.discarded": {
+        _EN: "The audio was discarded. Only these numbers were kept.",
+        _ES: "El audio se descartó. Solo se guardaron estos números.",
+    },
+    "voice.result_title": {
+        _EN: "Your voice today compared with your usual",
+        _ES: "Tu voz de hoy frente a tu habitual",
+    },
+    "voice.building": {
+        _EN: "Building your voice baseline: note {n} of {needed}. Keep talking on other days.",
+        _ES: "Construyendo tu línea base de voz: nota {n} de {needed}. Sigue hablando otros días.",
+    },
+    "voice.level.usual": {
+        _EN: "Your voice sounds like your usual.",
+        _ES: "Tu voz suena como la habitual.",
+    },
+    "voice.level.different": {
+        _EN: "Your voice differs from your usual in several ways.",
+        _ES: "Tu voz se diferencia de la habitual en varios aspectos.",
+    },
+    "voice.reference.personal": {
+        _EN: "Compared with your own notes in this place.",
+        _ES: "Comparado con tus propias notas en este lugar.",
+    },
+    "voice.reference.transition": {
+        _EN: "Compared with your notes in the previous place ({previous}), while your notes here "
+        "build up.",
+        _ES: "Comparado con tus notas del lugar anterior ({previous}), mientras se acumulan las de"
+        " aquí.",
+    },
+    "voice.not_a_diagnosis": {
+        _EN: "Experimental. These numbers do not say how you feel and do not change any color.",
+        _ES: "Experimental. Estos números no dicen cómo te sientes ni cambian ningún color.",
+    },
+    "voice.shared": {
+        _EN: "Shared with the ground base: only these numbers. You agreed to this when you joined "
+        "the mission.",
+        _ES: "Compartido con la base en Tierra: solo estos números. Lo aceptaste al unirte a la "
+        "misión.",
+    },
+    "voice.not_shared": {
+        _EN: "Not shared: the ground base is not connected.",
+        _ES: "No compartido: la base en Tierra no está conectada.",
+    },
+    "voice.again": {
+        _EN: "Record another note",
+        _ES: "Grabar otra nota",
+    },
+    "voice.problem.too_short": {
+        _EN: "The note was too short. Talk for at least 5 seconds.",
+        _ES: "La nota fue muy corta. Habla al menos 5 segundos.",
+    },
+    "voice.problem.low_signal": {
+        _EN: "I could barely hear you. Check the microphone and try again.",
+        _ES: "Casi no te escuché. Revisa el micrófono y vuelve a intentar.",
+    },
+    "voice.problem.clipping": {
+        _EN: "The sound was too loud and distorted. Move back a little.",
+        _ES: "El sonido fue muy fuerte y se distorsionó. Aléjate un poco.",
+    },
+    "voice.problem.too_few_voiced": {
+        _EN: "There was too little clear voice to measure.",
+        _ES: "Hubo muy poca voz clara para medir.",
+    },
+    "voice.feature.pitchMeanHz": {
+        _EN: "Pitch",
+        _ES: "Tono",
+    },
+    "voice.feature.pitchVariation": {
+        _EN: "Pitch variation",
+        _ES: "Variación del tono",
+    },
+    "voice.feature.speechRate": {
+        _EN: "Speech rate",
+        _ES: "Ritmo del habla",
+    },
+    "voice.feature.pauseRatio": {
+        _EN: "Pauses",
+        _ES: "Pausas",
+    },
+    "voice.feature.loudnessDb": {
+        _EN: "Loudness",
+        _ES: "Volumen",
+    },
+    "voice.dir.pitchMeanHz.up": {
+        _EN: "higher",
+        _ES: "más agudo",
+    },
+    "voice.dir.pitchMeanHz.down": {
+        _EN: "lower",
+        _ES: "más grave",
+    },
+    "voice.dir.pitchVariation.up": {
+        _EN: "more varied",
+        _ES: "más variado",
+    },
+    "voice.dir.pitchVariation.down": {
+        _EN: "flatter",
+        _ES: "más plano",
+    },
+    "voice.dir.speechRate.up": {
+        _EN: "faster",
+        _ES: "más rápido",
+    },
+    "voice.dir.speechRate.down": {
+        _EN: "slower",
+        _ES: "más lento",
+    },
+    "voice.dir.pauseRatio.up": {
+        _EN: "more pauses",
+        _ES: "más pausas",
+    },
+    "voice.dir.pauseRatio.down": {
+        _EN: "fewer pauses",
+        _ES: "menos pausas",
+    },
+    "voice.dir.loudnessDb.up": {
+        _EN: "louder",
+        _ES: "más fuerte",
+    },
+    "voice.dir.loudnessDb.down": {
+        _EN: "softer",
+        _ES: "más suave",
+    },
+    "voice.same": {
+        _EN: "as usual",
+        _ES: "como siempre",
+    },
+    "part.voice.title": {
+        _EN: "Voice log",
+        _ES: "Bitácora de voz",
+    },
+    "part.voice.body": {
+        _EN: "Talk about whatever you need. Only numbers about your voice are kept.",
+        _ES: "Habla de lo que necesites. Solo se guardan números sobre tu voz.",
+    },
     "nav.limits": {_EN: "Limits", _ES: "Límites"},
     "nav.glossary": {_EN: "Glossary", _ES: "Glosario"},
     "glossary.close": {_EN: "Close", _ES: "Cerrar"},

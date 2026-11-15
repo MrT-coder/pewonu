@@ -8,7 +8,10 @@ dependencies = []
 
 [project.optional-dependencies]
 # Pinned to the version verified in the 2026-11-14 spike (see docs/decisiones.md, D-017).
-astronaut = ["flet[all]==1.1.2"]
+astronaut = [
+    "flet[all]==1.1.2",
+    "sounddevice==0.5.6",
+]
 ground = [
     "fastapi==0.163.0",
     "uvicorn==0.54.0",
@@ -47,3 +50,7 @@ python_version = "3.12"
 strict = true
 mypy_path = "src"
 packages = ["crew_self_check"]
+
+[[tool.mypy.overrides]]
+module = "sounddevice"
+ignore_missing_imports = true

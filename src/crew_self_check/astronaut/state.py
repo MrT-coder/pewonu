@@ -7,8 +7,9 @@ the spacecraft to the planet, and what the astronaut records is stamped with tha
 
 from __future__ import annotations
 
+import random
 from collections.abc import Callable
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 from enum import StrEnum
 
@@ -22,6 +23,7 @@ from crew_self_check.astronaut.share_model import (
     OutboxItem,
     delivery_state,
 )
+from crew_self_check.astronaut.voice_capture import VOICE_PROMPTS, VoiceRecorder
 from crew_self_check.core.contract import (
     CrewProfile,
     Indicator,
@@ -29,12 +31,21 @@ from crew_self_check.core.contract import (
     Status,
     System,
     SystemStatus,
+    VoiceFeatures,
 )
 from crew_self_check.core.fhir import ShareSelection, build_bundle, check_bundle
 from crew_self_check.core.reasons import Language
 from crew_self_check.core.scenario import Scenario, ScenarioDay, generate_scenario
 from crew_self_check.core.status import IndicatorResolution, resolve_indicator, resolve_system
-from crew_self_check.core.storage import InMemoryMeasurementStore, MeasurementStore
+from crew_self_check.core.storage import (
+    InMemoryMeasurementStore,
+    InMemoryVoiceStore,
+    MeasurementStore,
+    VoiceStore,
+)
+from crew_self_check.core.voice_analysis import VoiceAnalysis, analyze
+from crew_self_check.core.voice_baseline import VoiceComparison, compare
+from crew_self_check.core.voice_scenario import generate_voice_notes
 
 START_LABEL = "E-1"  # the journey opens on the last day on Earth, with a full history behind it
 _MIDDAY = timedelta(hours=12)
@@ -49,6 +60,22 @@ class Section(StrEnum):
     HAZARDS = "hazards"
 
 
+class VoiceStage(StrEnum):
+    IDLE = "idle"
+    RECORDING = "recording"
+    RESULT = "result"
+
+
+@dataclass(frozen=True, slots=True)
+class VoiceResult:
+    """What came out of one voice note. It holds numbers only: the audio is gone."""
+
+    analysis: VoiceAnalysis
+    comparison: VoiceComparison | None
+    saved: bool
+    shared: bool = False  # sent to the ground base (standing consent, shown on screen)
+
+
 class AppState:
     def __init__(
         self,
@@ -57,6 +84,8 @@ class AppState:
         scenario: Scenario | None = None,
         store: MeasurementStore | None = None,
         ground_link: GroundLink | None = None,
+        voice_recorder: VoiceRecorder | None = None,
+        voice_store: VoiceStore | None = None,
     ) -> None:
         self._directory = directory
         self._ground_link = ground_link
@@ -84,6 +113,14 @@ class AppState:
         ] = []  # the simulated inbox, used when no ground is linked
         self.ground_error: str | None = None  # "unreachable" while a package waits to be resent
         self._unsent: list[OutboxItem] = []
+        # The voice log (T2): numbers only, the audio lives in the recorder until it stops.
+        self._voice_recorder = voice_recorder
+        self._voice_store: VoiceStore = voice_store or InMemoryVoiceStore()
+        self._voice_seed = generate_voice_notes(self.scenario)
+        self._voice_rng = random.Random()
+        self.voice_stage = VoiceStage.IDLE
+        self.voice_prompt: str = VOICE_PROMPTS[0]
+        self.voice_result: VoiceResult | None = None
 
     @property
     def logged_in(self) -> bool:
@@ -189,6 +226,84 @@ class AppState:
             profile=self.profile,
             as_of=self.journey_time(),
         )
+
+    # --- the voice log (T2, D-028) ----------------------------------------------------------
+
+    def set_voice_rng(self, rng: random.Random) -> None:
+        self._voice_rng = rng
+
+    def voice_available(self) -> bool:
+        return self._voice_recorder is not None and self._voice_recorder.available()
+
+    def voice_synthetic(self) -> bool:
+        return self._voice_recorder is not None and self._voice_recorder.synthetic
+
+    def voice_level(self) -> float:
+        return self._voice_recorder.level() if self._voice_recorder is not None else 0.0
+
+    def new_voice_prompt(self) -> str:
+        """A random open question, never the same one twice in a row."""
+        choices = [key for key in VOICE_PROMPTS if key != self.voice_prompt]
+        self.voice_prompt = self._voice_rng.choice(choices)
+        return self.voice_prompt
+
+    def start_voice(self) -> None:
+        if self.profile is None or self._voice_recorder is None:
+            raise RuntimeError("a voice note needs a signed-in person and a recorder")
+        self._voice_recorder.start()
+        self.voice_stage = VoiceStage.RECORDING
+        self.voice_result = None
+
+    def stop_voice(self) -> VoiceResult:
+        """Stop, analyse, keep the numbers if the note is usable, and throw the audio away."""
+        if self.profile is None or self._voice_recorder is None:
+            raise RuntimeError("there is no voice note to stop")
+        samples, rate = self._voice_recorder.stop()
+        analysis = analyze(samples, rate)
+        del samples  # the only copy of the audio held by the app
+        comparison: VoiceComparison | None = None
+        saved = False
+        if analysis.quality_ok:
+            note = VoiceFeatures(
+                crew_id=self.profile.crew_id,
+                timestamp=self._now(),
+                environment=self.environment,
+                features=analysis.features,
+                mood_survey_score=self._latest_mood(),
+            )
+            comparison = compare(self.voice_history(), note)
+            self._voice_store.add(note)
+            saved = True
+        self.voice_result = VoiceResult(analysis, comparison, saved)
+        self.voice_stage = VoiceStage.RESULT
+        return self.voice_result
+
+    def cancel_voice(self) -> None:
+        """Leave the voice screen: a recording in progress is stopped and discarded."""
+        if self.voice_stage is VoiceStage.RECORDING and self._voice_recorder is not None:
+            self._voice_recorder.stop()
+        self.voice_stage = VoiceStage.IDLE
+        self.voice_result = None
+
+    def voice_history_own(self) -> tuple[VoiceFeatures, ...]:
+        """The notes this person recorded in the app (not the simulated history)."""
+        if self.profile is None:
+            return ()
+        return self._voice_store.for_crew(self.profile.crew_id)
+
+    def voice_history(self) -> tuple[VoiceFeatures, ...]:
+        """Simulated notes up to the end of today plus the person's own, oldest first."""
+        if self.profile is None:
+            return ()
+        cutoff = self.current_day.timestamp + timedelta(days=1)
+        crew_id = self.profile.crew_id
+        seeded = [n for n in self._voice_seed if n.crew_id == crew_id and n.timestamp < cutoff]
+        own = [n for n in self.voice_history_own() if n.timestamp < cutoff]
+        return tuple(sorted([*seeded, *own], key=lambda n: n.timestamp))
+
+    def _latest_mood(self) -> int:
+        moods = [m for m in self.visible_measurements() if m.indicator is Indicator.MOOD]
+        return int(moods[-1].value) if moods else 0  # 0: no survey answered yet
 
     # --- the mood survey -------------------------------------------------------------------
 

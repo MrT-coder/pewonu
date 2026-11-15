@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from crew_self_check.core.contract import Measurement
+from crew_self_check.core.contract import Measurement, VoiceFeatures
 
 
 class MeasurementStore(Protocol):
@@ -15,6 +15,30 @@ class MeasurementStore(Protocol):
     def all(self) -> tuple[Measurement, ...]: ...
 
     def for_crew(self, crew_id: str) -> tuple[Measurement, ...]: ...
+
+
+class VoiceStore(Protocol):
+    """Where the numbers of voice notes are kept: never audio, never a transcript."""
+
+    def add(self, note: VoiceFeatures) -> None: ...
+
+    def all(self) -> tuple[VoiceFeatures, ...]: ...
+
+    def for_crew(self, crew_id: str) -> tuple[VoiceFeatures, ...]: ...
+
+
+class InMemoryVoiceStore:
+    def __init__(self) -> None:
+        self._items: list[VoiceFeatures] = []
+
+    def add(self, note: VoiceFeatures) -> None:
+        self._items.append(note)
+
+    def all(self) -> tuple[VoiceFeatures, ...]:
+        return tuple(self._items)
+
+    def for_crew(self, crew_id: str) -> tuple[VoiceFeatures, ...]:
+        return tuple(n for n in self._items if n.crew_id == crew_id)
 
 
 class InMemoryMeasurementStore:
