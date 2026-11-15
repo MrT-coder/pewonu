@@ -33,5 +33,5 @@ Branch: `app/hazards` (then `app/voice`, `ground/console`). Delivery: local merg
 - T8 profile data (weight, height, preflight bone mineral density), simulated: DONE (224369b)
 - T9 WOD engine (core/wod.py) + modal: DONE (7dadf04, 657730b)
 - T10 Nutrition engine (core/nutrition.py) + modal: DONE (10001ee, 657730b); meal log in memory only, not yet SQLite
-- T11 rename to PeWoNu in the interface, README and docs; decision D-030: pending
+- T11 rename to PeWoNu in the interface, README and docs; decision D-030: DONE (logo with transparent background, wired in both systems); also fixed the voice log silence (virtual default microphone)
 - Rules for T9/T10: educational, cite sources, label every assumption, no doses or supplements, no clinical thresholds, no medical diagnosis; effort by perceived exertion; ground exercise specialists set the real prescription.

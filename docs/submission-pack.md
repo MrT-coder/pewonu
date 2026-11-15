@@ -1,4 +1,4 @@
-# Crew Self-Check: submission pack
+# PeWoNu: submission pack
 
 Everything the team needs for the NASA Space Apps 2026 project form and for the slides. Written in English because it is a deliverable. Source of truth for the claims: [decisiones.md](decisiones.md), [contrato-datos.md](contrato-datos.md), [tareas.md](tareas.md) and the code.
 
@@ -21,7 +21,7 @@ Submission window closes **Sunday 15 November, 23:59, local event time**. Only t
 | 4 | **Project link must be public** (no password, permission or registration). | The repository is local. There is no public URL yet. | Publish the repository (team decision) and put its full URL in the form. |
 | 5 | **Demo link** (7 slides or 30 s video) must be public and open without registration. | Not created yet. | Build the slides from section 4 and host them (Google Drive, GitHub, YouTube...). |
 | 6 | **License** of the repository. | Undecided. | Decide before publishing. |
-| 7 | **Project name.** The form shows "Project PeWoNu". | The product is called **Crew Self-Check**. | Confirm which name goes in the title field. |
+| 7 | **Project name.** The form shows "Project PeWoNu". | Resolved (D-030): the product is called **PeWoNu** (Peace, WOD, Nutrition) in both apps, the README and this pack. The Python package keeps the internal name `crew_self_check`. | Use "PeWoNu" in the title field. Confirm the team logo (its badge reads "NASA Space Apps Challenge") is acceptable. |
 
 ---
 
@@ -44,46 +44,47 @@ Submission window closes **Sunday 15 November, 23:59, local event time**. Only t
 | Works without internet | `[BUILT]` (spike A1) | A1 |
 | Body figure whose zones are colored by each system's state, with a card per system (what is measured, what it was compared with, a trend over its band, a suggestion and a NASA source) | `[BUILT]` | A3, A4 |
 | One-page summary per astronaut ("human KPIs"): how many systems are in range, today's check-in, regularity of measuring, how ready the personal baseline is here, what needs attention, and the latest readings | `[BUILT]` | A15 |
-| Local database (SQLite) | `[PENDING]` | A2 |
-| Voice log (audio discarded, numeric acoustic measures kept) | `[PENDING]` | A6 (audio part) |
+| Local database (SQLite) | `[BUILT]` (measurements; the meal log is in memory only) | A2 |
+| Voice log (audio discarded, numeric acoustic measures kept; picks the physical microphone and skips virtual inputs) | `[BUILT]` (tested on one laptop) | A6 (audio part), D-028 |
 | Standardized export to FHIR R4, refused without the astronaut's confirmation; checked with the official HL7 validator (0 errors) | `[BUILT]` | C8 |
 | The astronaut chooses what to share, confirms, and the app packs it as a FHIR Bundle; delivery after a simulated delay to a **local simulated inbox** (a package from the app: zero errors in the official HL7 validator) | `[BUILT]` | A10 |
-| A ground-base system that really receives the package | `[PENDING]` | G1 to G3 |
-| Ground base that receives FHIR with a simulated delay | `[PENDING]` | G1 to G3 |
+| A ground-base system (FastAPI) that receives and validates the package over HTTP and shows it only after the simulated communication delay (default 12 minutes of **simulated mission time**, configurable 0 to 22; it follows the journey clock, not the wall clock) | `[BUILT]` | G1 to G3, D-026 |
+| **WOD pillar:** a workout of the day on the three ISS machines (T2 treadmill, CEVIS bike, ARED resistive device) from age, weight, preflight bone density (simulated) and how the person is today; effort by perceived exertion, no loads or doses | `[BUILT]` | T9, D-030 |
+| **Nutrition pillar:** daily energy estimate next to the CSA 1,900 to 3,200 kcal range, protein reference 0.8 g/kg, and a meal log from 18 simulated ISS-style foods (rehydratable, thermostabilized, intermediate moisture, irradiated, natural, fresh); no score, no alert | `[BUILT]` | T10, D-030 |
 | A suggestion of who could be told (crew medical officer or the ground), never sent by itself | `[BUILT]` | A4, A10 |
 | Journey control: move the simulated mission day by day from Earth to the planet and watch the states change | `[BUILT]` (no automatic playback) | A7 |
 | Routine reminders | `[PENDING]` | A8 |
 | ISS-analog spacecraft profile, emergency screen, adherence streak | `[PENDING]` | C7, A11, A12 |
 
-Engineering facts you can quote `[BUILT]`: 535 automated tests; strict type checking; contract of six objects; two simulated crew members over a 28-day trip (14 days on Earth, 10 in the spacecraft, 4 on arrival at Mars); engine defaults are 5 days of history, 3 sustained readings and a 2.5 robust-deviation band.
+Engineering facts you can quote `[BUILT]`: 869 automated tests; strict type checking; contract of six objects; two simulated crew members over a 28-day trip (14 days on Earth, 10 in the spacecraft, 4 on arrival at Mars); engine defaults are 5 days of history, 3 sustained readings and a 2.5 robust-deviation band.
 
 ---
 
 ## 2. Project form, ready to paste
 
 ### Project name
-`Crew Self-Check` (confirm: the form currently shows "Project PeWoNu").
+`PeWoNu` (Peace, WOD, Nutrition).
 
 ### Summary (limit 1500 characters; 50 to 200 words suggested)
 
 Safe version, only claims what is built (about 188 words):
 
-> Crew Self-Check is a health self-assessment prototype for astronauts on long missions, built with simulated, analog data. Instead of comparing an astronaut with an average person, it compares them with **their own baseline**, kept separately for Earth, the spacecraft and a planet's surface. When it does not have enough data it says so (gray) instead of guessing. Each body system is shown on a figure and colored against that baseline, with a card that explains why. The astronaut signs in with a personal code, answers a five-face mood check and takes a manually counted pulse through a guided, gamified "pulse mission" that teaches the wrist technique step by step; the game rewards good technique, never the value of the pulse. The rules that decide a status are deterministic and explained in plain English and Spanish: no AI model is in the alert path, and nothing is diagnosed. The design is private by default: data stays on the crew computer and only what the astronaut chooses and confirms is packed for the ground team, as a standard HL7 FHIR R4 package. The app runs locally and works without internet.
+> PeWoNu (Peace, WOD, Nutrition) is a wellbeing prototype for astronauts on long missions, built with simulated, analog data. Its three pillars are mental and physical self-assessment (Peace), a workout of the day on the three machines of the International Space Station (WOD) and a daily energy and meal estimate (Nutrition). Instead of comparing an astronaut with an average person, it compares them with **their own baseline**, kept separately for Earth, the spacecraft and a planet's surface. When it does not have enough data it says so (gray) instead of guessing. Each body system is shown on a figure and colored against that baseline, with a card that explains why. The astronaut signs in with a personal code, answers a five-face mood check and takes a manually counted pulse through a guided, gamified "pulse mission" that teaches the wrist technique step by step; the game rewards good technique, never the value of the pulse. The rules that decide a status are deterministic and explained in plain English and Spanish: no AI model is in the alert path, and nothing is diagnosed. The design is private by default: data stays on the crew computer and only what the astronaut chooses and confirms is packed for the ground team, as a standard HL7 FHIR R4 package. The app runs locally and works without internet.
 
 Add this sentence only if it is true at submission time:
 
 > `[BUILT]` Each body system is shown on a body figure and colored against the astronaut's own baseline, with a card that explains why. (Already included in the safe version above.)
-> `[BUILT]` What the astronaut confirms is packed as an HL7 FHIR Bundle and "sent" after a simulated communication delay. `[PENDING G1 to G3]` Do not say it reaches a ground-base system: that system is not built, and today the package lands in a local simulated inbox.
+> `[BUILT]` What the astronaut confirms is packed as an HL7 FHIR Bundle and "sent" after a simulated communication delay. The ground-base service is built: it receives the package over HTTP and shows it after the simulated delay.
 
 ### Project Details (long field)
 
-> **What it does.** Crew Self-Check helps an astronaut understand their own health data when the medical team is minutes or months away. It turns a few simple entries (a mood check, a manually counted resting pulse, readings from simulated wearables) into a status for each indicator: green, amber, red or gray. The color always means "compared with what", and the app says which reference was used.
+> **What it does.** PeWoNu helps an astronaut understand their own health data when the medical team is minutes or months away. It turns a few simple entries (a mood check, a manually counted resting pulse, readings from simulated wearables) into a status for each indicator: green, amber, red or gray. The color always means "compared with what", and the app says which reference was used.
 >
 > **How it works.** A personal baseline is built per person, per indicator and per space (Earth, spacecraft, planet) from the median of the person's history with a robust band. Three consecutive readings outside the band on the same side raise amber. A new space starts gray, and during the first days it is compared with the previous space's baseline, labeled as a transition. Only while there is no personal baseline, the resting pulse is compared with a labeled population reference (NCHS National Health Statistics Reports No. 41), and every state shows which reference was used. Reasons are short templates in English and Spanish. The logic is deterministic: there is no AI model in the alert path, and the app never diagnoses.
 >
 > **The astronaut experience.** The astronaut signs in with a personal code. A five-face check records how they feel. The resting pulse is taken by hand, because that is what is possible without equipment: a four-station "pulse mission" (rest, find the artery, press lightly, count) with illustrations, an optional timer, a field to enter the beats you counted and a simple explanatory graph, followed by points and a badge for **technique and regularity, never for the value of the pulse**. Everything is bilingual and a "Limits" screen is available from every screen.
 >
-> **Privacy and the ground base.** Data is private by default and stays on the crew computer. Nothing is meant to leave without the astronaut's confirmation. What is shared is standardized as HL7 FHIR R4 (a heart-rate `Observation` with LOINC 8867-4 and unit `/min`) so a ground team can read it. The exporter is built: it refuses to produce anything unless the astronaut confirmed, and a Bundle with every indicator and every state passes the official HL7 FHIR validator with zero errors. The astronaut chooses what to share, confirms, and the app packs it and simulates the delay. `[PENDING G1 to G3]` The ground base that receives the Bundle is not built: the package lands in a local simulated inbox.
+> **Privacy and the ground base.** Data is private by default and stays on the crew computer. Nothing is meant to leave without the astronaut's confirmation. What is shared is standardized as HL7 FHIR R4 (a heart-rate `Observation` with LOINC 8867-4 and unit `/min`) so a ground team can read it. The exporter is built: it refuses to produce anything unless the astronaut confirmed, and a Bundle with every indicator and every state passes the official HL7 FHIR validator with zero errors. The astronaut chooses what to share, confirms, and the app packs it and simulates the delay. The ground base (FastAPI, built) receives the Bundle over HTTP, validates it and shows it only after the simulated communication delay.
 >
 > **Benefits and intended impact.** Fewer false alarms and less false reassurance (gray instead of a guess), advice that fits each person and each environment, and a clear way to share only what the astronaut decides. It also works as a model for analog missions on Earth.
 >
@@ -156,9 +157,31 @@ What each one supports: the HRP pages give the official list of hazards and risk
 
 ---
 
+## 2b. WOD and Nutrition: what we claim and what backs it
+
+Use this table for the slide notes and the project page. Every food, number and rule below is **educational and simulated**; the ground exercise specialists and dietitians set the real plan.
+
+| Claim | Backing | Status |
+|---|---|---|
+| The ISS crew trains on three machines: the T2 treadmill, the CEVIS cycle ergometer and the ARED resistive device, about 2.5 hours of scheduled exercise a day | NASA, "Astronaut exercise" (search summary; original not opened in depth) | `[VERIFICADO]` with a reservation: quote as "about" |
+| Bone density falls 1 to 2 % a month in space without countermeasures | NASA HRP; [NTRS 20170004597](https://ntrs.nasa.gov/api/citations/20170004597/downloads/20170004597.pdf) (summary read, original to confirm) | `[VERIFICADO]` with a reservation |
+| Resistive exercise plus adequate energy and vitamin D kept bone density near preflight values | NASA NTRS (2014); exact document number to confirm | `[VERIFICADO]` with a reservation: do not quote a number |
+| Station dietitians work in a 1,900 to 3,200 kcal range depending on weight, sex and needs | [CSA, eating in space](https://www.asc-csa.gc.ca/eng/multimedia/search/image/15774) | `[VERIFICADO]` (page read) |
+| The ISS standard menu has more than 200 food and drink options | Same CSA page | `[VERIFICADO]` |
+| ISS food comes in categories: rehydratable, thermostabilized, intermediate moisture, irradiated, natural form; fresh food is limited | NASA, [Classifying Space Food](https://www.nasa.gov/wp-content/uploads/2009/07/190537main_classifying_space_food.pdf) and [Food Selection](https://webarchive.library.unt.edu/eot2008/20080924100703/http://www.nasa.gov/pdf/190540main_Food_Selection.pdf) | `[VERIFICADO]` |
+| Macaroni and cheese, scrambled eggs and chicken with rice are real ISS menu items, in rehydratable packaging | NASA food guides above (macaroni and cheese and chicken and rice appear in the rehydratable casserole list; scrambled eggs are tagged rehydratable) | `[VERIFICADO]` (checked 15 Nov 2026) |
+| NASA's nutrition standard (NASA-STD-3001 Vol. 2, section 7.1) follows the NIH Dietary Reference Intakes, so 0.8 g of protein per kg is used | NASA standard (search summary) | `[VERIFICADO]` with a reservation |
+| The app's food list is **not** the real menu | Our own catalogue: 18 illustrative foods by ISS category with approximate energy and macronutrients | `[SUPOSICION]`, said on the screen |
+| The energy estimate (Mifflin-St Jeor times a light activity factor, plus the day's exercise) | A standard formula; the activity factor 1.3 is a prototype convention | `[SUPOSICION]` |
+| The weekly rotation of the WOD, the effort scales, weight, height and bone density of the crew | Prototype conventions and simulated data | `[SUPOSICION]` |
+
+Say on the slides: "inspired by how the ISS crew trains and eats; simulated values; no loads, doses or supplements".
+
+---
+
 ## 3. One-paragraph pitch (for the first slide notes)
 
-Astronauts will soon be too far from Earth for real-time medical help. Averages do not help them, because gravity, light and isolation change what normal means for each person. Crew Self-Check compares every astronaut with themselves, says "I do not know yet" when it does not have enough data, labels what it compared against, keeps data private by default and shares only what the astronaut chooses, in a standard format the ground team already understands.
+Astronauts will soon be too far from Earth for real-time medical help. Averages do not help them, because gravity, light and isolation change what normal means for each person. PeWoNu looks after mind, body and fuel in one place: it compares every astronaut with themselves, says "I do not know yet" when it does not have enough data, labels what it compared against, keeps data private by default and shares only what the astronaut chooses, in a standard format the ground team already understands.
 
 ---
 
@@ -167,7 +190,7 @@ Astronauts will soon be too far from Earth for real-time medical help. Averages 
 Keep text short: judges read these without a presenter. Put the SI watermark on every generated image. Cite sources in small print on the slide. **Spell out every acronym the first time it appears on a slide**, for example "beats per minute (bpm)"; the glossary in section 7 has the expansions.
 
 **Slide 1: Title and introduction**
-- Crew Self-Check. "Know your own baseline."
+- PeWoNu (Peace, WOD, Nutrition). "Know your own baseline."
 - Health self-assessment for astronauts on long missions. NASA Space Apps 2026.
 - Prototype with **simulated, analog data**. No diagnosis.
 - Team names and the project name as confirmed (blocker 7).
@@ -191,7 +214,7 @@ Keep text short: judges read these without a presenter. Put the SI watermark on 
 - Engine: personal baseline (median and robust band), sustained deviation, labeled references.
 - Output: status per indicator and per system, with a plain reason in English and Spanish.
 - **Deterministic. No AI model in the alert path.**
-- Privacy: data stays on board; only what the astronaut confirms is shared, as HL7 FHIR R4 (exporter and send step built and validated). `[PENDING G1]` for a real receiver on the ground.
+- Privacy: data stays on board; only what the astronaut confirms is shared, as HL7 FHIR R4 (exporter and send step built and validated). A ground-base service receives it after the simulated delay.
 - Visual: a left-to-right flow diagram.
 
 **Slide 5: Demo**
@@ -211,7 +234,7 @@ Keep text short: judges read these without a presenter. Put the SI watermark on 
 
 **Slide 7: Impact, sources and next steps**
 - Impact: safer self-assessment far from help; a model for analog missions on Earth.
-- Next: body figure and system cards, ground base with delay, voice log, real device sources.
+- Next: save the meal log in the local database, real device sources, validation with analog-mission data.
 - Sources: NASA HRP (hazards, risks, ongoing research, ARCHeR, Standard Measures); CSA; NCHS NHSR 41; MedlinePlus; HL7 FHIR. Full list in the project page.
 - Visual: repository link and QR code once it is public.
 
@@ -224,7 +247,7 @@ Hard limit: 30 seconds. Subtitles in English if the narration is in Spanish. Add
 | Time | Shot | Voice / caption |
 |---|---|---|
 | 0 to 4 s | Earth, spacecraft, Mars line | "Far from Earth, normal is personal." |
-| 4 to 10 s | Sign in with the code, switch language | "Crew Self-Check compares each astronaut with themselves." |
+| 4 to 10 s | Sign in with the code, switch language | "PeWoNu compares each astronaut with themselves." |
 | 10 to 18 s | Pulse mission: enter the counted beats, result, badge | "Even a manual pulse becomes a guided game that rewards good technique." |
 | 18 to 24 s | Body figure while the journey bar moves, gray highlighted | "When it does not know, it says gray. It always shows what it compared against." |
 | 24 to 30 s | Privacy lock, FHIR, limits | "Private by default. Standard FHIR for the ground team. No diagnosis." |
