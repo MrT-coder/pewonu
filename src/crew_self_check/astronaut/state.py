@@ -64,6 +64,16 @@ class Section(StrEnum):
     HAZARDS = "hazards"
 
 
+class Modal(StrEnum):
+    """What is open on top of the single screen (UX v2)."""
+
+    NONE = "none"
+    ZONE = "zone"
+    PULSE = "pulse"
+    MOOD = "mood"
+    SHARE = "share"
+
+
 class VoiceStage(StrEnum):
     IDLE = "idle"
     PROMPT = "prompt"
@@ -126,6 +136,10 @@ class AppState:
         self.voice_stage = VoiceStage.IDLE
         self.voice_prompt: str = VOICE_PROMPTS[0]
         self.voice_tick = 0  # lets only the newest recording screen update the meter
+        # The single screen opens everything in modals; one at a time (UX v2).
+        self.modal = Modal.NONE
+        self.pulse_tab = "data"  # "data" (collected) or "hand" (measure by hand)
+        self.bubble_offset: tuple[int, int] = (28, 28)  # right and bottom, in pixels
         self.voice_result: VoiceResult | None = None
 
     @property
@@ -153,7 +167,64 @@ class AppState:
         self.clear_share()
         return True
 
+    # --- modals (UX v2) -------------------------------------------------------------------
+
+    def _open(self, kind: Modal) -> None:
+        if self.profile is None:
+            raise RuntimeError("sign in first")
+        self.close_modal()
+        self.modal = kind
+
+    def open_zone(self, system: System) -> None:
+        self._open(Modal.ZONE)
+        self.selected_system = system
+
+    def open_pulse(self) -> None:
+        self._open(Modal.PULSE)
+        self.pulse_tab = "data"
+
+    def pulse_measure(self) -> None:
+        """Switch the pulse modal to measuring by hand (starts the guided mission)."""
+        self.pulse_tab = "hand"
+        self.start_pulse()
+
+    def pulse_data(self) -> None:
+        """Back to the collected data; an unfinished mission is abandoned."""
+        self.pulse_tab = "data"
+        self.pulse = None
+
+    def open_mood(self) -> None:
+        self._open(Modal.MOOD)
+        self.mood_choice = None
+
+    def save_mood_and_continue(self) -> Measurement:
+        """Save the face and go on to the voice log in the same modal."""
+        measurement = self.save_mood()
+        self.new_voice_prompt()
+        self.open_voice()
+        return measurement
+
+    def open_share(self) -> None:
+        self._open(Modal.SHARE)
+
+    def close_modal(self) -> None:
+        """Close whatever is open. A recording or an unfinished pulse is abandoned."""
+        if self.voice_stage is not VoiceStage.IDLE:
+            self.cancel_voice()
+        if self.pulse is not None:
+            self.pulse = None
+        self.mood_choice = None
+        self.selected_system = None
+        self.pulse_tab = "data"
+        self.modal = Modal.NONE
+
+    def move_bubble(self, dx: float, dy: float) -> None:
+        """Drag the mood bubble: it hangs from the right and bottom edges."""
+        right, bottom = self.bubble_offset
+        self.bubble_offset = (max(8, round(right - dx)), max(8, round(bottom - dy)))
+
     def logout(self) -> None:
+        self.close_modal()
         self.profile = None
         self.code = None
         self.error = None
@@ -215,6 +286,7 @@ class AppState:
         measurement = self.pulse.to_measurement(self.profile.crew_id, self.environment, self._now())
         self._store.add(measurement)
         self.pulse = None
+        self.pulse_tab = "data"  # back to the collected data, now with this reading
         return measurement
 
     def preview_pulse(self) -> IndicatorResolution | None:
@@ -338,6 +410,8 @@ class AppState:
             self._voice_recorder.stop()
         self.voice_stage = VoiceStage.IDLE
         self.voice_result = None
+        if self.modal is Modal.MOOD:  # leaving the voice step leaves the whole bubble
+            self.modal = Modal.NONE
 
     def voice_history_own(self) -> tuple[VoiceFeatures, ...]:
         """The notes this person recorded in the app (not the simulated history)."""
