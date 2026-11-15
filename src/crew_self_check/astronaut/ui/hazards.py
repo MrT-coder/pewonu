@@ -46,6 +46,12 @@ def _worst_label(worst: Status | None, language: Language) -> str:
     return translate("hazards.state.unknown", language)
 
 
+def _status_line(item: HazardCard, language: Language) -> str:
+    if item.mode is HazardMode.COMMUNICATION:
+        return translate("hazards.state.comm", language)
+    return _worst_label(item.worst, language)
+
+
 def _strip(cards: tuple[HazardCard, ...], language: Language) -> ft.Control:
     """Five chips: the whole picture at a glance."""
     chips: list[ft.Control] = []
@@ -108,7 +114,7 @@ def _hazard_card(item: HazardCard, state: AppState) -> ft.Control:
                     expand=True,
                     controls=[
                         ft.Text(name, size=17, weight=ft.FontWeight.BOLD, color=theme.TEXT),
-                        _text(_worst_label(item.worst, language), 12, color),
+                        _text(_status_line(item, language), 12, color),
                     ],
                 ),
             ],

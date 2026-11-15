@@ -298,6 +298,10 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "Stressed by the case of {code}",
         _ES: "Lo pone a prueba el caso de {code}",
     },
+    "hazards.state.comm": {
+        _EN: "About the delay to Earth",
+        _ES: "Sobre el retraso con la Tierra",
+    },
     "hazards.state.flagged": {
         _EN: "Needs attention",
         _ES: "Requiere atención",
