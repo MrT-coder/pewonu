@@ -260,9 +260,13 @@ class AppState:
         self.voice_stage = VoiceStage.PROMPT
         self.voice_result = None
 
-    def use_synthetic_voice(self) -> None:
+    def use_synthetic_voice(self, kind: str = "usual") -> None:
         """No microphone: use a generated, labelled sample so the flow can be shown."""
-        self._voice_recorder = SyntheticVoiceRecorder()
+        self._voice_recorder = SyntheticVoiceRecorder(kind=kind)
+
+    def synthetic_kind(self) -> str | None:
+        recorder = self._voice_recorder
+        return recorder.kind if isinstance(recorder, SyntheticVoiceRecorder) else None
 
     def start_voice(self) -> None:
         if self.profile is None or self._voice_recorder is None:

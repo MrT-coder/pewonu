@@ -456,6 +456,14 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "Use a sample voice note (synthetic)",
         _ES: "Usar una nota de voz de muestra (sintética)",
     },
+    "voice.sample.usual": {
+        _EN: "Sample: usual voice",
+        _ES: "Muestra: voz habitual",
+    },
+    "voice.sample.slower": {
+        _EN: "Sample: slower, more pauses",
+        _ES: "Muestra: más lenta, con más pausas",
+    },
     "voice.synthetic": {
         _EN: "This is a generated sample, not your voice.",
         _ES: "Esta es una muestra generada, no tu voz.",

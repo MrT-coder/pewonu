@@ -122,9 +122,14 @@ class SyntheticVoiceRecorder:
 
     synthetic = True
 
-    def __init__(self, seconds: float = 14.0, seed: int = 3) -> None:
+    KINDS = ("usual", "slower")
+
+    def __init__(self, seconds: float = 14.0, seed: int = 3, kind: str = "usual") -> None:
+        if kind not in self.KINDS:
+            raise ValueError(f"kind must be one of {self.KINDS}")
         self._seconds = seconds
         self._seed = seed
+        self.kind = kind
 
     def available(self) -> bool:
         return True
@@ -138,17 +143,21 @@ class SyntheticVoiceRecorder:
     def stop(self) -> tuple[array.array[int], int]:
         rate = 8000
         rng = random.Random(self._seed)
+        # usual: brisk, short pauses, lively pitch; slower: slow, long pauses, flatter, softer
+        rhythm, cycle, pause, glide, amplitude = (
+            (4.4, 5.0, 0.4, 1.8, 7000) if self.kind == "usual" else (2.4, 3.0, 1.3, 0.4, 4800)
+        )
         samples = array.array("h")
         phase = 0.0
         for n in range(int(self._seconds * rate)):
             t = n / rate
-            envelope = math.sin(math.pi * 4.2 * t) ** 2
-            if t % 5.0 > 4.1:  # a short pause now and then
+            envelope = math.sin(math.pi * rhythm * t) ** 2
+            if t % cycle > cycle - pause:  # a pause now and then
                 envelope = 0.0
-            pitch = 125.0 * 2 ** ((1.5 * math.sin(2 * math.pi * 0.4 * t)) / 12)
+            pitch = 125.0 * 2 ** ((glide * math.sin(2 * math.pi * 0.4 * t)) / 12)
             phase += 2 * math.pi * pitch / rate
             voiced = sum(math.sin(h * phase) / h for h in range(1, 5))
-            value = 7000 * envelope * voiced + rng.gauss(0, 25)
+            value = amplitude * envelope * voiced + rng.gauss(0, 25)
             samples.append(int(max(-32768, min(32767, value))))
         return samples, rate
 

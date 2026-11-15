@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+from collections.abc import Callable
 
 import flet as ft
 
@@ -11,6 +12,7 @@ from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.state import AppState, VoiceResult, VoiceStage
 from crew_self_check.astronaut.ui.common import Actions, card
+from crew_self_check.astronaut.voice_capture import SyntheticVoiceRecorder
 from crew_self_check.core.voice_baseline import MIN_NOTES, VoiceComparison, VoiceLevel
 
 _TICK_SECONDS = 0.2
@@ -53,9 +55,12 @@ def _prompt(state: AppState, actions: Actions) -> ft.Control:
         state.new_voice_prompt()
         actions.rerender()
 
-    def sample(_: object) -> None:
-        state.use_synthetic_voice()
-        actions.rerender()
+    def sample(kind: str) -> Callable[[object], None]:
+        def choose(_: object) -> None:
+            state.use_synthetic_voice(kind)
+            actions.rerender()
+
+        return choose
 
     controls: list[ft.Control] = [
         _text(say("voice.intro"), 14, theme.MUTED),
@@ -69,6 +74,19 @@ def _prompt(state: AppState, actions: Actions) -> ft.Control:
     if state.voice_available():
         if state.voice_synthetic():
             controls.append(_text(say("voice.synthetic"), 12, theme.GOLD))
+            controls.append(
+                ft.Row(
+                    spacing=8,
+                    controls=[
+                        ft.OutlinedButton(
+                            content=say(f"voice.sample.{kind}"),
+                            disabled=state.synthetic_kind() == kind,
+                            on_click=sample(kind),
+                        )
+                        for kind in SyntheticVoiceRecorder.KINDS
+                    ],
+                )
+            )
         controls.append(
             ft.Row(
                 spacing=12,
@@ -86,7 +104,9 @@ def _prompt(state: AppState, actions: Actions) -> ft.Control:
         controls += [
             _text(say("voice.no_mic"), 13, theme.GOLD),
             ft.OutlinedButton(
-                content=say("voice.use_sample"), icon=ft.Icons.GRAPHIC_EQ, on_click=sample
+                content=say("voice.use_sample"),
+                icon=ft.Icons.GRAPHIC_EQ,
+                on_click=sample("usual"),
             ),
         ]
     return ft.Column(

@@ -186,3 +186,21 @@ def test_without_a_session_nothing_can_be_recorded() -> None:
     state = AppState(simulated_directory(), voice_recorder=FakeRecorder(_signal()))
     with pytest.raises(RuntimeError):
         state.start_voice()
+
+
+def test_the_slower_sample_measures_slower_with_more_pauses_than_the_usual_one() -> None:
+    def measure(kind: str) -> dict[str, float]:
+        recorder = SyntheticVoiceRecorder(kind=kind)
+        recorder.start()
+        samples, rate = recorder.stop()
+        return analyze(samples, rate).features
+
+    usual, slower = measure("usual"), measure("slower")
+    assert slower["speechRate"] < usual["speechRate"]
+    assert slower["pauseRatio"] > usual["pauseRatio"]
+    assert slower["loudnessDb"] < usual["loudnessDb"]
+
+
+def test_an_unknown_sample_kind_is_refused() -> None:
+    with pytest.raises(ValueError, match="kind"):
+        SyntheticVoiceRecorder(kind="angry")
