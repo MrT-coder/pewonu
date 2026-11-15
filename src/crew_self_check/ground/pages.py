@@ -120,7 +120,9 @@ def _status_chip(status: str, language: Language) -> str:
 
 
 def _indicator(row: StateRow, language: Language) -> str:
-    return text(i18n.INDICATOR, row.indicator, language)
+    name = text(i18n.INDICATOR, row.indicator, language)
+    place = text(i18n.ENVIRONMENT, row.environment, language)
+    return f"{name} · {place}" if row.environment else name
 
 
 def _number(value: float) -> str:
@@ -290,14 +292,15 @@ def _system_pills(view: CrewView, language: Language) -> str:
     return f'<div class="row">{"".join(pills)}</div>' if pills else ""
 
 
-def _attention_block(view: CrewView, language: Language) -> str:
+def _attention_block(view: CrewView, language: Language, reasons: bool = True) -> str:
     flagged = attention_rows(view)
     if not flagged:
         return f'<p class="muted">{_s("crew.attention_none", language)}</p>'
     items = "".join(
         f"<li>{escape(text(i18n.INDICATOR, s.indicator, language))} · "
-        f"{_status_chip(s.status, language)} · "
-        f'<span class="muted">{escape(s.reason)}</span></li>'
+        f"{_status_chip(s.status, language)}"
+        + (f' · <span class="muted">{escape(s.reason)}</span>' if reasons else "")
+        + "</li>"
         for s in flagged
     )
     suggestion = top_escalation(view)
@@ -346,7 +349,7 @@ def home_page(
                 f'<span class="muted small">{_packages(view.bundles, language)} · '
                 f"{_s('home.last', language)} {_when(view.last_arrival)}</span></div>"
                 f'<h2 style="margin:.7rem 0 .3rem">{_s("crew.attention", language)}</h2>'
-                f"{_attention_block(view, language)}"
+                f"{_attention_block(view, language, reasons=False)}"
                 f'<div class="row" style="margin-top:10px">{_system_pills(view, language)}'
                 f"{_voice_chip(view, language)}</div>"
                 f'<p><a href="{link}">{_s("home.open", language)} →</a></p></div>'

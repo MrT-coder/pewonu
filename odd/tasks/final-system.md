@@ -12,9 +12,9 @@ Branch: `app/hazards` (then `app/voice`, `ground/console`). Delivery: local merg
 
 ## Tasks
 
-- T1 hazards view (S2): route inline, commit: pending
-- T2 voice log (S3): route inline, spike microphone first, commit: pending
-- T3 ground console upgrade (S4): route inline, commit: pending
+- T1 hazards view (S2): route inline, DONE (develop 0b3c311)
+- T2 voice log (S3): route inline, DONE (develop 93fe9fd); microphone captured silence in the probe, speaking test pending
+- T3 ground console upgrade (S4): route inline, DONE on branch ground/console (attention first, trends with band)
 - T4 visual pass (S5): route inline, commit: pending
 
 ## Log
