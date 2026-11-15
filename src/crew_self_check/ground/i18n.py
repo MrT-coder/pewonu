@@ -75,6 +75,54 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "no usual range yet",
         _ES: "aún sin rango habitual",
     },
+    "app.tagline": {
+        _EN: "Mission control · what the crew chose to send",
+        _ES: "Control de misión · lo que la tripulación eligió enviar",
+    },
+    "kpi.crew": {
+        _EN: "Crew members",
+        _ES: "Tripulantes",
+    },
+    "kpi.flagged": {
+        _EN: "Need attention",
+        _ES: "Requieren atención",
+    },
+    "kpi.packages": {
+        _EN: "Packages received",
+        _ES: "Paquetes recibidos",
+    },
+    "kpi.voice": {
+        _EN: "Voice pattern differs",
+        _ES: "Patrón de voz distinto",
+    },
+    "kpi.link": {
+        _EN: "Communication delay",
+        _ES: "Retraso de comunicación",
+    },
+    "alert.ground_surgeon": {
+        _EN: "Flight surgeon review suggested for {crews}",
+        _ES: "Revisión del cirujano de vuelo sugerida para {crews}",
+    },
+    "alert.crew_cmo": {
+        _EN: "Crew medical officer suggested for {crews}",
+        _ES: "Oficial médico de la tripulación sugerido para {crews}",
+    },
+    "alert.clear": {
+        _EN: "Everyone is within their usual range.",
+        _ES: "Todos están dentro de su rango habitual.",
+    },
+    "crew.body": {
+        _EN: "Systems",
+        _ES: "Sistemas",
+    },
+    "crew.timeline": {
+        _EN: "Voice notes over time",
+        _ES: "Notas de voz en el tiempo",
+    },
+    "timeline.note": {
+        _EN: "Each circle is one voice note, oldest first.",
+        _ES: "Cada círculo es una nota de voz, de la más antigua a la más reciente.",
+    },
     "col.indicator": {_EN: "Indicator", _ES: "Indicador"},
     "col.where": {_EN: "Where", _ES: "Dónde"},
     "col.state": {_EN: "State", _ES: "Estado"},
@@ -140,6 +188,7 @@ SYSTEM: dict[str, dict[Language, str]] = {
     "sleep_brain": {_EN: "Sleep and brain", _ES: "Sueño y cerebro"},
     "mood": {_EN: "Mood", _ES: "Ánimo"},
     "immune": {_EN: "Immune", _ES: "Inmune"},
+    "bone_muscle": {_EN: "Bone and muscle", _ES: "Hueso y músculo"},
 }
 
 STATUS_SHORT: dict[str, dict[Language, str]] = {
@@ -147,6 +196,7 @@ STATUS_SHORT: dict[str, dict[Language, str]] = {
     "watch": {_EN: "outside", _ES: "fuera de rango"},
     "act": {_EN: "far outside", _ES: "muy fuera"},
     "insufficient_data": {_EN: "not enough data", _ES: "sin datos suficientes"},
+    "none": {_EN: "not measured", _ES: "sin medir"},
 }
 
 VOICE_LEVEL: dict[str, dict[Language, str]] = {

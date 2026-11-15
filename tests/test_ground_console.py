@@ -117,3 +117,48 @@ def test_the_crew_page_leads_with_what_needs_attention_and_why(
     assert page.index("Needs attention") < page.index("State by indicator")
     assert "Red" in page
     assert "Flight surgeon review" in page
+
+
+def test_the_alert_names_each_crew_member_only_under_its_own_level(
+    client: TestClient, service: GroundService
+) -> None:
+    _send(client, service, bundle_at("AST-0001", "R+2"), bundle_at("AST-0002", "R+2"))
+    page = client.get("/").text
+    assert "Flight surgeon review suggested for crew-02" in page
+    assert "Crew medical officer suggested for crew-01" in page
+    assert "Flight surgeon review suggested for crew-02, crew-01" not in page
+
+
+def test_when_everyone_is_in_range_the_alert_says_so(
+    client: TestClient, service: GroundService
+) -> None:
+    _send(client, service, bundle_at("AST-0001", "E-1"))
+    assert "Everyone is within their usual range." in client.get("/").text
+
+
+def test_the_home_has_the_indicator_strip_of_the_whole_crew(
+    client: TestClient, service: GroundService
+) -> None:
+    _send(client, service, bundle_at("AST-0001", "E-1"), bundle_at("AST-0002", "R+2"))
+    page = client.get("/").text
+    for label in ("Crew members", "Need attention", "Packages received", "Communication delay"):
+        assert label in page
+    assert page.count('class="glass kpi"') == 5
+
+
+def test_every_crew_member_has_the_body_figure_with_a_text_alternative(
+    client: TestClient, service: GroundService
+) -> None:
+    _send(client, service, bundle_at("AST-0003", "T+6"))
+    page = client.get("/crew/crew-03").text
+    assert 'class="figure"' in page
+    assert "Sleep and brain: outside" in page  # the aria-label of the figure
+    assert "Bone and muscle: not measured" in page
+    assert "Cardiovascular: in range" in page
+
+
+def test_the_figure_is_in_spanish_too(client: TestClient, service: GroundService) -> None:
+    _send(client, service, bundle_at("AST-0003", "T+6"))
+    page = client.get("/crew/crew-03", params={"lang": "es"}).text
+    assert "Sueño y cerebro: fuera de rango" in page
+    assert "Hueso y músculo: sin medir" in page

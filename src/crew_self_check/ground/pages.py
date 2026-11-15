@@ -8,11 +8,14 @@ not compute a state of its own and it never diagnoses.
 
 from __future__ import annotations
 
+import random
 from datetime import datetime
 from html import escape
+from urllib.parse import quote
 
 from crew_self_check.core.reasons import Language
 from crew_self_check.ground import i18n
+from crew_self_check.ground.figure import figure_svg
 from crew_self_check.ground.i18n import STRINGS, text
 from crew_self_check.ground.view_model import (
     CrewView,
@@ -38,26 +41,52 @@ _SYSTEM_ORDER = ("cardiovascular", "vestibular", "sleep_brain", "mood", "immune"
 _CSS = """
 :root{color-scheme:dark}
 *{box-sizing:border-box}
-html{background:#04070d}
-body{margin:0;min-height:100vh;
-background:radial-gradient(1100px 500px at 15% -10%,#12294a,#04070d);
-color:#e6edf7;font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
-main{max-width:1040px;margin:0 auto;padding:20px 16px 48px}
+html{background:#02050d}
+body{margin:0;min-height:100vh;color:#e6eefb;font:15px/1.5 system-ui,Segoe UI,Roboto,sans-serif;
+background:url("__SKY__"),radial-gradient(1000px 600px at 12% -8%,#0f2a55 0%,transparent 60%),
+radial-gradient(900px 600px at 105% 105%,#2a1245 0%,transparent 55%),#02050d;
+background-attachment:fixed}
+main{max-width:1180px;margin:0 auto;padding:16px 16px 56px}
 a{color:#38bdf8;display:inline-block;min-height:24px;min-width:24px;padding:2px 0}
+.glass{background:rgba(13,24,44,.66);border:1px solid rgba(125,170,255,.18);border-radius:18px;
+backdrop-filter:blur(12px);
+box-shadow:0 10px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+padding:10px 18px;margin-bottom:12px}
+.brand{display:flex;gap:12px;align-items:center}
+.orb{width:30px;height:30px;border-radius:50%;flex:none;
+background:radial-gradient(circle at 32% 28%,#bfe9ff,#38bdf8 45%,#1d3a8a 80%);
+box-shadow:0 0 18px rgba(56,189,248,.6)}
+.brand b{font-size:1.1rem;letter-spacing:.3px}.tag{font-size:.8rem;color:#8fa0b8}
 nav{display:flex;gap:16px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:1.5rem;margin:.6rem 0 .2rem}
-.brand{font-size:1.1rem;font-weight:700;letter-spacing:.2px}
-h2{font-size:1.05rem;margin:1.6rem 0 .6rem;color:#cfe3f7}
-.banner{background:#0c2a3f;border:1px solid #22314b;border-radius:10px;padding:8px 12px;color:#bcd}
-.card{background:#0f1a2c;border:1px solid #22314b;border-radius:14px;
-padding:14px 18px;margin:10px 0}
+h1{font-size:1.5rem;margin:.3rem 0 .2rem}
+h2{font-size:.85rem;letter-spacing:1px;text-transform:uppercase;margin:1.6rem 0 .6rem;color:#a9c3e8}
+.banner{background:rgba(12,42,63,.7);border:1px solid #22314b;border-radius:12px;padding:8px 14px;
+color:#bcd}
+.alert{border-radius:14px;padding:10px 16px;margin:12px 0;border:1px solid;font-weight:600}
+.alert.act{background:rgba(107,31,45,.45);border-color:#b4374b;color:#ffd6dc}
+.alert.watch{background:rgba(91,59,20,.45);border-color:#b78a22;color:#ffe9b0}
+.alert.clear{background:rgba(20,83,64,.4);border-color:#1f8f6b;color:#c6f7e5}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:12px 0}
+.kpi{padding:12px 16px;border-top:3px solid var(--c,#38bdf8)}
+.kpi b{display:block;font-size:1.9rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{color:#8fa0b8;font-size:.85rem}
+.card{background:rgba(13,24,44,.66);border:1px solid rgba(125,170,255,.18);border-radius:16px;
+padding:14px 18px;margin:10px 0;backdrop-filter:blur(10px)}
 .crew{border-left:6px solid var(--c,#64748b)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+.grid.small{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.crewcard{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:start}
+.hero{display:grid;grid-template-columns:minmax(280px,460px) 1fr;gap:16px;align-items:start}
+.figure{width:100%;height:auto;display:block}
+.zl{fill:#e6eefb;font-size:19px;font-weight:600}.zs{font-size:15px}
+.zone.flag{animation:pulse 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{50%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.zone.flag{animation:none}}
 .muted{color:#8fa0b8}.small{font-size:.85rem}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #22314b;border-radius:999px;
-padding:3px 10px;font-size:.85rem;background:#0b1424}
+padding:3px 10px;font-size:.85rem;background:rgba(6,16,31,.7)}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #22314b;vertical-align:top}
 th{color:#8fa0b8;font-weight:600;font-size:.85rem}
@@ -66,10 +95,29 @@ th{color:#8fa0b8;font-weight:600;font-size:.85rem}
 .table-wrap{overflow-x:auto}
 .spark{display:block;width:100%;height:auto}
 .head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
-.suggest{background:#2a1a0c;border:1px solid #5b3b14;border-radius:10px;
+.suggest{background:rgba(42,26,12,.8);border:1px solid #5b3b14;border-radius:10px;
 padding:6px 10px;margin-top:8px}
-.suggest.act{background:#2a0f16;border-color:#6b1f2d}
+.suggest.act{background:rgba(42,15,22,.85);border-color:#6b1f2d}
+.timeline{list-style:none;display:flex;gap:10px;flex-wrap:wrap;padding:0;margin:8px 0}
+.tl{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.75rem;color:#8fa0b8}
+.tl i{width:22px;height:22px;border-radius:50%;display:block;border:2px solid rgba(255,255,255,.7)}
 """
+
+
+def _sky() -> str:
+    """A fixed field of stars as an inline image: no request, the same sky every time."""
+    rng = random.Random(11)
+    dots = "".join(
+        f'<circle cx="{rng.randint(0, 1400)}" cy="{rng.randint(0, 800)}" '
+        f'r="{rng.choice((0.5, 0.7, 0.9, 1.2))}" '
+        f'fill="#cfe3ff" fill-opacity="{rng.uniform(0.25, 0.9):.2f}"/>'
+        for _ in range(150)
+    )
+    svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="800">{dots}</svg>'
+    return "data:image/svg+xml;utf8," + quote(svg)
+
+
+_CSS = _CSS.replace("__SKY__", _sky())
 
 
 def _page(language: Language, title: str, body: str) -> str:
@@ -80,7 +128,9 @@ def _page(language: Language, title: str, body: str) -> str:
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<link rel="icon" href="data:,">'
         f"<title>{escape(title)}</title><style>{_CSS}</style></head><body><main>"
-        f'<header><div class="brand">{escape(STRINGS["app.name"][language])}</div><nav>'
+        '<header class="glass top"><div class="brand"><span class="orb"></span><div>'
+        f'<b>{escape(STRINGS["app.name"][language])}</b><div class="tag">'
+        f"{escape(STRINGS['app.tagline'][language])}</div></div></div><nav>"
         f'<a href="?lang={language.value}">{escape(STRINGS["action.refresh"][language])}</a>'
         f'<a href="?lang={other}">{escape(STRINGS["lang.switch"][language])}</a></nav></header>'
         f'<p class="banner">{escape(STRINGS["banner"][language])}</p>{body}</main></body></html>'
@@ -330,6 +380,72 @@ def _voice_chip(view: CrewView, language: Language) -> str:
     )
 
 
+def _kpis(views: tuple[CrewView, ...], delay_minutes: int, language: Language) -> str:
+    flagged = [v for v in views if attention_rows(v)]
+    different = sum(1 for v in views if v.voice and v.voice[-1].level == "different")
+    tiles = (
+        ("kpi.crew", str(len(views)), "#38bdf8"),
+        ("kpi.flagged", str(len(flagged)), "#fbbf24" if flagged else "#34d399"),
+        ("kpi.packages", str(sum(v.bundles for v in views)), "#a78bfa"),
+        ("kpi.voice", str(different), "#fbbf24" if different else "#34d399"),
+        ("kpi.link", f"{delay_minutes} {_s('delay.minutes', language)}", "#fb923c"),
+    )
+    cells = "".join(
+        f'<div class="glass kpi" style="--c:{color}"><b>{value}</b>'
+        f"<span>{_s(key, language)}</span></div>"
+        for key, value, color in tiles
+    )
+    return f'<div class="kpis">{cells}</div>'
+
+
+def _alert(views: tuple[CrewView, ...], language: Language) -> str:
+    """One line per level of suggestion, naming only the crew members it is about."""
+    flagged = [v for v in views if attention_rows(v)]
+    if not flagged:
+        return f'<div class="alert clear">{_s("alert.clear", language)}</div>'
+    surgeon = [v.crew_id for v in flagged if top_escalation(v) == "ground_surgeon"]
+    cmo = [v.crew_id for v in flagged if top_escalation(v) != "ground_surgeon"]
+    lines = []
+    for key, tone, crews in (
+        ("alert.ground_surgeon", "act", surgeon),
+        ("alert.crew_cmo", "watch", cmo),
+    ):
+        if crews:
+            message = STRINGS[key][language].format(crews=escape(", ".join(crews)))
+            lines.append(f'<div class="alert {tone}" role="status">{message}</div>')
+    return "".join(lines)
+
+
+def _timeline(rows: tuple[VoiceRow, ...], language: Language) -> str:
+    if not rows:
+        return ""
+    colors = {"usual": "#34d399", "different": "#fbbf24", "building": "#64748b"}
+    items = "".join(
+        f'<li class="tl" title="{escape(text(i18n.VOICE_LEVEL, row.level, language))}">'
+        f'<i style="background:{colors.get(row.level, "#64748b")}"></i>'
+        f"<span>{escape(_short_date(row.effective))}</span></li>"
+        for row in rows
+    )
+    label = escape(
+        "; ".join(
+            f"{_short_date(row.effective)}: {text(i18n.VOICE_LEVEL, row.level, language)}"
+            for row in rows
+        )
+    )
+    return (
+        f"<h2>{_s('crew.timeline', language)}</h2>"
+        f'<ol class="timeline" role="img" aria-label="{label}">{items}</ol>'
+        f'<div class="muted small">{_s("timeline.note", language)}</div>'
+    )
+
+
+def _short_date(value: str) -> str:
+    try:
+        return datetime.fromisoformat(value).strftime("%m-%d")
+    except ValueError:
+        return value[:10]
+
+
 def home_page(
     language: Language,
     views: tuple[CrewView, ...],
@@ -343,7 +459,8 @@ def home_page(
             color = _STATUS_COLOR.get(worst_status(view), "#64748b")
             link = f"/crew/{escape(view.crew_id)}?lang={language.value}"
             cards.append(
-                f'<div class="card crew" style="--c:{color}">'
+                f'<div class="card crew" style="--c:{color}"><div class="crewcard">'
+                f"{figure_svg(system_levels(view), language, labelled=False)}<div>"
                 '<div class="head"><strong style="font-size:1.15rem">'
                 f"{escape(view.crew_id)}</strong>"
                 f'<span class="muted small">{_packages(view.bundles, language)} · '
@@ -352,9 +469,12 @@ def home_page(
                 f"{_attention_block(view, language, reasons=False)}"
                 f'<div class="row" style="margin-top:10px">{_system_pills(view, language)}'
                 f"{_voice_chip(view, language)}</div>"
-                f'<p><a href="{link}">{_s("home.open", language)} →</a></p></div>'
+                f'<p><a href="{link}">{_s("home.open", language)} →</a></p></div></div></div>'
             )
-        items = f'<div class="grid">{"".join(cards)}</div>'
+        items = (
+            f"{_alert(views, language)}{_kpis(views, delay_minutes, language)}"
+            f'<div class="grid">{"".join(cards)}</div>'
+        )
     else:
         items = f'<p class="card muted">{_s("home.nothing", language)}</p>'
     clock = _s("clock.simulated" if simulated_clock else "clock.real", language)
@@ -394,15 +514,21 @@ def crew_page(language: Language, view: CrewView) -> str:
         f"<table><tr>{heads_read}</tr>{_reading_rows(view.readings, language)}</table>",
     )
     color = _STATUS_COLOR.get(worst_status(view), "#64748b")
+    hero = (
+        '<div class="hero">'
+        f'<div class="glass" style="padding:14px 18px"><h2 style="margin-top:0">'
+        f"{_s('crew.body', language)}</h2>{figure_svg(system_levels(view), language)}</div>"
+        f'<div class="card crew" style="--c:{color}"><h2 style="margin-top:0">'
+        f"{_s('crew.attention', language)}</h2>{_attention_block(view, language)}"
+        f'<div class="row" style="margin-top:10px">{_system_pills(view, language)}'
+        f"{_voice_chip(view, language)}</div>{_timeline(view.voice, language)}</div></div>"
+    )
     body = (
         f'<p><a href="/?lang={language.value}">← {_s("crew.back", language)}</a></p>'
         f"<h1>{_s('crew.title', language, crew=view.crew_id)}</h1>"
         f'<p class="muted">{_packages(view.bundles, language)} · '
         f"{_s('home.last', language)} {_when(view.last_arrival)}</p>"
-        f'<div class="card crew" style="--c:{color}"><h2 style="margin-top:0">'
-        f"{_s('crew.attention', language)}</h2>{_attention_block(view, language)}"
-        f'<div class="row" style="margin-top:10px">{_system_pills(view, language)}'
-        f"{_voice_chip(view, language)}</div></div>"
+        f"{hero}"
         f"{_trends(view.states, language)}"
         f"<h2>{_s('crew.states', language)}</h2>"
         f"{states_table}"
