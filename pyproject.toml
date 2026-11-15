@@ -9,6 +9,10 @@ dependencies = []
 [project.optional-dependencies]
 # Pinned to the version verified in the 2026-11-14 spike (see docs/decisiones.md, D-017).
 astronaut = ["flet[all]==1.1.2"]
+ground = [
+    "fastapi==0.163.0",
+    "uvicorn==0.54.0",
+]
 
 [dependency-groups]
 dev = [
@@ -16,6 +20,7 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.11",
     "pre-commit>=3.8",
+    "httpx==0.28.1",
 ]
 
 [build-system]
