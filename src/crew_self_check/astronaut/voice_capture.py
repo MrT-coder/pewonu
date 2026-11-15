@@ -154,6 +154,11 @@ class SyntheticVoiceRecorder:
 
 
 def default_recorder() -> VoiceRecorder | None:
-    """The microphone if there is one, else ``None`` (the screen offers the sample)."""
+    """The microphone if there is one, else ``None`` (the screen offers the sample).
+
+    ``CREW_SELF_CHECK_VOICE=synthetic`` forces the labelled sample (demos without a mic).
+    """
+    if os.environ.get("CREW_SELF_CHECK_VOICE", "").lower() == "synthetic":
+        return SyntheticVoiceRecorder()
     mic = MicRecorder()
     return mic if mic.available() else None

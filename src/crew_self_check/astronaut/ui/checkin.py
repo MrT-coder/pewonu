@@ -14,8 +14,9 @@ from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.mood import MOOD_LEVELS
 from crew_self_check.astronaut.pulse_guidance import outside_band, pulse_guidance
 from crew_self_check.astronaut.pulse_mission import INTERVALS, PulseMission, Station
-from crew_self_check.astronaut.state import AppState
+from crew_self_check.astronaut.state import AppState, VoiceStage
 from crew_self_check.astronaut.ui.common import Actions, card, status_color
+from crew_self_check.astronaut.ui.voice import build_voice
 from crew_self_check.core.contract import Escalation, Status
 
 Say = Callable[..., str]
@@ -30,6 +31,8 @@ def _station_number(station: Station) -> int:
 
 
 def build_checkin(state: AppState, actions: Actions) -> ft.Control:
+    if state.voice_stage is not VoiceStage.IDLE:
+        return build_voice(state, actions)
     if state.pulse is None:
         return _hub(state, actions)
     return _mission(state, state.pulse, actions)
@@ -64,6 +67,7 @@ def _hub(state: AppState, actions: Actions) -> ft.Control:
     )
 
     mood_card = _mood_card(state, actions, say)
+    voice_card = _voice_card(state, actions, say)
     return ft.Column(
         spacing=16,
         scroll=ft.ScrollMode.AUTO,
@@ -78,9 +82,33 @@ def _hub(state: AppState, actions: Actions) -> ft.Control:
                         col={"xs": 12, "md": 6},
                     ),
                     ft.Container(content=mood_card, col={"xs": 12, "md": 6}),
+                    ft.Container(content=voice_card, col={"xs": 12, "md": 6}),
                 ],
             ),
         ],
+    )
+
+
+def _voice_card(state: AppState, actions: Actions, say: Say) -> ft.Control:
+    def open_voice(_: object) -> None:
+        state.new_voice_prompt()
+        state.open_voice()
+        actions.rerender()
+
+    return card(
+        ft.Column(
+            spacing=10,
+            controls=[
+                ft.Icon(ft.Icons.MIC, size=30, color=theme.ACCENT),
+                ft.Text(
+                    say("part.voice.title"), size=17, weight=ft.FontWeight.W_600, color=theme.TEXT
+                ),
+                ft.Text(say("part.voice.body"), size=13, color=theme.MUTED),
+                ft.FilledButton(
+                    content=say("voice.start"), icon=ft.Icons.MIC, height=44, on_click=open_voice
+                ),
+            ],
+        )
     )
 
 

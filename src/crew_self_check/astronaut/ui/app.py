@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 
 import flet as ft
@@ -12,12 +13,13 @@ from crew_self_check.astronaut.access import simulated_directory
 from crew_self_check.astronaut.ground_client import GroundLink, HttpGroundLink
 from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.share_model import OutboxItem
-from crew_self_check.astronaut.sqlite_store import SqliteMeasurementStore
+from crew_self_check.astronaut.sqlite_store import SqliteMeasurementStore, SqliteVoiceStore
 from crew_self_check.astronaut.state import AppState, Section
 from crew_self_check.astronaut.ui.common import Actions, glossary_dialog, limits_dialog
 from crew_self_check.astronaut.ui.login import build_login
 from crew_self_check.astronaut.ui.share import package_dialog
 from crew_self_check.astronaut.ui.shell import build_shell
+from crew_self_check.astronaut.voice_capture import default_recorder
 from crew_self_check.core.contract import System
 from crew_self_check.core.reasons import Language
 
@@ -29,11 +31,20 @@ DEFAULT_GROUND_URL = "http://127.0.0.1:8560"
 DEFAULT_DB = Path("data") / "crew-self-check.db"  # data/ is git-ignored (AGENTS.md section 8)
 
 _store: SqliteMeasurementStore | None = None
+_voice_store: SqliteVoiceStore | None = None
 
 
 def _ground_link() -> GroundLink | None:
     url = os.environ.get(GROUND_ENV, DEFAULT_GROUND_URL)
     return HttpGroundLink(url) if url else None
+
+
+def _shared_voice_store() -> SqliteVoiceStore:
+    """The numbers of voice notes live in the same local database file."""
+    global _voice_store
+    if _voice_store is None:
+        _voice_store = SqliteVoiceStore(Path(os.environ.get(DB_ENV, DEFAULT_DB)))
+    return _voice_store
 
 
 def _shared_store() -> SqliteMeasurementStore:
@@ -45,7 +56,13 @@ def _shared_store() -> SqliteMeasurementStore:
 
 
 def main(page: ft.Page) -> None:
-    state = AppState(simulated_directory(), store=_shared_store(), ground_link=_ground_link())
+    state = AppState(
+        simulated_directory(),
+        store=_shared_store(),
+        ground_link=_ground_link(),
+        voice_recorder=default_recorder(),
+        voice_store=_shared_voice_store(),
+    )
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = theme.BG_BOTTOM
     page.padding = 0
@@ -95,6 +112,9 @@ def main(page: ft.Page) -> None:
     def show_glossary() -> None:
         page.show_dialog(glossary_dialog(state.language, close_limits))
 
+    def run_task(handler: Callable[[], Awaitable[None]]) -> None:
+        page.run_task(handler)
+
     actions = Actions(
         login=login,
         set_language=set_language,
@@ -107,6 +127,7 @@ def main(page: ft.Page) -> None:
         show_package=show_package,
         refresh=page.update,
         rerender=render,
+        run_task=run_task,
     )
     render()
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 
 import flet as ft
@@ -13,6 +13,10 @@ from crew_self_check.astronaut.share_model import OutboxItem
 from crew_self_check.astronaut.state import AppState, Section
 from crew_self_check.core.contract import Status, System
 from crew_self_check.core.reasons import Language
+
+
+def _no_task(_: Callable[[], Awaitable[None]]) -> None:
+    return None
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +34,7 @@ class Actions:
     show_package: Callable[[OutboxItem], None]
     refresh: Callable[[], None]  # push control changes to the screen
     rerender: Callable[[], None]  # rebuild the whole view from the state
+    run_task: Callable[[Callable[[], Awaitable[None]]], None] = _no_task
 
 
 def cabin_background(content: ft.Control) -> ft.Container:

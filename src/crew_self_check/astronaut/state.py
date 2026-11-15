@@ -23,7 +23,11 @@ from crew_self_check.astronaut.share_model import (
     OutboxItem,
     delivery_state,
 )
-from crew_self_check.astronaut.voice_capture import VOICE_PROMPTS, VoiceRecorder
+from crew_self_check.astronaut.voice_capture import (
+    VOICE_PROMPTS,
+    SyntheticVoiceRecorder,
+    VoiceRecorder,
+)
 from crew_self_check.core.contract import (
     CrewProfile,
     Indicator,
@@ -62,6 +66,7 @@ class Section(StrEnum):
 
 class VoiceStage(StrEnum):
     IDLE = "idle"
+    PROMPT = "prompt"
     RECORDING = "recording"
     RESULT = "result"
 
@@ -120,6 +125,7 @@ class AppState:
         self._voice_rng = random.Random()
         self.voice_stage = VoiceStage.IDLE
         self.voice_prompt: str = VOICE_PROMPTS[0]
+        self.voice_tick = 0  # lets only the newest recording screen update the meter
         self.voice_result: VoiceResult | None = None
 
     @property
@@ -246,6 +252,17 @@ class AppState:
         choices = [key for key in VOICE_PROMPTS if key != self.voice_prompt]
         self.voice_prompt = self._voice_rng.choice(choices)
         return self.voice_prompt
+
+    def open_voice(self) -> None:
+        """Show a question: the first step of a voice note."""
+        if self.profile is None:
+            raise RuntimeError("sign in first")
+        self.voice_stage = VoiceStage.PROMPT
+        self.voice_result = None
+
+    def use_synthetic_voice(self) -> None:
+        """No microphone: use a generated, labelled sample so the flow can be shown."""
+        self._voice_recorder = SyntheticVoiceRecorder()
 
     def start_voice(self) -> None:
         if self.profile is None or self._voice_recorder is None:

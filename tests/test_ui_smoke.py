@@ -605,3 +605,82 @@ def test_the_pulse_result_says_what_it_means_and_what_to_do_before_saving(
     assert translate("pulse.todo.rest", language) in texts
     assert translate("pulse.save", language) in texts
     assert state.own_measurements() == ()  # explained, not saved yet
+
+
+# --- the voice log -------------------------------------------------------------------------------
+
+
+def voice_state(language: Language, code: str = "AST-0003", day: str = "T+8") -> AppState:
+    from crew_self_check.astronaut.voice_capture import SyntheticVoiceRecorder
+
+    state = AppState(simulated_directory(), voice_recorder=SyntheticVoiceRecorder())
+    state.set_language(language)
+    state.login(code)
+    state.set_day(next(d.index for d in state.scenario.days if d.label == day))
+    state.go(Section.CHECKIN)
+    return state
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_checkin_offers_the_voice_log_next_to_the_pulse_and_the_faces(
+    language: Language,
+) -> None:
+    texts = collect_texts(build_shell(voice_state(language), Recorder().actions()))
+    assert translate("part.voice.title", language) in texts
+    assert translate("part.voice.body", language) in texts
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_voice_screen_shows_an_open_question_and_says_nothing_is_kept(
+    language: Language,
+) -> None:
+    state = voice_state(language)
+    state.new_voice_prompt()
+    state.open_voice()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("voice.intro", language) in texts
+    assert translate(state.voice_prompt, language) in texts
+    assert translate("voice.start", language) in texts
+    assert translate("voice.another", language) in texts
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_without_a_microphone_the_screen_offers_the_labelled_sample(language: Language) -> None:
+    state = voice_state(language)
+    state._voice_recorder = None
+    state.open_voice()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("voice.no_mic", language) in texts
+    assert translate("voice.use_sample", language) in texts
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_result_compares_with_the_usual_and_says_the_audio_is_gone(language: Language) -> None:
+    from crew_self_check.astronaut.voice_capture import SyntheticVoiceRecorder  # noqa: F401
+
+    state = voice_state(language, day="E-1")
+    state.open_voice()
+    state.start_voice()
+    state.stop_voice()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("voice.result_title", language) in texts
+    assert translate("voice.discarded", language) in texts
+    assert translate("voice.not_a_diagnosis", language) in texts
+    assert translate("voice.synthetic", language) in texts
+    assert (
+        translate("voice.level.usual", language) in texts
+        or translate("voice.level.different", language) in texts
+    )
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_a_person_without_history_sees_the_baseline_building(language: Language) -> None:
+    state = voice_state(language, code="AST-0002", day="E-1")
+    state.open_voice()
+    state.start_voice()
+    state.stop_voice()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert any(
+        "1" in text and translate("voice.building", language, n=1, needed=5) == text
+        for text in texts
+    )
