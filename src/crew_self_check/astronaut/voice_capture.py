@@ -38,6 +38,40 @@ class VoiceRecorder(Protocol):
         ...
 
 
+_NOT_A_MICROPHONE = ("steam", "virtual", "stereo mix", "noise-cancelling")
+
+
+def _is_physical(name: str) -> bool:
+    lowered = name.lower()
+    return not any(marker in lowered for marker in _NOT_A_MICROPHONE)
+
+
+def pick_input_device(devices: list[dict[str, Any]], default_index: int) -> int | None:
+    """Choose the recording device by index, or ``None`` to let the library decide.
+
+    The Windows Sound Mapper follows the system default, which on many laptops is a virtual input
+    (game streaming, noise filters) that records silence. When the default is one of those, the
+    first physical microphone is used instead.
+    """
+    inputs = [(i, str(d["name"])) for i, d in enumerate(devices) if d["max_input_channels"] > 0]
+    default_name = next((name for i, name in inputs if i == default_index), "")
+    if _is_physical(default_name):
+        for index, name in inputs:
+            if name.startswith("Microsoft Sound Mapper"):
+                return index  # follows the system's default recording device on Windows
+    for index, name in inputs:
+        if _is_physical(name) and not name.startswith("Microsoft Sound Mapper"):
+            return index
+    return None
+
+
+def _default_input(sd: Any) -> int:
+    try:
+        return int(sd.default.device[0])
+    except Exception:
+        return -1
+
+
 class MicRecorder:
     synthetic = False
 
@@ -62,12 +96,7 @@ class MicRecorder:
     def _resolved(self, sd: Any) -> int | str | None:
         if self._device is not None:
             return self._device
-        for index, info in enumerate(sd.query_devices()):
-            if info["max_input_channels"] > 0 and str(info["name"]).startswith(
-                "Microsoft Sound Mapper"
-            ):
-                return index  # follows the system's default recording device on Windows
-        return None
+        return pick_input_device(list(sd.query_devices()), _default_input(sd))
 
     def start(self) -> None:
         import sounddevice as sd
