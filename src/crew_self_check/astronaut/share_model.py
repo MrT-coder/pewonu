@@ -33,6 +33,7 @@ class OutboxItem:
     readings: int
     states: int
     indicators: tuple[Indicator, ...]
+    voices: int = 0  # voice notes in the package (numbers only)
 
 
 def delivery_state(item: OutboxItem, now: datetime) -> DeliveryState:

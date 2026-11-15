@@ -147,6 +147,12 @@ def build_share_panel(state: AppState, summary: Summary, actions: Actions) -> ft
     return card(ft.Column(spacing=10, controls=lines))
 
 
+def _sent_line(say: Callable[..., str], item: OutboxItem) -> str:
+    if item.voices and not item.readings:
+        return say("share.sent_voice", label=item.day_label, voices=item.voices)
+    return say("share.sent_line", label=item.day_label, readings=item.readings, states=item.states)
+
+
 def _sent(state: AppState, actions: Actions) -> list[ft.Control]:
     language = state.language
 
@@ -176,12 +182,7 @@ def _sent(state: AppState, actions: Actions) -> list[ft.Control]:
                     spacing=2,
                     controls=[
                         ft.Text(
-                            say(
-                                "share.sent_line",
-                                label=item.day_label,
-                                readings=item.readings,
-                                states=item.states,
-                            ),
+                            _sent_line(say, item),
                             size=13,
                             color=theme.TEXT,
                         ),

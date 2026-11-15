@@ -1276,6 +1276,10 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "Sent on day {label} · {readings} readings, {states} states",
         _ES: "Enviado el día {label} · {readings} lecturas, {states} estados",
     },
+    "share.sent_voice": {
+        _EN: "Sent on day {label} · {voices} voice note (numbers only)",
+        _ES: "Enviado el día {label} · {voices} nota de voz (solo números)",
+    },
     "share.in_transit": {
         _EN: "In transit: it arrives after {minutes} minutes of simulated time.",
         _ES: "En camino: llega tras {minutes} minutos de tiempo simulado.",

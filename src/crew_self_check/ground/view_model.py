@@ -44,12 +44,25 @@ class ReadingRow:
 
 
 @dataclass(frozen=True, slots=True)
+class VoiceRow:
+    """One voice note: only how it compares with the person's own usual, never what was said."""
+
+    effective: str
+    environment: str
+    level: str  # usual, different or building
+    changed: tuple[tuple[str, str], ...]  # (measure, direction) of what moved
+    reference: str  # personal or transition
+    baseline_environment: str  # the previous place when the reference is a transition
+
+
+@dataclass(frozen=True, slots=True)
 class CrewView:
     crew_id: str
     bundles: int
     last_arrival: datetime
     states: tuple[StateRow, ...]
     readings: tuple[ReadingRow, ...]
+    voice: tuple[VoiceRow, ...] = ()
 
 
 def _tag(resource: dict[str, Any], system: str) -> str:
@@ -118,6 +131,37 @@ def _reading(resource: dict[str, Any]) -> ReadingRow:
     )
 
 
+def _is_voice(resource: dict[str, Any]) -> bool:
+    return any(
+        c.get("system") == LOCAL_CATEGORY and c.get("code") == "voice-pattern"
+        for category in resource.get("category", [])
+        for c in category.get("coding", [])
+    )
+
+
+def _voice(resource: dict[str, Any]) -> VoiceRow:
+    level = ((resource.get("valueCodeableConcept") or {}).get("coding") or [{}])[0]
+    changed: list[tuple[str, str]] = []
+    reference, previous = "personal", ""
+    for part in resource.get("component", []):
+        name = str(((part.get("code") or {}).get("coding") or [{}])[0].get("code", ""))
+        concept = ((part.get("valueCodeableConcept") or {}).get("coding") or [{}])[0]
+        if name.endswith("-direction"):
+            changed.append((name.removesuffix("-direction"), str(concept.get("code", ""))))
+        elif name == "reference":
+            reference = str(concept.get("code", "personal"))
+        elif name == "baseline-environment":
+            previous = str(concept.get("code", ""))
+    return VoiceRow(
+        effective=str(resource.get("effectiveDateTime", "")),
+        environment=_tag(resource, LOCAL_ENVIRONMENT),
+        level=str(level.get("code", "building")),
+        changed=tuple(changed),
+        reference=reference,
+        baseline_environment=previous,
+    )
+
+
 def build_crew_view(crew_id: str, received: Iterable[ReceivedBundle]) -> CrewView | None:
     """The newest state and reading of each indicator among what arrived; ``None`` if nothing."""
     mine = sorted((r for r in received if r.crew_id == crew_id), key=lambda r: r.available_at)
@@ -125,12 +169,15 @@ def build_crew_view(crew_id: str, received: Iterable[ReceivedBundle]) -> CrewVie
         return None
     states: dict[tuple[str, str], StateRow] = {}
     readings: dict[tuple[str, str], ReadingRow] = {}
+    voice: list[VoiceRow] = []
     for item in mine:  # oldest arrival first, so the newest overwrites
         for entry in item.bundle.get("entry", []):
             resource = entry.get("resource") or {}
             if resource.get("resourceType") != "Observation":
                 continue
-            if _is_status(resource):
+            if _is_voice(resource):
+                voice.append(_voice(resource))
+            elif _is_status(resource):
                 row = _state(resource)
                 states[(row.indicator, row.environment)] = row
             else:
@@ -142,6 +189,7 @@ def build_crew_view(crew_id: str, received: Iterable[ReceivedBundle]) -> CrewVie
         last_arrival=mine[-1].available_at,
         states=tuple(states.values()),
         readings=tuple(readings.values()),
+        voice=tuple(sorted(voice, key=lambda v: v.effective)),
     )
 
 

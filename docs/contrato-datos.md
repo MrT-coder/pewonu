@@ -82,18 +82,25 @@ Versión: `0.3` (propuesta, 2026-11-14: espacios `environment`, `method`, refere
 
 ```json
 {
-  "crewId": "crew-01",
+  "crewId": "crew-03",
   "timestamp": "2026-11-20T19:10:00Z",
   "environment": "spacecraft",
-  "features": { "pitchMeanHz": 182.4, "jitter": 0.012, "shimmer": 0.061, "speechRate": 3.8 },
-  "moodSurveyScore": 3,
+  "features": {
+    "durationSeconds": 41.0,
+    "pitchMeanHz": 117.0,
+    "pitchVariation": 1.4,
+    "speechRate": 3.0,
+    "pauseRatio": 0.4,
+    "loudnessDb": -28.0
+  },
+  "moodSurveyScore": 2,
   "experimental": true
 }
 ```
 
-- Solo números. **Sin etiquetas de emoción** y sin audio ni transcripción: el audio de la bitácora se descarta tras extraer las medidas (D-015, D-019).
-- No mueve ningún `status`. Se exporta por FHIR (códigos locales) solo si el astronauta decide enviarlo (D-006).
-- [HUECO] El conjunto exacto de medidas y su unidad se definen al implementar; este ejemplo es ilustrativo.
+- Solo números. **Sin etiquetas de emoción** y sin audio ni transcripción: el audio se descarta tras extraer las medidas (D-015, D-019, D-028).
+- Medidas (D-028): `pitchMeanHz` (tono medio), `pitchVariation` (semitonos), `speechRate` (sílabas por segundo hablando), `pauseRatio` (proporción de pausas de 250 ms o más), `loudnessDb` (volumen relativo) y `durationSeconds`. `moodSurveyScore` es el último ánimo registrado, o 0 si no hay.
+- No mueve ningún `status`. Viaja a la base en un `Observation` experimental (categoría local `voice-pattern`) con el nivel frente a lo habitual (`usual`, `different` o `building`), la dirección de cada medida que cambió y la referencia usada (`personal` o `transition`). Es automático con aviso visible (D-028).
 
 ## 6. SpacecraftProfile (configuración de la nave)
 

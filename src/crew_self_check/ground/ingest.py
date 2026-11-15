@@ -40,6 +40,15 @@ def _is_derived_status(observation: dict[str, Any]) -> bool:
     return (LOCAL_CATEGORY, "derived-status") in codes
 
 
+def _is_voice(observation: dict[str, Any]) -> bool:
+    codes = [
+        (c.get("system"), c.get("code"))
+        for category in observation.get("category", [])
+        for c in category.get("coding", [])
+    ]
+    return (LOCAL_CATEGORY, "voice-pattern") in codes
+
+
 def _sent_at(bundle: dict[str, Any]) -> tuple[datetime | None, list[str]]:
     raw = bundle.get("timestamp")
     if not isinstance(raw, str):
@@ -92,10 +101,11 @@ def inspect_bundle(bundle: dict[str, Any]) -> BundleParts:
         raise InvalidBundle(problems)
     observations = [r for r in resources if r.get("resourceType") == "Observation"]
     states = sum(1 for o in observations if _is_derived_status(o))
+    voices = sum(1 for o in observations if _is_voice(o))
     return BundleParts(
         bundle_id=bundle_id,
         crew_id=crew_id,
         sent_at=sent_at,
-        readings=len(observations) - states,
+        readings=len(observations) - states - voices,
         states=states,
     )

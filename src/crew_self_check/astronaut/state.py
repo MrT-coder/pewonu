@@ -284,6 +284,7 @@ class AppState:
         del samples  # the only copy of the audio held by the app
         comparison: VoiceComparison | None = None
         saved = False
+        shared = False
         if analysis.quality_ok:
             note = VoiceFeatures(
                 crew_id=self.profile.crew_id,
@@ -295,9 +296,41 @@ class AppState:
             comparison = compare(self.voice_history(), note)
             self._voice_store.add(note)
             saved = True
-        self.voice_result = VoiceResult(analysis, comparison, saved)
+            shared = self._share_voice(note, comparison)
+        self.voice_result = VoiceResult(analysis, comparison, saved, shared)
         self.voice_stage = VoiceStage.RESULT
         return self.voice_result
+
+    def _share_voice(self, note: VoiceFeatures, comparison: VoiceComparison) -> bool:
+        """Send the numbers to the ground base (the crew agreed to this when joining).
+
+        Only numbers travel, never audio or words (D-028). Without a link nothing is sent.
+        """
+        if self.profile is None or self._ground_link is None:
+            return False
+        selection = ShareSelection(
+            profile=self.profile,
+            confirmed=True,  # standing consent, shown on the voice screen
+            confirmed_at=self.journey_time(),
+            measurements=(),
+            statuses=(),
+            voice=((note, comparison),),
+        )
+        bundle = build_bundle(selection)
+        item = OutboxItem(
+            crew_id=self.profile.crew_id,
+            day_label=self.current_day.label,
+            sent_at=selection.confirmed_at,
+            arrives_at=selection.confirmed_at + timedelta(minutes=self.ground_delay_minutes),
+            bundle=bundle,
+            readings=0,
+            states=0,
+            indicators=(),
+            voices=1,
+        )
+        item = self._hand_to_ground(item)
+        self.outbox.append(item)
+        return item not in self._unsent
 
     def cancel_voice(self) -> None:
         """Leave the voice screen: a recording in progress is stopped and discarded."""

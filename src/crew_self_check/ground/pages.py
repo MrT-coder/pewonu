@@ -12,7 +12,7 @@ from html import escape
 from crew_self_check.core.reasons import Language
 from crew_self_check.ground import i18n
 from crew_self_check.ground.i18n import STRINGS, text
-from crew_self_check.ground.view_model import CrewView, ReadingRow, StateRow
+from crew_self_check.ground.view_model import CrewView, ReadingRow, StateRow, VoiceRow
 
 _UNIT = {"C": "°C"}  # the bundle carries the plain UCUM-style unit
 
@@ -132,6 +132,41 @@ def _reading_rows(readings: tuple[ReadingRow, ...], language: Language) -> str:
     )
 
 
+def _voice_section(rows: tuple[VoiceRow, ...], language: Language) -> str:
+    if not rows:
+        return ""
+    body = []
+    for row in rows:
+        if row.level == "different" and row.changed:
+            what = ", ".join(
+                text(i18n.VOICE_DIRECTION, f"{name}.{direction}", language)
+                for name, direction in row.changed
+            )
+        else:
+            what = text(i18n.VOICE_LEVEL, row.level, language)
+        reference = text(i18n.REFERENCE, row.reference, language)
+        if row.baseline_environment:
+            reference += f" ({text(i18n.ENVIRONMENT, row.baseline_environment, language)})"
+        body.append(
+            "<tr>"
+            f"<td>{_when(row.effective)}</td>"
+            f"<td>{escape(text(i18n.ENVIRONMENT, row.environment, language))}</td>"
+            f"<td>{escape(text(i18n.VOICE_LEVEL, row.level, language))}</td>"
+            f"<td>{escape(what)}</td>"
+            f"<td>{escape(reference)}</td>"
+            "</tr>"
+        )
+    heads = "".join(
+        f"<th>{_s(key, language)}</th>"
+        for key in ("col.when", "col.where", "col.state", "col.voice_change", "col.compared")
+    )
+    table = _scroll(_s("crew.voice", language), f"<table><tr>{heads}</tr>{''.join(body)}</table>")
+    return (
+        f"<h2>{_s('crew.voice', language)}</h2>"
+        f'<p class="muted">{_s("crew.voice_note", language)}</p>{table}'
+    )
+
+
 def home_page(
     language: Language,
     crews: tuple[tuple[str, int, datetime], ...],
@@ -206,6 +241,7 @@ def crew_page(language: Language, view: CrewView) -> str:
         f"{states_table}"
         f"<h2>{_s('crew.readings', language)}</h2>"
         f"{readings_table}"
+        f"{_voice_section(view.voice, language)}"
         f'<p class="card">{_s("crew.limits", language)}</p>'
     )
     return _page(language, f"{view.crew_id} · {STRINGS['app.name'][language]}", body)

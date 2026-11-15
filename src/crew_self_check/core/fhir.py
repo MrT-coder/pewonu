@@ -33,7 +33,9 @@ from crew_self_check.core.contract import (
     Measurement,
     Method,
     Status,
+    VoiceFeatures,
 )
+from crew_self_check.core.voice_baseline import VoiceComparison, VoiceLevel
 
 LOINC = "http://loinc.org"
 UCUM = "http://unitsofmeasure.org"
@@ -50,6 +52,8 @@ LOCAL_ORIGIN = "urn:crew-self-check:data-origin"
 LOCAL_CATEGORY = "urn:crew-self-check:observation-category"
 LOCAL_CODE = "urn:crew-self-check:observation-code"
 LOCAL_CREW_ID = "urn:crew-self-check:crew-id"
+LOCAL_VOICE = "urn:crew-self-check:voice-feature"
+LOCAL_VOICE_LEVEL = "urn:crew-self-check:voice-level"
 
 # Fixed, so the same content always gets the same ids.
 _NAMESPACE = uuid.UUID("6f1d2a0e-3b1c-4b7a-9c53-2f5c0a8f7e11")
@@ -61,7 +65,10 @@ _CATEGORY_DISPLAY = {
     "survey": "Survey",
     "activity": "Activity",
 }
-_LOCAL_CATEGORY_DISPLAY = {"derived-status": "Status derived by the app"}
+_LOCAL_CATEGORY_DISPLAY = {
+    "derived-status": "Status derived by the app",
+    "voice-pattern": "Acoustic numbers of a voice note (experimental)",
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -145,20 +152,27 @@ class ShareSelection:
     confirmed_at: datetime
     measurements: tuple[Measurement, ...]
     statuses: tuple[IndicatorStatus, ...]
+    # Voice notes: acoustic numbers and how they compare with the person's own usual. Never
+    # audio, words or an emotion label (D-015, D-019, D-028).
+    voice: tuple[tuple[VoiceFeatures, VoiceComparison | None], ...] = ()
 
     def __post_init__(self) -> None:
         if self.confirmed is not True:
             raise ConsentRequired("nothing leaves the astronaut without their confirmation (D-006)")
         if self.confirmed_at.tzinfo is None:
             raise ValueError("confirmed_at needs a timezone")
-        owners = [m.crew_id for m in self.measurements] + [s.crew_id for s in self.statuses]
+        owners = (
+            [m.crew_id for m in self.measurements]
+            + [s.crew_id for s in self.statuses]
+            + [note.crew_id for note, _ in self.voice]
+        )
         for owner in owners:
             if owner != self.profile.crew_id:
                 raise ValueError(
                     f"{owner} is not {self.profile.crew_id}: "
                     "only the data of the person who confirmed can be shared"
                 )
-        if not self.measurements and not self.statuses:
+        if not self.measurements and not self.statuses and not self.voice:
             raise ValueError("there is nothing to share")
 
 
@@ -343,12 +357,86 @@ def status_resource(status: IndicatorStatus, subject: str, effective: datetime) 
     }
 
 
+_VOICE_UNITS = {
+    "durationSeconds": "seconds",
+    "pitchMeanHz": "Hz",
+    "pitchVariation": "semitones",
+    "speechRate": "syllables per second",
+    "pauseRatio": "ratio",
+    "loudnessDb": "dB",
+}
+
+
+def voice_resource(
+    note: VoiceFeatures, comparison: VoiceComparison | None, subject: str
+) -> dict[str, Any]:
+    """One voice note as an experimental Observation: numbers, direction vs usual, no words."""
+    level = comparison.level.value if comparison is not None else VoiceLevel.BUILDING.value
+    components: list[dict[str, Any]] = [
+        {
+            "code": _concept(LOCAL_VOICE, name, name),
+            "valueQuantity": {"value": _number(value), "unit": _VOICE_UNITS.get(name, "")},
+        }
+        for name, value in note.features.items()
+    ]
+    components.append(
+        {
+            "code": _concept(LOCAL_VOICE, "mood-survey-score", "mood-survey-score"),
+            "valueInteger": note.mood_survey_score,
+        }
+    )
+    if comparison is not None:
+        components.append(_voice_part("reference", LOCAL_REFERENCE, comparison.reference))
+        if comparison.baseline_environment is not None:
+            components.append(
+                _voice_part(
+                    "baseline-environment", LOCAL_ENVIRONMENT, comparison.baseline_environment.value
+                )
+            )
+        for item in comparison.deviations:
+            components.append(
+                {
+                    "code": _concept(LOCAL_VOICE, f"{item.name}-vs-usual", item.name),
+                    "valueQuantity": {"value": _number(item.z), "unit": "robust z"},
+                }
+            )
+            if item.direction is not None:
+                components.append(
+                    _voice_part(f"{item.name}-direction", LOCAL_VOICE_LEVEL, item.direction)
+                )
+    return {
+        "resourceType": "Observation",
+        "id": _uuid("voice", note.crew_id, _iso(note.timestamp), *sorted(note.features)),
+        "meta": {
+            "tag": [
+                _coding(LOCAL_ORIGIN, "experimental-voice", "Experimental acoustic numbers"),
+                _coding(LOCAL_ENVIRONMENT, note.environment.value, "Where it was taken"),
+            ]
+        },
+        "status": "final",
+        "category": _category("voice-pattern"),
+        "code": {"coding": [_coding(LOCAL_CODE, "voice-note", "Voice note (acoustic numbers)")]},
+        "subject": {"reference": subject},
+        "effectiveDateTime": _iso(note.timestamp),
+        "valueCodeableConcept": _concept(LOCAL_VOICE_LEVEL, level, level),
+        "component": components,
+    }
+
+
+def _voice_part(code: str, system: str, value: str) -> dict[str, Any]:
+    return {
+        "code": _concept(LOCAL_VOICE, code, code),
+        "valueCodeableConcept": _concept(system, value, value),
+    }
+
+
 def build_bundle(selection: ShareSelection) -> dict[str, Any]:
     """A ``collection`` Bundle with the patient and exactly what was selected."""
     subject = patient_ref(selection.profile.crew_id)
     resources: list[dict[str, Any]] = [patient_resource(selection.profile)]
     resources += [observation_resource(m, subject) for m in selection.measurements]
     resources += [status_resource(s, subject, selection.confirmed_at) for s in selection.statuses]
+    resources += [voice_resource(n, c, subject) for n, c in selection.voice]
     return {
         "resourceType": "Bundle",
         "id": _uuid("bundle", selection.profile.crew_id, *(r["id"] for r in resources)),

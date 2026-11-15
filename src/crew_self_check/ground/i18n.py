@@ -54,6 +54,14 @@ STRINGS: dict[str, dict[Language, str]] = {
         _ES: "Esto no es un diagnóstico. Los estados comparan cada lectura con la línea base "
         "de la persona o con una referencia rotulada, y la base no puede pedir más datos.",
     },
+    "crew.voice": {_EN: "Voice pattern (experimental)", _ES: "Patrón de voz (experimental)"},
+    "crew.voice_note": {
+        _EN: "Only numbers about how the voice sounds, compared with the astronaut's own usual. "
+        "What was said is never sent and no emotion is inferred.",
+        _ES: "Solo números sobre cómo suena la voz, comparados con lo habitual del astronauta. "
+        "Lo que dijo nunca se envía y no se infiere ninguna emoción.",
+    },
+    "col.voice_change": {_EN: "What changed", _ES: "Qué cambió"},
     "col.indicator": {_EN: "Indicator", _ES: "Indicador"},
     "col.where": {_EN: "Where", _ES: "Dónde"},
     "col.state": {_EN: "State", _ES: "Estado"},
@@ -111,6 +119,25 @@ ORIGIN: dict[str, dict[Language, str]] = {
     "manual": {_EN: "Entered by the astronaut", _ES: "Ingresado por el astronauta"},
     "sleep-accel": {_EN: "Sleep accelerometer", _ES: "Acelerómetro de sueño"},
     "official-2026": {_EN: "Official 2026 data", _ES: "Datos oficiales 2026"},
+}
+
+VOICE_LEVEL: dict[str, dict[Language, str]] = {
+    "usual": {_EN: "Like their usual", _ES: "Como lo habitual"},
+    "different": {_EN: "Different from their usual", _ES: "Distinto de lo habitual"},
+    "building": {_EN: "Building their baseline", _ES: "Construyendo su línea base"},
+}
+
+VOICE_DIRECTION: dict[str, dict[Language, str]] = {
+    "pitchMeanHz.up": {_EN: "higher pitch", _ES: "tono más agudo"},
+    "pitchMeanHz.down": {_EN: "lower pitch", _ES: "tono más grave"},
+    "pitchVariation.up": {_EN: "more varied pitch", _ES: "tono más variado"},
+    "pitchVariation.down": {_EN: "flatter pitch", _ES: "tono más plano"},
+    "speechRate.up": {_EN: "faster", _ES: "más rápido"},
+    "speechRate.down": {_EN: "slower", _ES: "más lento"},
+    "pauseRatio.up": {_EN: "more pauses", _ES: "más pausas"},
+    "pauseRatio.down": {_EN: "fewer pauses", _ES: "menos pausas"},
+    "loudnessDb.up": {_EN: "louder", _ES: "más fuerte"},
+    "loudnessDb.down": {_EN: "softer", _ES: "más suave"},
 }
 
 METHOD: dict[str, dict[Language, str]] = {
