@@ -8,6 +8,7 @@ from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.state import AppState, Section
 from crew_self_check.astronaut.ui.body import build_body
+from crew_self_check.astronaut.ui.cases import case_card
 from crew_self_check.astronaut.ui.checkin import build_checkin
 from crew_self_check.astronaut.ui.common import Actions, cabin_background, card, language_switch
 from crew_self_check.astronaut.ui.journey import journey_bar
@@ -57,6 +58,7 @@ def _home(state: AppState, actions: Actions) -> ft.Control:
     def say(key: str, **params: object) -> str:
         return translate(key, language, **params)
 
+    case = case_card(language, state.profile.crew_id) if state.profile else None
     return ft.Column(
         spacing=18,
         scroll=ft.ScrollMode.AUTO,
@@ -82,6 +84,7 @@ def _home(state: AppState, actions: Actions) -> ft.Control:
                     ],
                 )
             ),
+            *([case] if case is not None else []),
             card(
                 ft.Row(
                     spacing=14,

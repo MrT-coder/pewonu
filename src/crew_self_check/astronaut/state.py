@@ -90,6 +90,10 @@ class AppState:
     def demo_codes(self) -> tuple[str, ...]:
         return self._directory.codes()
 
+    def demo_cases(self) -> tuple[tuple[str, str], ...]:
+        """Each demo code with the ``crew_id`` it opens."""
+        return tuple((code, profile.crew_id) for code, profile in self._directory.entries())
+
     def login(self, typed: str) -> bool:
         """Try a code. A failure never locks the astronaut out and never ends a session."""
         result = self._directory.login(typed)

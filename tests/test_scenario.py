@@ -106,11 +106,51 @@ def test_the_resting_pulse_is_always_entered_by_hand() -> None:
     assert all(m.method is Method.PALPATION for m in pulses)
 
 
-def test_the_crew_is_fictitious_and_has_the_two_cases() -> None:
+def test_the_crew_is_fictitious_and_has_the_three_cases() -> None:
     crew = {p.crew_id: p for p in generate_scenario().crew}
-    assert set(crew) == {"crew-01", "crew-02"}
-    assert "simulated" in crew["crew-01"].baseline_source
-    assert "simulated" in crew["crew-02"].baseline_source
+    assert set(crew) == {"crew-01", "crew-02", "crew-03"}
+    for profile in crew.values():
+        assert "simulated" in profile.baseline_source
+
+
+def test_crew_03_sleep_is_flagged_against_the_earth_baseline_then_against_her_own_range() -> None:
+    """The isolation case: sleep drops in transit and stays flagged until arrival."""
+    scenario = generate_scenario()
+    early = resolve_at(scenario, day_of(scenario, "T+4"), "crew-03", Indicator.SLEEP_HOURS)
+    assert early.status.status is Status.WATCH
+    assert early.status.reference is Reference.TRANSITION
+    assert early.status.baseline_environment is EARTH
+    late = resolve_at(scenario, day_of(scenario, "T+10"), "crew-03", Indicator.SLEEP_HOURS)
+    assert late.status.status is Status.WATCH
+    assert late.status.reference is Reference.PERSONAL
+
+
+def test_crew_03_mood_slips_in_transit() -> None:
+    scenario = generate_scenario()
+    mood = resolve_at(scenario, day_of(scenario, "T+5"), "crew-03", Indicator.MOOD)
+    assert mood.status.status is Status.WATCH
+
+
+def test_crew_03_cardiovascular_and_balance_stay_in_range_along_the_whole_journey() -> None:
+    scenario = generate_scenario()
+    steady = (
+        Indicator.RESTING_HR,
+        Indicator.SYSTOLIC_BP,
+        Indicator.DIASTOLIC_BP,
+        Indicator.VESTIBULAR_SYMPTOMS,
+        Indicator.TANDEM_WALK_OK,
+        Indicator.SPO2,
+    )
+    for day in scenario.days:
+        for indicator in steady:
+            status = resolve_at(scenario, day.index, "crew-03", indicator).status.status
+            assert status in (Status.OK, Status.INSUFFICIENT_DATA), (day.label, indicator)
+
+
+def test_crew_03_is_labelled_as_simulated_data() -> None:
+    mine = [m for m in generate_scenario().measurements if m.crew_id == "crew-03"]
+    assert mine
+    assert {m.source for m in mine} == {Source.SIMULATED_SCENARIO}
 
 
 @pytest.mark.parametrize("seed", SEEDS)

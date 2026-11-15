@@ -51,6 +51,10 @@ class AccessDirectory:
     def codes(self) -> tuple[str, ...]:
         return tuple(sorted(self._profiles))
 
+    def entries(self) -> tuple[tuple[str, CrewProfile], ...]:
+        """Every code with the profile it opens, in code order (for the demo list)."""
+        return tuple((code, self._profiles[code]) for code in self.codes())
+
     def login(self, typed: str) -> LoginResult:
         code = normalize_code(typed)
         if code is None:

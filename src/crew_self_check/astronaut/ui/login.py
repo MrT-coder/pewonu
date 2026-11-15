@@ -8,6 +8,7 @@ from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.access import AccessError
 from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.state import AppState
+from crew_self_check.astronaut.ui.cases import demo_case_rows
 from crew_self_check.astronaut.ui.common import Actions, cabin_background, card, language_switch
 
 _ERROR_KEYS = {
@@ -43,7 +44,11 @@ def build_login(state: AppState, actions: Actions) -> ft.Control:
 
     field.on_submit = submit
 
-    demo_codes = ", ".join(state.demo_codes())
+    def pick(code: str) -> None:
+        field.value = code
+        field.error = None
+        actions.refresh()
+
     panel = card(
         ft.Column(
             spacing=14,
@@ -75,12 +80,8 @@ def build_login(state: AppState, actions: Actions) -> ft.Control:
                         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                         controls=[
                             ft.Text(say("login.demo_title"), size=12, color=theme.MUTED),
-                            ft.Text(
-                                say("login.demo_codes", codes=demo_codes),
-                                size=13,
-                                weight=ft.FontWeight.W_600,
-                                color=theme.ACCENT,
-                            ),
+                            ft.Text(say("login.demo_pick"), size=12, color=theme.MUTED),
+                            *demo_case_rows(language, state.demo_cases(), pick),
                         ],
                     ),
                 ),

@@ -9,6 +9,10 @@ states and the reference labels in the demo, not to model physiology.
   the planet (R+0 to R+3) pulse, the orthostatic delta and vestibular symptoms rise.
 - ``crew-02`` (45, male) has no history and only enters the resting pulse by hand (D-014), so the
   state comes from the population table, up to red on R+2.
+- ``crew-03`` (33, male) has a simulated clinical history on Earth. In transit his sleep falls
+  and his mood slips (isolation and confinement, a NASA HRP hazard): sleep is flagged against his
+  Earth baseline, then mood; his pulse, blood pressure and balance stay in range. On the planet
+  he recovers slowly.
 - Blood glucose is measured weekly: its normal state is gray (contract §1).
 
 Reproducible: the same seed always gives the same scenario. Only ``random.Random(seed)`` is used.
@@ -38,6 +42,7 @@ DEFAULT_START = datetime(2026, 11, 1, 7, 30, tzinfo=UTC)
 CREW: tuple[CrewProfile, ...] = (
     CrewProfile("crew-01", 38, Sex.FEMALE, "simulated-clinical-history"),
     CrewProfile("crew-02", 45, Sex.MALE, "simulated-no-history"),
+    CrewProfile("crew-03", 33, Sex.MALE, "simulated-clinical-history"),
 )
 
 
@@ -93,6 +98,53 @@ _SPECS: dict[Indicator, _Spec] = {
 # crew-02: resting pulse by hand, only on the last two transit days and on the arrival days.
 _CREW_02_SHIP = {EARTH_DAYS + SHIP_DAYS - 2: 70.0, EARTH_DAYS + SHIP_DAYS - 1: 72.0}
 _CREW_02_PLANET = (72.0, 94.0, 108.0, 80.0)  # male 40-59: ok, watch (>p95), act (>p99), ok
+
+
+_WIGGLE = (0.0, 1.0, -1.0, 0.5, -0.5, 1.0, -1.0)  # a small, fixed variation: no random numbers
+
+
+def _wiggle(day: int, amplitude: float) -> float:
+    return _WIGGLE[day % len(_WIGGLE)] * amplitude
+
+
+# crew-03: sleep and mood per day (E-14..E-1, T+1..T+10, R+0..R+3). Only these two change.
+_CREW_03_SLEEP = (
+    *(7.2 + _wiggle(i, 0.3) for i in range(EARTH_DAYS)),
+    5.8, 5.5, 5.6, 5.7, 5.4, 4.8, 4.6, 4.5, 4.4, 4.3,
+    4.4, 4.6, 4.9, 5.2,
+)  # fmt: skip
+_CREW_03_MOOD = (
+    *([4] * EARTH_DAYS),
+    4, 3, 3, 3, 3, 2, 2, 2, 2, 2,
+    2, 2, 3, 3,
+)  # fmt: skip
+# Everything else of crew-03 stays in range: (value, half width of the fixed variation, decimals).
+_CREW_03_STEADY: dict[Indicator, tuple[float, float, int]] = {
+    Indicator.RESTING_HR: (63, 2, 0),
+    Indicator.SYSTOLIC_BP: (116, 3, 0),
+    Indicator.DIASTOLIC_BP: (74, 2, 0),
+    Indicator.ORTHOSTATIC_HR_DELTA: (11, 2, 0),
+    Indicator.VESTIBULAR_SYMPTOMS: (0, 0, 0),
+    Indicator.TANDEM_WALK_OK: (1, 0, 0),
+    Indicator.SPO2: (98, 0, 0),
+    Indicator.BODY_TEMP: (36.5, 0.1, 1),
+    Indicator.BLOOD_GLUCOSE: (88, 3, 0),
+}
+
+
+def _crew_03(day: ScenarioDay) -> list[Measurement]:
+    values: dict[Indicator, float] = {
+        Indicator.SLEEP_HOURS: round(_CREW_03_SLEEP[day.index], 1),
+        Indicator.MOOD: float(_CREW_03_MOOD[day.index]),
+    }
+    for indicator, (center, width, decimals) in _CREW_03_STEADY.items():
+        if day.index % _SPECS[indicator].every:
+            continue
+        values[indicator] = round(center + _wiggle(day.index, width), decimals)
+    return [
+        _reading("crew-03", indicator, value, _SPECS[indicator].unit, _SPECS[indicator].method, day)
+        for indicator, value in values.items()
+    ]
 
 
 def _build_days(start: datetime) -> tuple[ScenarioDay, ...]:
@@ -154,5 +206,6 @@ def generate_scenario(seed: int = 0, start: datetime = DEFAULT_START) -> Scenari
             readings.append(
                 _reading("crew-02", Indicator.RESTING_HR, pulse, "bpm", Method.PALPATION, day)
             )
+        readings += _crew_03(day)  # after the others: crew-01 and crew-02 keep their numbers
     readings.sort(key=lambda m: m.timestamp)
     return Scenario(seed, CREW, days, tuple(readings))

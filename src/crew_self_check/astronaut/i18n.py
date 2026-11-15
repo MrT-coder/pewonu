@@ -35,11 +35,114 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "Code not registered on this computer.",
         _ES: "Código no registrado en este equipo.",
     },
+    "hazard.radiation": {_EN: "Space radiation", _ES: "Radiación espacial"},
+    "hazard.radiation.what": {
+        _EN: "Invisible radiation is one of the most dangerous parts of spaceflight.",
+        _ES: "La radiación invisible es una de las partes más peligrosas del vuelo espacial.",
+    },
+    "hazard.isolation": {_EN: "Isolation and confinement", _ES: "Aislamiento y confinamiento"},
+    "hazard.isolation.what": {
+        _EN: "Crews living in small spaces far from Earth for long periods can show "
+        "behavioral changes.",
+        _ES: "Las tripulaciones que viven en espacios pequeños lejos de la Tierra durante "
+        "mucho tiempo pueden mostrar cambios de comportamiento.",
+    },
+    "hazard.distance": {_EN: "Distance from Earth", _ES: "Distancia de la Tierra"},
+    "hazard.distance.what": {
+        _EN: "Getting supplies, instructions and medical care from home gets harder the "
+        "farther astronauts travel.",
+        _ES: "Recibir suministros, instrucciones y atención médica desde casa se vuelve más "
+        "difícil cuanto más lejos viajan los astronautas.",
+    },
+    "hazard.gravity": {_EN: "Gravity fields", _ES: "Campos gravitatorios"},
+    "hazard.gravity.what": {
+        _EN: "The body must adjust to different gravity levels, including the return to Earth.",
+        _ES: "El cuerpo debe adaptarse a distintos niveles de gravedad, incluido el regreso "
+        "a la Tierra.",
+    },
+    "hazard.environment": {
+        _EN: "Hostile and closed environments",
+        _ES: "Ambientes hostiles y cerrados",
+    },
+    "hazard.environment.what": {
+        _EN: "Keeping a spacecraft's temperature, pressure, light and air safe is difficult.",
+        _ES: "Mantener seguros la temperatura, la presión, la luz y el aire de una nave es "
+        "difícil.",
+    },
+    "hazard.source": {
+        _EN: "Source: NASA Human Research Program, the five hazards of human spaceflight.",
+        _ES: "Fuente: Programa de Investigación Humana de la NASA, los cinco peligros del "
+        "vuelo espacial humano.",
+    },
+    "case.hazard_label": {
+        _EN: "NASA hazard it stresses",
+        _ES: "Peligro de la NASA que pone a prueba",
+    },
+    "case.system_label": {_EN: "How the system approaches it", _ES: "Cómo lo aborda el sistema"},
+    "case.your_case": {_EN: "Your case in this demo", _ES: "Tu caso en esta demostración"},
+    "case.simulated": {
+        _EN: "Fictitious astronaut with simulated data, not a real person.",
+        _ES: "Astronauta ficticio con datos simulados, no una persona real.",
+    },
+    "case.crew-01.title": {_EN: "Arrival adaptation", _ES: "Adaptación a la llegada"},
+    "case.crew-01.story": {
+        _EN: "Two weeks of personal history on Earth. Sleep dips in transit; on arrival the "
+        "pulse, the pulse change on standing and the balance symptoms rise.",
+        _ES: "Dos semanas de historial personal en la Tierra. El sueño baja en tránsito; al "
+        "llegar suben el pulso, el cambio de pulso al pararse y los síntomas de equilibrio.",
+    },
+    "case.crew-01.system": {
+        _EN: "Each reading is compared with this astronaut's own baseline in each place, the "
+        "comparison is labelled when they change place, and when a change lasts the "
+        "suggestion is to tell the crew medical officer.",
+        _ES: "Cada lectura se compara con la línea base de este astronauta en cada lugar, la "
+        "comparación se rotula cuando cambia de lugar, y si un cambio dura se sugiere "
+        "avisar al oficial médico de la tripulación.",
+    },
+    "case.crew-02.title": {
+        _EN: "No history: pulse counted by hand",
+        _ES: "Sin historial: pulso contado a mano",
+    },
+    "case.crew-02.story": {
+        _EN: "No personal history, and only the resting pulse, counted by hand. There is "
+        "nothing of their own to compare with, and on arrival the pulse climbs far above "
+        "the usual.",
+        _ES: "Sin historial personal y solo el pulso en reposo, contado a mano. No hay nada "
+        "propio con qué comparar, y al llegar el pulso sube muy por encima de lo habitual.",
+    },
+    "case.crew-02.system": {
+        _EN: "With no baseline the pulse is compared with a labelled population reference; "
+        "everything else stays gray instead of guessing. A pulse far outside turns red and "
+        "the suggestion is to ask the flight surgeon to review it.",
+        _ES: "Sin línea base el pulso se compara con una referencia poblacional rotulada; "
+        "todo lo demás queda en gris en vez de adivinar. Un pulso muy fuera de rango pasa a "
+        "rojo y se sugiere pedir revisión al cirujano de vuelo.",
+    },
+    "case.crew-03.title": {_EN: "Isolation: sleep and mood", _ES: "Aislamiento: sueño y ánimo"},
+    "case.crew-03.story": {
+        _EN: "Two weeks of personal history on Earth. In transit sleep falls and mood slips, "
+        "while the pulse, the blood pressure and the balance stay in range.",
+        _ES: "Dos semanas de historial personal en la Tierra. En tránsito el sueño baja y el "
+        "ánimo decae, mientras el pulso, la presión y el equilibrio siguen en rango.",
+    },
+    "case.crew-03.system": {
+        _EN: "Sleep and mood are flagged against the Earth baseline, then against the "
+        "astronaut's own range in the spacecraft, with the suggestion to tell the crew "
+        "medical officer. What stays in range stays green.",
+        _ES: "El sueño y el ánimo se marcan contra la línea base de la Tierra y luego contra "
+        "el rango propio en la nave, con la sugerencia de avisar al oficial médico. Lo que "
+        "sigue en rango sigue en verde.",
+    },
     "login.demo_title": {
         _EN: "Simulated demo crew",
         _ES: "Tripulación de demostración (simulada)",
     },
     "login.demo_codes": {_EN: "Try {codes}", _ES: "Prueba con {codes}"},
+    "login.demo_pick": {
+        _EN: "Three cases, each stressing a different NASA hazard. Tap one to fill the code.",
+        _ES: "Tres casos, cada uno pone a prueba un peligro distinto de la NASA. Toca uno para "
+        "llenar el código.",
+    },
     "login.private": {
         _EN: "Your code opens only your own profile on this computer.",
         _ES: "Tu código abre solo tu propio perfil en este equipo.",
