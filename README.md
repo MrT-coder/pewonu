@@ -148,4 +148,4 @@ The full log is in [docs/uso-de-ia.md](docs/uso-de-ia.md) and is summarized on t
 
 ## License
 
-*To be decided by the team before the submission.*
+[MIT](LICENSE). You are free to use, fork and modify PeWoNu, as long as you **keep the copyright notice and give credit** to the PeWoNu team (the license text must travel with any copy). The software is provided as is, with no warranty. Names and marks of NASA and other agencies belong to their owners and are not covered by this license.

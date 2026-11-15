@@ -20,7 +20,7 @@ Submission window closes **Sunday 15 November, 23:59, local event time**. Only t
 | 3 | **SI content may not use NASA branding** (logos, flags, mission identifiers). | The illustrations show a generic astronaut patch with a star, not a NASA emblem. | Re-check every image and slide before submitting. |
 | 4 | **Project link must be public** (no password, permission or registration). | The repository is local. There is no public URL yet. | Publish the repository (team decision) and put its full URL in the form. |
 | 5 | **Demo link** (7 slides or 30 s video) must be public and open without registration. | Not created yet. | Build the slides from section 4 and host them (Google Drive, GitHub, YouTube...). |
-| 6 | **License** of the repository. | Undecided. | Decide before publishing. |
+| 6 | **License** of the repository. | Resolved (D-031): MIT. Anyone may use and fork it, keeping the copyright notice (credit to the PeWoNu team). | Confirm the copyright holder name in `LICENSE` ("PeWoNu team") and decide about the logo and the AI-generated pulse illustrations (see D-031). |
 | 7 | **Project name.** The form shows "Project PeWoNu". | Resolved (D-030): the product is called **PeWoNu** (Peace, WOD, Nutrition) in both apps, the README and this pack. The Python package keeps the internal name `crew_self_check`. | Use "PeWoNu" in the title field. Confirm the team logo (its badge reads "NASA Space Apps Challenge") is acceptable. |
 
 ---
