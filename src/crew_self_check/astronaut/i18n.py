@@ -671,6 +671,10 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "Delivered to the ground inbox (simulated).",
         _ES: "Entregado a la bandeja de Tierra (simulado).",
     },
+    "share.delivered_linked": {
+        _EN: "Delivered to the ground base.",
+        _ES: "Entregado a la base en Tierra.",
+    },
     "share.sim_note": {
         _EN: "The ground base is simulated: it is not built yet, so delivery only "
         "moves the package to a local inbox.",

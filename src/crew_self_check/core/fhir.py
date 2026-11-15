@@ -199,6 +199,16 @@ def patient_ref(crew_id: str) -> str:
     return f"urn:uuid:{patient_id(crew_id)}"
 
 
+def indicator_from_coding(system: str, code: str) -> Indicator | None:
+    """The indicator an Observation code stands for, by LOINC or by the local indicator code."""
+    for indicator, spec in _SPECS.items():
+        if system == LOINC and spec.loinc is not None and spec.loinc[0] == code:
+            return indicator
+        if system == LOCAL_INDICATOR and indicator.value == code:
+            return indicator
+    return None
+
+
 # --- resources --------------------------------------------------------------------------------
 
 

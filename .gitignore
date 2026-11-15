@@ -24,3 +24,7 @@ build/
 .ipynb_checkpoints/
 .DS_Store
 .playwright-cli/
+
+# QA gate artifacts (ephemeral)
+.qa/
+.playwright-cli/

@@ -10,7 +10,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from crew_self_check.core.fhir import LOCAL_CATEGORY, LOCAL_ENVIRONMENT, LOCAL_ORIGIN
+from crew_self_check.core.fhir import (
+    LOCAL_CATEGORY,
+    LOCAL_ENVIRONMENT,
+    LOCAL_ORIGIN,
+    indicator_from_coding,
+)
 from crew_self_check.core.inbox import ReceivedBundle
 
 
@@ -28,6 +33,7 @@ class StateRow:
 @dataclass(frozen=True, slots=True)
 class ReadingRow:
     key: str  # the contract code, or the LOINC code when the indicator has one
+    indicator: str  # the contract code when the coding is one the app knows, else empty
     label: str
     value: str
     unit: str
@@ -98,8 +104,10 @@ def _reading(resource: dict[str, Any]) -> ReadingRow:
     else:
         value, unit = str(resource.get("valueInteger", "")), ""
     method = (resource.get("method") or {}).get("coding", [{}])[0].get("code", "")
+    known = indicator_from_coding(str(coding.get("system", "")), str(coding.get("code", "")))
     return ReadingRow(
         key=str(coding.get("code", "")),
+        indicator=known.value if known else "",
         label=str((resource.get("code") or {}).get("text", coding.get("display", ""))),
         value=value,
         unit=unit,

@@ -162,11 +162,11 @@ def _sent(state: AppState, actions: Actions) -> list[ft.Control]:
     now = state.journey_time()
     for item in items:
         arrived = delivery_state(item, now) is DeliveryState.DELIVERED
-        minutes = round((item.arrives_at - item.sent_at).total_seconds() / 60)
+        minutes = max(0, round((item.arrives_at - now).total_seconds() / 60))
         if item in state.unsent_to_ground():
             status = say("share.waiting_ground")
         elif arrived:
-            status = say("share.delivered")
+            status = say("share.delivered_linked" if state.ground_linked else "share.delivered")
         else:
             status = say("share.in_transit", minutes=minutes)
         out.append(

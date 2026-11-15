@@ -122,3 +122,100 @@ def test_text_from_a_bundle_is_escaped(
     page = client.get("/crew/crew-01")
     assert "<script>alert(1)</script>" not in page.text
     assert "&lt;script&gt;" in page.text
+
+
+# --- findings of the QA gate (2026-11-14) -------------------------------------------------------
+
+
+def _arrived(client: TestClient, service: GroundService, bundle: dict[str, Any]) -> None:
+    client.post("/bundles", json=bundle)
+    service.set_clock(LATER)
+
+
+def test_pages_do_not_force_a_timed_refresh(
+    client: TestClient, service: GroundService, bundle: dict[str, Any]
+) -> None:
+    """WCAG 2.2.1: no <meta http-equiv=refresh>; the person refreshes with a visible link."""
+    _arrived(client, service, bundle)
+    for path in ("/", "/crew/crew-01"):
+        page = client.get(path).text
+        assert "http-equiv" not in page
+        assert "Refresh" in page
+
+
+def test_pages_declare_an_icon_so_the_browser_does_not_ask_for_one(client: TestClient) -> None:
+    assert 'rel="icon"' in client.get("/").text
+
+
+def test_readings_use_the_language_of_the_page(
+    client: TestClient, service: GroundService, bundle: dict[str, Any]
+) -> None:
+    _arrived(client, service, bundle)
+    page = client.get("/crew/crew-01", params={"lang": "es"}).text
+    assert "Sueño" in page  # a reading, not only a state
+    assert "Sleep duration" not in page
+    assert "Resting heart rate" not in page
+
+
+def test_times_are_readable_not_raw_iso(
+    client: TestClient, service: GroundService, bundle: dict[str, Any]
+) -> None:
+    _arrived(client, service, bundle)
+    page = client.get("/crew/crew-01").text
+    assert "2026-11-14T07:30:00Z" not in page
+    assert "2026-11-14 07:30 UTC" in page
+
+
+def test_the_origin_of_a_reading_is_labelled_as_simulated(
+    client: TestClient, service: GroundService, bundle: dict[str, Any]
+) -> None:
+    _arrived(client, service, bundle)
+    assert "Simulated scenario" in client.get("/crew/crew-01").text
+    assert "Escenario simulado" in client.get("/crew/crew-01", params={"lang": "es"}).text
+
+
+def test_one_package_is_not_called_packages(
+    client: TestClient, service: GroundService, bundle: dict[str, Any]
+) -> None:
+    _arrived(client, service, bundle)
+    assert "1 package received" in client.get("/crew/crew-01").text
+    assert "1 paquete recibido" in client.get("/crew/crew-01", params={"lang": "es"}).text
+
+
+def test_temperature_shows_the_degree_sign(
+    client: TestClient, service: GroundService, bundle: dict[str, Any]
+) -> None:
+    _arrived(client, service, bundle)
+    assert "36.6 °C" in client.get("/crew/crew-01").text
+
+
+def test_the_indicator_of_a_coding_is_found_by_loinc_or_by_local_code() -> None:
+    from crew_self_check.core.contract import Indicator
+    from crew_self_check.core.fhir import LOCAL_INDICATOR, LOINC, indicator_from_coding
+
+    assert indicator_from_coding(LOINC, "8867-4") is Indicator.RESTING_HR
+    assert indicator_from_coding(LOCAL_INDICATOR, "sleep_hours") is Indicator.SLEEP_HOURS
+    assert indicator_from_coding(LOINC, "0000-0") is None
+
+
+def test_scrollable_tables_can_be_reached_with_the_keyboard(
+    client: TestClient, service: GroundService, bundle: dict[str, Any]
+) -> None:
+    """WCAG 2.1.1: a region that scrolls at phone width needs focus, a role and a name."""
+    _arrived(client, service, bundle)
+    page = client.get("/crew/crew-01").text
+    assert page.count('class="table-wrap" tabindex="0" role="region"') == 2
+    assert 'aria-label="State by indicator"' in page
+    assert 'aria-label="Latest readings sent"' in page
+
+
+def test_an_unknown_crew_page_is_a_readable_page_not_raw_json(client: TestClient) -> None:
+    page = client.get("/crew/crew-99")
+    assert page.status_code == 404
+    assert "text/html" in page.headers["content-type"]
+    assert "Nothing from this crew member has arrived" in page.text
+    assert 'href="/?lang=en"' in page.text
+    assert (
+        "Nada de este tripulante ha llegado"
+        in client.get("/crew/crew-99", params={"lang": "es"}).text
+    )

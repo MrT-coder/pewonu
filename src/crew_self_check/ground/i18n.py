@@ -26,6 +26,8 @@ STRINGS: dict[str, dict[Language, str]] = {
         _ES: "Aún no ha llegado nada.",
     },
     "home.packages": {_EN: "packages received", _ES: "paquetes recibidos"},
+    "home.package_one": {_EN: "package received", _ES: "paquete recibido"},
+    "action.refresh": {_EN: "Refresh", _ES: "Actualizar"},
     "home.last": {_EN: "last arrival", _ES: "última llegada"},
     "home.open": {_EN: "Open", _ES: "Abrir"},
     "clock.title": {_EN: "Ground clock", _ES: "Reloj de la base"},
@@ -33,6 +35,10 @@ STRINGS: dict[str, dict[Language, str]] = {
     "clock.real": {_EN: "real time", _ES: "tiempo real"},
     "delay.title": {_EN: "Communication delay", _ES: "Retraso de comunicación"},
     "delay.minutes": {_EN: "minutes", _ES: "minutos"},
+    "crew.not_found": {
+        _EN: "Nothing from this crew member has arrived.",
+        _ES: "Nada de este tripulante ha llegado.",
+    },
     "crew.back": {_EN: "All crew members", _ES: "Todos los tripulantes"},
     "crew.title": {_EN: "Crew member {crew}", _ES: "Tripulante {crew}"},
     "crew.states": {_EN: "State by indicator", _ES: "Estado por indicador"},
@@ -98,6 +104,13 @@ INDICATOR: dict[str, dict[Language, str]] = {
     "orthostatic_hr_delta": {_EN: "Pulse change on standing", _ES: "Cambio de pulso al pararse"},
     "vestibular_symptoms": {_EN: "Vestibular symptoms", _ES: "Síntomas vestibulares"},
     "tandem_walk_ok": {_EN: "Tandem walk", _ES: "Caminata en tándem"},
+}
+
+ORIGIN: dict[str, dict[Language, str]] = {
+    "simulated-scenario": {_EN: "Simulated scenario", _ES: "Escenario simulado"},
+    "manual": {_EN: "Entered by the astronaut", _ES: "Ingresado por el astronauta"},
+    "sleep-accel": {_EN: "Sleep accelerometer", _ES: "Acelerómetro de sueño"},
+    "official-2026": {_EN: "Official 2026 data", _ES: "Datos oficiales 2026"},
 }
 
 METHOD: dict[str, dict[Language, str]] = {

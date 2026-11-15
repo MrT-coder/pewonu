@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from pydantic import AwareDatetime, BaseModel, Field, StrictInt
 
 from crew_self_check.core.inbox import ReceivedBundle
@@ -119,10 +119,11 @@ def create_app(service: GroundService) -> FastAPI:
         )
 
     @app.get("/crew/{crew_id}", response_class=HTMLResponse)
-    def crew(crew_id: str, lang: str | None = None) -> str:
+    def crew(crew_id: str, lang: str | None = None) -> Response:
         view = build_crew_view(crew_id, service.visible_now(crew_id))
+        language = language_from(lang)
         if view is None:
-            raise HTTPException(404, "nothing from this crew member has arrived")
-        return pages.crew_page(language_from(lang), view)
+            return HTMLResponse(pages.not_found_page(language), status_code=404)
+        return HTMLResponse(pages.crew_page(language, view))
 
     return app
