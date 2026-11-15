@@ -1,7 +1,9 @@
-"""Server-rendered HTML of the ground view (G3). No JavaScript, no external requests (offline).
+"""Server-rendered HTML of the ground view (G3, T3). No JavaScript, no external requests (offline).
 
 Every value that came from a bundle is escaped. Color is never the only cue: each state also has
-its text. Reuses the cabin palette of the astronaut app by value, not by import (D-017).
+its text, and each chart has a text alternative. Reuses the cabin palette of the astronaut app by
+value, not by import (D-017). The console leads with what the astronaut's own app flagged; it does
+not compute a state of its own and it never diagnoses.
 """
 
 from __future__ import annotations
@@ -12,7 +14,16 @@ from html import escape
 from crew_self_check.core.reasons import Language
 from crew_self_check.ground import i18n
 from crew_self_check.ground.i18n import STRINGS, text
-from crew_self_check.ground.view_model import CrewView, ReadingRow, StateRow, VoiceRow
+from crew_self_check.ground.view_model import (
+    CrewView,
+    ReadingRow,
+    StateRow,
+    VoiceRow,
+    attention_rows,
+    system_levels,
+    top_escalation,
+    worst_status,
+)
 
 _UNIT = {"C": "°C"}  # the bundle carries the plain UCUM-style unit
 
@@ -22,30 +33,42 @@ _STATUS_COLOR = {
     "act": "#fb7185",
     "insufficient_data": "#64748b",
 }
+_SYSTEM_ORDER = ("cardiovascular", "vestibular", "sleep_brain", "mood", "immune")
 
 _CSS = """
 :root{color-scheme:dark}
 *{box-sizing:border-box}
 html{background:#04070d}
-body{margin:0;min-height:100vh;background:linear-gradient(#0b1424,#04070d);color:#e6edf7;
-font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
-main{max-width:960px;margin:0 auto;padding:16px}
+body{margin:0;min-height:100vh;
+background:radial-gradient(1100px 500px at 15% -10%,#12294a,#04070d);
+color:#e6edf7;font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+main{max-width:1040px;margin:0 auto;padding:20px 16px 48px}
 a{color:#38bdf8;display:inline-block;min-height:24px;min-width:24px;padding:2px 0}
 nav{display:flex;gap:16px}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:1.4rem;margin:.5rem 0}.brand{font-size:1.1rem;font-weight:700}
-h2{font-size:1.1rem;margin:1.5rem 0 .5rem}
-.banner{background:#0c2a3f;border:1px solid #22314b;border-radius:10px;padding:8px 12px;
-color:#bcd}
-.card{background:#0f1a2c;border:1px solid #22314b;border-radius:12px;padding:12px 16px;
-margin:8px 0}
-.muted{color:#8fa0b8}
+h1{font-size:1.5rem;margin:.6rem 0 .2rem}
+.brand{font-size:1.1rem;font-weight:700;letter-spacing:.2px}
+h2{font-size:1.05rem;margin:1.6rem 0 .6rem;color:#cfe3f7}
+.banner{background:#0c2a3f;border:1px solid #22314b;border-radius:10px;padding:8px 12px;color:#bcd}
+.card{background:#0f1a2c;border:1px solid #22314b;border-radius:14px;
+padding:14px 18px;margin:10px 0}
+.crew{border-left:6px solid var(--c,#64748b)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.muted{color:#8fa0b8}.small{font-size:.85rem}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid #22314b;border-radius:999px;
+padding:3px 10px;font-size:.85rem;background:#0b1424}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:6px 8px;border-bottom:1px solid #22314b;vertical-align:top}
 th{color:#8fa0b8;font-weight:600;font-size:.85rem}
 .chip{display:inline-flex;align-items:center;gap:6px;font-weight:600}
-.dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex:none}
 .table-wrap{overflow-x:auto}
+.spark{display:block;width:100%;height:auto}
+.head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.suggest{background:#2a1a0c;border:1px solid #5b3b14;border-radius:10px;
+padding:6px 10px;margin-top:8px}
+.suggest.act{background:#2a0f16;border-color:#6b1f2d}
 """
 
 
@@ -94,6 +117,87 @@ def _status_chip(status: str, language: Language) -> str:
     color = _STATUS_COLOR.get(status, "#64748b")
     label = escape(text(i18n.STATUS, status, language))
     return f'<span class="chip"><span class="dot" style="background:{color}"></span>{label}</span>'
+
+
+def _indicator(row: StateRow, language: Language) -> str:
+    return text(i18n.INDICATOR, row.indicator, language)
+
+
+def _number(value: float) -> str:
+    return str(int(value)) if float(value).is_integer() else f"{value:.1f}"
+
+
+# --- trends ---------------------------------------------------------------------------------------
+
+
+def _spark(row: StateRow, language: Language) -> str:
+    """The recent readings as a small line, with the person's usual band behind it."""
+    if not row.trend:
+        return ""
+    width, height, pad = 240, 64, 8
+    values = [v for _, v in row.trend]
+    low, high = row.low, row.high
+    edges = [*values, *([low, high] if low is not None and high is not None else [])]
+    vmin, vmax = min(edges), max(edges)
+    span = (vmax - vmin) or 1.0
+
+    def y(v: float) -> float:
+        return height - pad - (v - vmin) / span * (height - 2 * pad)
+
+    def x(i: int) -> float:
+        return width / 2 if len(values) == 1 else pad + i * (width - 2 * pad) / (len(values) - 1)
+
+    color = _STATUS_COLOR.get(row.status, "#64748b")
+    band = ""
+    caption = _s("trend.no_band", language)
+    if low is not None and high is not None:
+        band = (
+            f'<rect x="0" y="{y(high):.1f}" width="{width}" '
+            f'height="{max(y(low) - y(high), 2):.1f}" '
+            'fill="#38bdf8" opacity="0.18"/>'
+        )
+        caption = _s("trend.band", language, low=_number(low), high=_number(high))
+    points = " ".join(f"{x(i):.1f},{y(v):.1f}" for i, v in enumerate(values))
+    dots = "".join(
+        f'<circle cx="{x(i):.1f}" cy="{y(v):.1f}" r="3" fill="{color}"/>'
+        for i, v in enumerate(values)
+    )
+    name = text(i18n.INDICATOR, row.indicator, language)
+    unit = _UNIT.get(row.unit, row.unit)
+    label = escape(
+        f"{name}: {_number(values[0])} → {_number(values[-1])} {unit}. "
+        + STRINGS["trend.band" if low is not None and high is not None else "trend.no_band"][
+            language
+        ].format(
+            low=_number(low) if low is not None else "",
+            high=_number(high) if high is not None else "",
+        )
+    )
+    return (
+        f'<svg class="spark" viewBox="0 0 {width} {height}" role="img" aria-label="{label}">'
+        f'{band}<polyline fill="none" stroke="{color}" stroke-width="2" '
+        f'points="{points}"/>{dots}</svg>'
+        f'<div class="muted small">{caption}</div>'
+    )
+
+
+def _trends(states: tuple[StateRow, ...], language: Language) -> str:
+    cards = []
+    for row in states:
+        chart = _spark(row, language)
+        if not chart:
+            continue
+        cards.append(
+            '<div class="card">'
+            f'<div class="head"><strong>{escape(_indicator(row, language))}</strong>'
+            f"{_status_chip(row.status, language)}</div>{chart}</div>"
+        )
+    if not cards:
+        return ""
+    return f'<h2>{_s("crew.trends", language)}</h2><div class="grid">{"".join(cards)}</div>'
+
+
+# --- tables ---------------------------------------------------------------------------------------
 
 
 def _state_rows(states: tuple[StateRow, ...], language: Language) -> str:
@@ -167,28 +271,94 @@ def _voice_section(rows: tuple[VoiceRow, ...], language: Language) -> str:
     )
 
 
+# --- shared blocks --------------------------------------------------------------------------------
+
+
+def _system_pills(view: CrewView, language: Language) -> str:
+    levels = system_levels(view)
+    pills = []
+    for system in _SYSTEM_ORDER:
+        status = levels.get(system)
+        if status is None:
+            continue
+        color = _STATUS_COLOR.get(status, "#64748b")
+        pills.append(
+            f'<span class="pill"><span class="dot" style="background:{color}"></span>'
+            f"{escape(text(i18n.SYSTEM, system, language))} · "
+            f'<span class="muted">{escape(text(i18n.STATUS_SHORT, status, language))}</span></span>'
+        )
+    return f'<div class="row">{"".join(pills)}</div>' if pills else ""
+
+
+def _attention_block(view: CrewView, language: Language) -> str:
+    flagged = attention_rows(view)
+    if not flagged:
+        return f'<p class="muted">{_s("crew.attention_none", language)}</p>'
+    items = "".join(
+        f"<li>{escape(text(i18n.INDICATOR, s.indicator, language))} · "
+        f"{_status_chip(s.status, language)} · "
+        f'<span class="muted">{escape(s.reason)}</span></li>'
+        for s in flagged
+    )
+    suggestion = top_escalation(view)
+    tone = " act" if worst_status(view) == "act" else ""
+    return (
+        f"<ul>{items}</ul>"
+        f'<div class="suggest{tone}"><strong>{_s("home.suggestion", language)}:</strong> '
+        f"{escape(text(i18n.ESCALATION, suggestion, language))}</div>"
+    )
+
+
+def _voice_chip(view: CrewView, language: Language) -> str:
+    if not view.voice:
+        return ""
+    last = view.voice[-1]
+    color = (
+        "#fbbf24"
+        if last.level == "different"
+        else "#34d399"
+        if last.level == "usual"
+        else "#64748b"
+    )
+    return (
+        f'<span class="pill"><span class="dot" style="background:{color}"></span>'
+        f"{_s('crew.voice', language)} · "
+        f'<span class="muted">{escape(text(i18n.VOICE_LEVEL, last.level, language))}</span></span>'
+    )
+
+
 def home_page(
     language: Language,
-    crews: tuple[tuple[str, int, datetime], ...],
+    views: tuple[CrewView, ...],
     delay_minutes: int,
     now: datetime,
     simulated_clock: bool,
 ) -> str:
-    if crews:
-        items = "".join(
-            f'<div class="card"><strong>{escape(crew)}</strong> · {_packages(count, language)} · '
-            f"{_s('home.last', language)} {_when(last)} · "
-            f'<a href="/crew/{escape(crew)}?lang={language.value}">{_s("home.open", language)}</a>'
-            "</div>"
-            for crew, count, last in crews
-        )
+    if views:
+        cards = []
+        for view in views:
+            color = _STATUS_COLOR.get(worst_status(view), "#64748b")
+            link = f"/crew/{escape(view.crew_id)}?lang={language.value}"
+            cards.append(
+                f'<div class="card crew" style="--c:{color}">'
+                '<div class="head"><strong style="font-size:1.15rem">'
+                f"{escape(view.crew_id)}</strong>"
+                f'<span class="muted small">{_packages(view.bundles, language)} · '
+                f"{_s('home.last', language)} {_when(view.last_arrival)}</span></div>"
+                f'<h2 style="margin:.7rem 0 .3rem">{_s("crew.attention", language)}</h2>'
+                f"{_attention_block(view, language)}"
+                f'<div class="row" style="margin-top:10px">{_system_pills(view, language)}'
+                f"{_voice_chip(view, language)}</div>"
+                f'<p><a href="{link}">{_s("home.open", language)} →</a></p></div>'
+            )
+        items = f'<div class="grid">{"".join(cards)}</div>'
     else:
         items = f'<p class="card muted">{_s("home.nothing", language)}</p>'
     clock = _s("clock.simulated" if simulated_clock else "clock.real", language)
     body = (
         f"<h1>{_s('home.title', language)}</h1>"
         f'<p class="muted">{_s("home.only_shared", language)}</p>{items}'
-        f'<p class="muted">{_s("clock.title", language)}: {_when(now)} ({clock}) · '
+        f'<p class="muted small">{_s("clock.title", language)}: {_when(now)} ({clock}) · '
         f"{_s('delay.title', language)}: {delay_minutes} {_s('delay.minutes', language)}</p>"
     )
     return _page(language, STRINGS["app.name"][language], body)
@@ -203,17 +373,6 @@ def not_found_page(language: Language) -> str:
 
 
 def crew_page(language: Language, view: CrewView) -> str:
-    attention = [s for s in view.states if s.status in ("watch", "act")]
-    if attention:
-        needs = "".join(
-            f"<li>{escape(text(i18n.INDICATOR, s.indicator, language))} · "
-            f"{_status_chip(s.status, language)} · "
-            f"{escape(text(i18n.ESCALATION, s.escalation, language))}</li>"
-            for s in attention
-        )
-        needs_block = f"<ul>{needs}</ul>"
-    else:
-        needs_block = f'<p class="muted">{_s("crew.attention_none", language)}</p>'
     heads_state = "".join(
         f"<th>{_s(k, language)}</th>"
         for k in ("col.indicator", "col.where", "col.state", "col.reason", "col.compared")
@@ -231,12 +390,17 @@ def crew_page(language: Language, view: CrewView) -> str:
         _s("crew.readings", language),
         f"<table><tr>{heads_read}</tr>{_reading_rows(view.readings, language)}</table>",
     )
+    color = _STATUS_COLOR.get(worst_status(view), "#64748b")
     body = (
         f'<p><a href="/?lang={language.value}">← {_s("crew.back", language)}</a></p>'
         f"<h1>{_s('crew.title', language, crew=view.crew_id)}</h1>"
         f'<p class="muted">{_packages(view.bundles, language)} · '
         f"{_s('home.last', language)} {_when(view.last_arrival)}</p>"
-        f"<h2>{_s('crew.attention', language)}</h2>{needs_block}"
+        f'<div class="card crew" style="--c:{color}"><h2 style="margin-top:0">'
+        f"{_s('crew.attention', language)}</h2>{_attention_block(view, language)}"
+        f'<div class="row" style="margin-top:10px">{_system_pills(view, language)}'
+        f"{_voice_chip(view, language)}</div></div>"
+        f"{_trends(view.states, language)}"
         f"<h2>{_s('crew.states', language)}</h2>"
         f"{states_table}"
         f"<h2>{_s('crew.readings', language)}</h2>"

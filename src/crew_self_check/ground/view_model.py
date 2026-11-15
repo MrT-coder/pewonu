@@ -17,6 +17,7 @@ from crew_self_check.core.fhir import (
     indicator_from_coding,
 )
 from crew_self_check.core.inbox import ReceivedBundle
+from crew_self_check.core.status import SYSTEM_INDICATORS
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +29,11 @@ class StateRow:
     reference: str
     escalation: str
     effective: str
+    low: float | None = None  # the person's usual band, when the app had one
+    high: float | None = None
+    center: float | None = None
+    unit: str = ""
+    trend: tuple[tuple[str, float], ...] = ()  # (time, value) of the recent readings
 
 
 @dataclass(frozen=True, slots=True)
@@ -89,7 +95,27 @@ def _component(resource: dict[str, Any], code: str) -> str:
     return ""
 
 
+def _quantity(part: dict[str, Any]) -> tuple[float | None, str]:
+    quantity = part.get("valueQuantity") or {}
+    value = quantity.get("value")
+    return (float(value) if value is not None else None), str(quantity.get("unit", ""))
+
+
 def _state(resource: dict[str, Any]) -> StateRow:
+    bands: dict[str, float] = {}
+    trend: list[tuple[str, float]] = []
+    unit = ""
+    for part in resource.get("component", []):
+        name = str(((part.get("code") or {}).get("coding") or [{}])[0].get("code", ""))
+        value, part_unit = _quantity(part)
+        if value is None:
+            continue
+        unit = part_unit or unit
+        if name in ("baseline-low", "baseline-high", "baseline-center"):
+            bands[name] = value
+        elif name == "trend-point":
+            when = next((e.get("valueDateTime", "") for e in part.get("extension", [])), "")
+            trend.append((str(when), value))
     value = (resource.get("valueCodeableConcept") or {}).get("coding", [{}])[0]
     notes = resource.get("note") or [{}]
     return StateRow(
@@ -100,6 +126,11 @@ def _state(resource: dict[str, Any]) -> StateRow:
         reference=_component(resource, "reference"),
         escalation=_component(resource, "escalation-suggestion"),
         effective=str(resource.get("effectiveDateTime", "")),
+        low=bands.get("baseline-low"),
+        high=bands.get("baseline-high"),
+        center=bands.get("baseline-center"),
+        unit=unit,
+        trend=tuple(trend),
     )
 
 
@@ -195,3 +226,46 @@ def build_crew_view(crew_id: str, received: Iterable[ReceivedBundle]) -> CrewVie
 
 def crew_ids(received: Iterable[ReceivedBundle]) -> tuple[str, ...]:
     return tuple(sorted({r.crew_id for r in received}))
+
+
+_SEVERITY = {"ok": 0, "insufficient_data": 1, "watch": 2, "act": 3}
+_ESCALATION_RANK = {"self_care": 0, "crew_cmo": 1, "ground_surgeon": 2}
+
+
+def system_levels(view: CrewView) -> dict[str, str]:
+    """The worst state of each body system among what was sent (a system with no data is absent)."""
+    by_indicator: dict[str, str] = {}
+    for row in view.states:
+        old = by_indicator.get(row.indicator)
+        if old is None or _SEVERITY.get(row.status, 1) >= _SEVERITY.get(old, 1):
+            by_indicator[row.indicator] = row.status
+    levels: dict[str, str] = {}
+    for system, indicators in SYSTEM_INDICATORS.items():
+        found = [by_indicator[i.value] for i in indicators if i.value in by_indicator]
+        if found:
+            levels[system.value] = max(found, key=lambda status: _SEVERITY.get(status, 1))
+    return levels
+
+
+def attention_rows(view: CrewView) -> tuple[StateRow, ...]:
+    """What the astronaut's own app flagged amber or red, red first."""
+    flagged = [s for s in view.states if s.status in ("watch", "act")]
+    return tuple(sorted(flagged, key=lambda s: -_SEVERITY[s.status]))
+
+
+def worst_status(view: CrewView) -> str:
+    return max((s.status for s in view.states), key=lambda s: _SEVERITY.get(s, 1), default="ok")
+
+
+def top_escalation(view: CrewView) -> str:
+    """The strongest suggestion the astronaut's app made for what it flagged."""
+    return max(
+        (s.escalation for s in attention_rows(view)),
+        key=lambda e: _ESCALATION_RANK.get(e, 0),
+        default="self_care",
+    )
+
+
+def attention_order(view: CrewView) -> tuple[int, str]:
+    """Sort key: the crew member with the most severe flag first, then by id."""
+    return (-_SEVERITY.get(worst_status(view), 0), view.crew_id)

@@ -14,7 +14,7 @@ from crew_self_check.ground import pages
 from crew_self_check.ground.i18n import language_from
 from crew_self_check.ground.ingest import InvalidBundle
 from crew_self_check.ground.service import MAX_DELAY_MINUTES, GroundService
-from crew_self_check.ground.view_model import build_crew_view, crew_ids
+from crew_self_check.ground.view_model import attention_order, build_crew_view, crew_ids
 
 
 class DelayBody(BaseModel):
@@ -109,13 +109,10 @@ def create_app(service: GroundService) -> FastAPI:
     def home(lang: str | None = None) -> str:
         language = language_from(lang)
         arrived = service.visible_now()
-        crews = []
-        for crew_id in crew_ids(arrived):
-            view = build_crew_view(crew_id, arrived)
-            if view is not None:
-                crews.append((crew_id, view.bundles, view.last_arrival))
+        built = (build_crew_view(crew_id, arrived) for crew_id in crew_ids(arrived))
+        views = sorted((v for v in built if v is not None), key=attention_order)
         return pages.home_page(
-            language, tuple(crews), service.delay_minutes, service.now(), service.clock_is_simulated
+            language, tuple(views), service.delay_minutes, service.now(), service.clock_is_simulated
         )
 
     @app.get("/crew/{crew_id}", response_class=HTMLResponse)

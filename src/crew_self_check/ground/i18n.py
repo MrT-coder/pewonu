@@ -62,6 +62,19 @@ STRINGS: dict[str, dict[Language, str]] = {
         "Lo que dijo nunca se envía y no se infiere ninguna emoción.",
     },
     "col.voice_change": {_EN: "What changed", _ES: "Qué cambió"},
+    "home.suggestion": {
+        _EN: "Suggestion from the astronaut's app",
+        _ES: "Sugerencia de la app del astronauta",
+    },
+    "crew.trends": {_EN: "Trends", _ES: "Tendencias"},
+    "trend.band": {
+        _EN: "usual range {low} to {high}",
+        _ES: "rango habitual de {low} a {high}",
+    },
+    "trend.no_band": {
+        _EN: "no usual range yet",
+        _ES: "aún sin rango habitual",
+    },
     "col.indicator": {_EN: "Indicator", _ES: "Indicador"},
     "col.where": {_EN: "Where", _ES: "Dónde"},
     "col.state": {_EN: "State", _ES: "Estado"},
@@ -119,6 +132,21 @@ ORIGIN: dict[str, dict[Language, str]] = {
     "manual": {_EN: "Entered by the astronaut", _ES: "Ingresado por el astronauta"},
     "sleep-accel": {_EN: "Sleep accelerometer", _ES: "Acelerómetro de sueño"},
     "official-2026": {_EN: "Official 2026 data", _ES: "Datos oficiales 2026"},
+}
+
+SYSTEM: dict[str, dict[Language, str]] = {
+    "cardiovascular": {_EN: "Cardiovascular", _ES: "Cardiovascular"},
+    "vestibular": {_EN: "Balance", _ES: "Equilibrio"},
+    "sleep_brain": {_EN: "Sleep and brain", _ES: "Sueño y cerebro"},
+    "mood": {_EN: "Mood", _ES: "Ánimo"},
+    "immune": {_EN: "Immune", _ES: "Inmune"},
+}
+
+STATUS_SHORT: dict[str, dict[Language, str]] = {
+    "ok": {_EN: "in range", _ES: "en rango"},
+    "watch": {_EN: "outside", _ES: "fuera de rango"},
+    "act": {_EN: "far outside", _ES: "muy fuera"},
+    "insufficient_data": {_EN: "not enough data", _ES: "sin datos suficientes"},
 }
 
 VOICE_LEVEL: dict[str, dict[Language, str]] = {

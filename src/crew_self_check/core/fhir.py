@@ -53,6 +53,7 @@ LOCAL_CATEGORY = "urn:crew-self-check:observation-category"
 LOCAL_CODE = "urn:crew-self-check:observation-code"
 LOCAL_CREW_ID = "urn:crew-self-check:crew-id"
 LOCAL_VOICE = "urn:crew-self-check:voice-feature"
+LOCAL_TIME = "urn:crew-self-check:reading-time"
 LOCAL_VOICE_LEVEL = "urn:crew-self-check:voice-level"
 
 # Fixed, so the same content always gets the same ids.
@@ -324,6 +325,27 @@ def status_resource(status: IndicatorStatus, subject: str, effective: datetime) 
                 status.baseline_environment.value,
                 status.baseline_environment.value,
             )
+        )
+    unit = _SPECS[status.indicator].unit
+    if status.baseline is not None:
+        for name, value in (
+            ("baseline-low", status.baseline.low),
+            ("baseline-high", status.baseline.high),
+            ("baseline-center", status.baseline.center),
+        ):
+            components.append(
+                {
+                    "code": _concept(LOCAL_CODE, name, name),
+                    "valueQuantity": {"value": round(value, 2), "unit": unit},
+                }
+            )
+    for point in status.trend:
+        components.append(
+            {
+                "code": _concept(LOCAL_CODE, "trend-point", "trend-point"),
+                "valueQuantity": {"value": _number(point.value), "unit": unit},
+                "extension": [{"url": LOCAL_TIME, "valueDateTime": _iso(point.timestamp)}],
+            }
         )
     return {
         "resourceType": "Observation",
