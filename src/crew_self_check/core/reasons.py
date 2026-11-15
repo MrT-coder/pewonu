@@ -6,6 +6,7 @@ what goes into ``IndicatorStatus.reason``; the app renders the Spanish one from 
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -137,3 +138,43 @@ class Reason:
             for key, value in self.params.items()
         }
         return TEMPLATES[self.code][language].format(**values)
+
+
+def _template_pattern(template: str) -> re.Pattern[str]:
+    parts = re.split(r"\{(\w+)\}", template)
+    body = "".join(re.escape(p) if i % 2 == 0 else f"(?P<{p}>.+?)" for i, p in enumerate(parts))
+    return re.compile(body)
+
+
+_PATTERNS = tuple(
+    (code, language, _template_pattern(template))
+    for code, by_language in TEMPLATES.items()
+    for language, template in by_language.items()
+)
+
+
+def _translate_name(value: str, language: Language) -> str:
+    """An environment name inside a reason, in ``language`` (anything else is left as it is)."""
+    for names in _ENVIRONMENT_NAMES.values():
+        for environment, name in names.items():
+            if value == name:
+                return _ENVIRONMENT_NAMES[language][environment]
+    return value
+
+
+def localize_reason(text: str, language: Language) -> str:
+    """A reason text that arrived in either language, shown in ``language``.
+
+    A bundle carries the reason as plain text. The templates above are the only source of those
+    texts, so a text that matches one is rendered again from the same template in the other
+    language, with its values (and any environment name) kept. Unknown text is returned as it is.
+    """
+    for code, source, pattern in _PATTERNS:
+        found = pattern.fullmatch(text)
+        if found is None:
+            continue
+        if source is language:
+            return text
+        values = {key: _translate_name(value, language) for key, value in found.groupdict().items()}
+        return TEMPLATES[code][language].format(**values)
+    return text

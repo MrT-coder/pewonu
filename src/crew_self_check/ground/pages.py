@@ -13,7 +13,7 @@ from datetime import datetime
 from html import escape
 from urllib.parse import quote
 
-from crew_self_check.core.reasons import Language
+from crew_self_check.core.reasons import Language, localize_reason
 from crew_self_check.ground import i18n
 from crew_self_check.ground.figure import figure_svg
 from crew_self_check.ground.i18n import STRINGS, text
@@ -27,8 +27,6 @@ from crew_self_check.ground.view_model import (
     top_escalation,
     worst_status,
 )
-
-_UNIT = {"C": "°C"}  # the bundle carries the plain UCUM-style unit
 
 _STATUS_COLOR = {
     "ok": "#34d399",
@@ -214,7 +212,7 @@ def _spark(row: StateRow, language: Language) -> str:
         for i, v in enumerate(values)
     )
     name = text(i18n.INDICATOR, row.indicator, language)
-    unit = _UNIT.get(row.unit, row.unit)
+    unit = text(i18n.UNIT, row.unit, language)
     label = escape(
         f"{name}: {_number(values[0])} → {_number(values[-1])} {unit}. "
         + STRINGS["trend.band" if low is not None and high is not None else "trend.no_band"][
@@ -259,7 +257,7 @@ def _state_rows(states: tuple[StateRow, ...], language: Language) -> str:
             f"<td>{escape(text(i18n.INDICATOR, s.indicator, language))}</td>"
             f"<td>{escape(text(i18n.ENVIRONMENT, s.environment, language))}</td>"
             f"<td>{_status_chip(s.status, language)}</td>"
-            f"<td>{escape(s.reason)}</td>"
+            f"<td>{escape(localize_reason(s.reason, language))}</td>"
             f"<td>{escape(text(i18n.REFERENCE, s.reference, language))}</td>"
             f"<td>{escape(text(i18n.ESCALATION, s.escalation, language))}</td>"
             "</tr>"
@@ -277,7 +275,8 @@ def _reading_rows(readings: tuple[ReadingRow, ...], language: Language) -> str:
     return "".join(
         "<tr>"
         f"<td>{escape(_reading_name(r, language))}</td>"
-        f"<td>{escape(r.value)} {escape(_UNIT.get(r.unit, r.unit))}</td>"
+        f"<td>{escape(text(i18n.VALUE, r.value, language))} "
+        f"{escape(text(i18n.UNIT, r.unit, language))}</td>"
         f"<td>{escape(text(i18n.ENVIRONMENT, r.environment, language))}</td>"
         f"<td>{escape(text(i18n.ORIGIN, r.origin, language))}</td>"
         f"<td>{escape(text(i18n.METHOD, r.method, language)) if r.method else ''}</td>"
@@ -348,7 +347,11 @@ def _attention_block(view: CrewView, language: Language, reasons: bool = True) -
     items = "".join(
         f"<li>{escape(text(i18n.INDICATOR, s.indicator, language))} · "
         f"{_status_chip(s.status, language)}"
-        + (f' · <span class="muted">{escape(s.reason)}</span>' if reasons else "")
+        + (
+            f' · <span class="muted">{escape(localize_reason(s.reason, language))}</span>'
+            if reasons
+            else ""
+        )
         + "</li>"
         for s in flagged
     )

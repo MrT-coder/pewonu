@@ -218,6 +218,21 @@ VOICE_DIRECTION: dict[str, dict[Language, str]] = {
     "loudnessDb.down": {_EN: "softer", _ES: "más suave"},
 }
 
+# The bundle carries plain English units and values; each page shows them in its own language.
+UNIT: dict[str, dict[Language, str]] = {
+    "C": {_EN: "°C", _ES: "°C"},
+    "beats/minute": {_EN: "beats/minute", _ES: "latidos/min"},
+    "hours": {_EN: "hours", _ES: "horas"},
+    "seconds": {_EN: "seconds", _ES: "segundos"},
+    "syllables per second": {_EN: "syllables per second", _ES: "sílabas por segundo"},
+    "semitones": {_EN: "semitones", _ES: "semitonos"},
+}
+
+VALUE: dict[str, dict[Language, str]] = {
+    "yes": {_EN: "yes", _ES: "sí"},
+    "no": {_EN: "no", _ES: "no"},
+}
+
 METHOD: dict[str, dict[Language, str]] = {
     "palpation": {_EN: "counted by hand", _ES: "contado a mano"},
     "device": {_EN: "device", _ES: "dispositivo"},
