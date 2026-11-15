@@ -9,11 +9,14 @@ from collections.abc import Callable
 import flet as ft
 
 from crew_self_check.astronaut import theme
+from crew_self_check.astronaut.body_model import reference_text, status_label_key
 from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.mood import MOOD_LEVELS
+from crew_self_check.astronaut.pulse_guidance import outside_band, pulse_guidance
 from crew_self_check.astronaut.pulse_mission import INTERVALS, PulseMission, Station
 from crew_self_check.astronaut.state import AppState
-from crew_self_check.astronaut.ui.common import Actions, card
+from crew_self_check.astronaut.ui.common import Actions, card, status_color
+from crew_self_check.core.contract import Escalation, Status
 
 Say = Callable[..., str]
 
@@ -393,6 +396,70 @@ def _count_area(state: AppState, mission: PulseMission, actions: Actions, say: S
 # --- the result -----------------------------------------------------------------------------------
 
 
+def _guidance(state: AppState, say: Say) -> list[ft.Control]:
+    """What the count means for this person and what to do next (A5), before it is saved."""
+    resolution = state.preview_pulse()
+    if resolution is None:
+        return []
+    status = resolution.status
+    outside = outside_band(resolution)
+    guidance = pulse_guidance(status.status, outside)
+    one_off = status.status is Status.OK and outside
+    color = theme.GOLD if one_off else status_color(status.status)
+    label = say("pulse.outside_one") if one_off else say(status_label_key(status.status))
+    meaning: list[ft.Control] = [
+        ft.Text(say("pulse.meaning_title"), size=15, weight=ft.FontWeight.W_600, color=theme.TEXT),
+        ft.Row(
+            spacing=8,
+            controls=[
+                ft.Container(width=14, height=14, border_radius=7, bgcolor=color),
+                ft.Text(label, size=15, weight=ft.FontWeight.W_600, color=theme.TEXT),
+            ],
+        ),
+    ]
+    if status.baseline is not None:
+        meaning.append(
+            ft.Text(
+                say(
+                    "pulse.band",
+                    low=round(status.baseline.low),
+                    high=round(status.baseline.high),
+                    days=status.baseline.n_days,
+                ),
+                size=13,
+                color=theme.TEXT,
+            )
+        )
+    if not one_off:  # for one count outside the band the reason would read "within your range"
+        meaning.append(ft.Text(resolution.reason.text(state.language), size=13, color=theme.MUTED))
+    meaning.append(ft.Text(reference_text(status, state.language), size=12, color=theme.MUTED))
+
+    todo: list[ft.Control] = [
+        ft.Text(say("pulse.todo_title"), size=15, weight=ft.FontWeight.W_600, color=theme.TEXT)
+    ]
+    todo += [
+        ft.Row(
+            vertical_alignment=ft.CrossAxisAlignment.START,
+            spacing=8,
+            controls=[
+                ft.Icon(ft.Icons.CHECK_CIRCLE_OUTLINE, size=16, color=theme.ACCENT),
+                ft.Text(say(step), size=13, color=theme.TEXT, expand=True),
+            ],
+        )
+        for step in guidance.steps
+    ]
+    if guidance.escalation is not Escalation.SELF_CARE:
+        todo += [
+            ft.Text(say("pulse.todo.tell"), size=13, weight=ft.FontWeight.W_600, color=theme.GOLD),
+            ft.Text(say(f"escalation.{guidance.escalation.value}"), size=13, color=theme.TEXT),
+        ]
+    todo.append(ft.Text(say("pulse.source"), size=11, color=theme.MUTED))
+    return [
+        card(ft.Column(spacing=6, controls=meaning), border_color=color),
+        card(ft.Column(spacing=8, controls=todo)),
+    ]
+
+
 def _result(state: AppState, mission: PulseMission, actions: Actions, say: Say) -> ft.Control:
     result = mission.result
     assert result is not None
@@ -431,6 +498,7 @@ def _result(state: AppState, mission: PulseMission, actions: Actions, say: Say) 
         actions.rerender()
 
     summary += [
+        *_guidance(state, say),
         card(
             ft.Row(
                 spacing=14,

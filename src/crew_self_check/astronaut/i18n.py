@@ -187,6 +187,63 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "Every complete measurement earns it.",
         _ES: "Cada medición completa lo gana.",
     },
+    "pulse.meaning_title": {_EN: "What your count means", _ES: "Qué significa tu conteo"},
+    "pulse.outside_one": {
+        _EN: "One count outside your usual range",
+        _ES: "Un conteo fuera de tu rango habitual",
+    },
+    "pulse.band": {
+        _EN: "Your usual range here: {low} to {high} bpm, from {days} days of readings.",
+        _ES: "Tu rango habitual aquí: de {low} a {high} lpm, con {days} días de lecturas.",
+    },
+    "pulse.todo_title": {_EN: "What to do now", _ES: "Qué hacer ahora"},
+    "pulse.todo.single": {
+        _EN: "This count is outside your usual range, but one count is not a trend: the "
+        "state only turns amber when several counts in a row stay outside.",
+        _ES: "Este conteo está fuera de tu rango habitual, pero un conteo no es una "
+        "tendencia: el estado solo pasa a ámbar si varios conteos seguidos se quedan fuera.",
+    },
+    "pulse.todo.rest": {
+        _EN: "Rest sitting down for 10 minutes, then count again: a resting pulse needs at "
+        "least 10 minutes of rest first.",
+        _ES: "Descansa sentado 10 minutos y cuenta de nuevo: un pulso en reposo necesita al "
+        "menos 10 minutos de descanso antes.",
+    },
+    "pulse.todo.recount": {
+        _EN: "If the new count is still outside your range, the change is real and worth "
+        "telling someone; if it comes back inside, it was probably the effort or the moment.",
+        _ES: "Si el nuevo conteo sigue fuera de tu rango, el cambio es real y conviene "
+        "avisar a alguien; si vuelve a entrar, probablemente fue el esfuerzo o el momento.",
+    },
+    "pulse.todo.fluids": {
+        _EN: "A fast pulse can go with dehydration or an infection: think about whether you "
+        "have drunk enough and how you feel.",
+        _ES: "Un pulso rápido puede acompañar a la deshidratación o a una infección: piensa "
+        "si has bebido lo suficiente y cómo te sientes.",
+    },
+    "pulse.todo.uneven": {
+        _EN: "If the beats feel uneven, say so: an irregular pulse can also be a sign of a "
+        "problem.",
+        _ES: "Si los latidos se sienten irregulares, dilo: un pulso irregular también puede "
+        "ser señal de un problema.",
+    },
+    "pulse.todo.same_time": {
+        _EN: "Measure again tomorrow at the same time of day, at rest, so the comparison with "
+        "your own baseline stays fair.",
+        _ES: "Vuelve a medir mañana a la misma hora del día y en reposo, para que la "
+        "comparación con tu propia línea base siga siendo justa.",
+    },
+    "pulse.todo.rest_first": {
+        _EN: "Remember: rest for 10 minutes before every count.",
+        _ES: "Recuerda: descansa 10 minutos antes de cada conteo.",
+    },
+    "pulse.todo.keep_measuring": {
+        _EN: "Keep measuring every day at rest: the app needs more days to learn what is "
+        "normal for you.",
+        _ES: "Sigue midiendo cada día en reposo: la app necesita más días para aprender qué "
+        "es normal en ti.",
+    },
+    "pulse.todo.tell": {_EN: "Who to tell", _ES: "A quién avisar"},
     "pulse.saved": {
         _EN: "Pulse saved to your record.",
         _ES: "Pulso guardado en tu registro.",

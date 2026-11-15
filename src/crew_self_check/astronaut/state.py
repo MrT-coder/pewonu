@@ -168,6 +168,22 @@ class AppState:
         self.pulse = None
         return measurement
 
+    def preview_pulse(self) -> IndicatorResolution | None:
+        """What the counted pulse would be compared with, before it is saved (nothing is stored)."""
+        if self.pulse is None or self.profile is None:
+            return None
+        if self.pulse.result is None or not self.pulse.result.valid:
+            return None
+        counted = self.pulse.to_measurement(self.profile.crew_id, self.environment, self._now())
+        return resolve_indicator(
+            (*self.visible_measurements(), counted),
+            self.profile.crew_id,
+            Indicator.RESTING_HR,
+            self.environment,
+            profile=self.profile,
+            as_of=self.journey_time(),
+        )
+
     # --- the mood survey -------------------------------------------------------------------
 
     def choose_mood(self, level: int) -> None:
