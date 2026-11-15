@@ -125,7 +125,8 @@ def _page(language: Language, title: str, body: str) -> str:
         '<link rel="icon" type="image/png" href="/brand/pewonu.png">'
         f"<title>{escape(title)}</title><style>{_CSS}</style></head><body><main>"
         '<header class="glass top"><div class="brand">'
-        '<img class="logo" src="/brand/pewonu.png" alt="" width="44" height="50"><div>'
+        '<img class="logo" src="/brand/pewonu.png" alt="PeWoNu logo (AI-generated)" '
+        'width="44" height="50"><div>'
         f'<b>{escape(STRINGS["app.name"][language])}</b><div class="tag">'
         f"{escape(STRINGS['app.tagline'][language])}</div></div></div><nav>"
         f'<a href="?lang={language.value}">{escape(STRINGS["action.refresh"][language])}</a>'

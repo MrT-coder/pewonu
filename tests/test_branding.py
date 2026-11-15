@@ -37,3 +37,13 @@ def test_the_ground_base_is_named_pewonu_and_serves_the_logo() -> None:
     assert logo.status_code == 200
     assert logo.headers["content-type"] == "image/png"
     assert logo.content[:4] == PNG
+
+
+GROUND_LOGO = Path("src/crew_self_check/ground/static/pewonu.png")
+
+
+def test_both_systems_ship_the_same_logo_with_the_ai_mark_strip() -> None:
+    assert GROUND_LOGO.read_bytes() == ASTRONAUT_LOGO.read_bytes()
+    data = ASTRONAUT_LOGO.read_bytes()
+    width, height = int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    assert height > width * 1.2  # the original logo plus the strip that holds the mark

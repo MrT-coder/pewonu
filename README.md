@@ -142,7 +142,7 @@ AI ("Super Intelligence") tools were used in this project, and we say where:
 
 - **Code, tests and documentation:** written and reviewed with Claude Code (Anthropic). A person reviews and understands everything that is committed.
 - **Research notes:** collected with NotebookLM (Google).
-- **Images:** the pulse-guide illustrations in `src/crew_self_check/astronaut/assets/pulse/` were generated with Gemini and edited with Meta AI, by Kevin Toalombo. They are AI-generated and contain no NASA branding.
+- **Images:** the pulse-guide illustrations in `src/crew_self_check/astronaut/assets/pulse/` were generated with Gemini and edited with Meta AI, by Kevin Toalombo. The **PeWoNu logo** (`src/crew_self_check/astronaut/assets/brand/pewonu.png`) was also generated with Gemini, and carries a small visible "AI-generated" mark. All of them are AI-generated; none is a NASA emblem.
 
 The full log is in [docs/uso-de-ia.md](docs/uso-de-ia.md) and is summarized on the project page. Text for the NASA form and the slides: [docs/submission-pack.md](docs/submission-pack.md).
 

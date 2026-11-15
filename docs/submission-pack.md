@@ -104,7 +104,7 @@ I could not see the exact checkbox labels, so match these to the closest option:
 |---|---|---|---|---|
 | Code | **Yes** | Claude Code (Anthropic) | Most of the source code, tests and documentation, written and reviewed with the team | README "Use of AI", `docs/uso-de-ia.md`, project details |
 | Text and data | **Yes** | Claude Code; NotebookLM (Google, Gemini) | Research notes, source inventory, drafts of documentation | `docs/uso-de-ia.md`, project details |
-| Images | **Yes** | Gemini (generation) and Meta AI (editing), by Kevin Toalombo | Eight illustrations of the manual pulse technique, in Spanish and English | `docs/uso-de-ia.md`, app footer, **watermark pending (blocker 1)** |
+| Images | **Yes** | Gemini (generation) and Meta AI (editing), by Kevin Toalombo; the logo with Gemini | Eight illustrations of the manual pulse technique, in Spanish and English, and the PeWoNu logo (visible "AI-generated" mark added to the logo) | `docs/uso-de-ia.md`, app footer, **watermark pending (blocker 1)** |
 | Video | Not yet | n/a | A demo video, if the team chooses video over slides, must also carry a watermark | n/a |
 | Audio | No | n/a | The app does not generate or store audio | n/a |
 
