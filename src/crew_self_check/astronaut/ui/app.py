@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import flet as ft
@@ -10,6 +11,7 @@ from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.access import simulated_directory
 from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.share_model import OutboxItem
+from crew_self_check.astronaut.sqlite_store import SqliteMeasurementStore
 from crew_self_check.astronaut.state import AppState, Section
 from crew_self_check.astronaut.ui.common import Actions, glossary_dialog, limits_dialog
 from crew_self_check.astronaut.ui.login import build_login
@@ -20,10 +22,22 @@ from crew_self_check.core.reasons import Language
 
 PORT = 8550
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
+DB_ENV = "CREW_SELF_CHECK_DB"
+DEFAULT_DB = Path("data") / "crew-self-check.db"  # data/ is git-ignored (AGENTS.md section 8)
+
+_store: SqliteMeasurementStore | None = None
+
+
+def _shared_store() -> SqliteMeasurementStore:
+    """One local database for every browser session of this run."""
+    global _store
+    if _store is None:
+        _store = SqliteMeasurementStore(Path(os.environ.get(DB_ENV, DEFAULT_DB)))
+    return _store
 
 
 def main(page: ft.Page) -> None:
-    state = AppState(simulated_directory())
+    state = AppState(simulated_directory(), store=_shared_store())
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = theme.BG_BOTTOM
     page.padding = 0

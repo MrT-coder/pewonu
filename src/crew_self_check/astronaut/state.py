@@ -32,6 +32,7 @@ from crew_self_check.core.fhir import ShareSelection, build_bundle, check_bundle
 from crew_self_check.core.reasons import Language
 from crew_self_check.core.scenario import Scenario, ScenarioDay, generate_scenario
 from crew_self_check.core.status import IndicatorResolution, resolve_indicator, resolve_system
+from crew_self_check.core.storage import InMemoryMeasurementStore, MeasurementStore
 
 START_LABEL = "E-1"  # the journey opens on the last day on Earth, with a full history behind it
 _MIDDAY = timedelta(hours=12)
@@ -50,6 +51,7 @@ class AppState:
         directory: AccessDirectory,
         clock: Callable[[], datetime] | None = None,
         scenario: Scenario | None = None,
+        store: MeasurementStore | None = None,
     ) -> None:
         self._directory = directory
         self._clock = clock
@@ -61,8 +63,8 @@ class AppState:
         self.error: AccessError | None = None
         self.journey_day = next((d.index for d in self.scenario.days if d.label == START_LABEL), 0)
         self.environment = self.current_day.environment
-        # In memory for now: SQLite behind a storage port comes with A2.
-        self.measurements: list[Measurement] = []
+        # What the astronaut records lives behind a storage port (A2); memory unless injected.
+        self._store: MeasurementStore = store or InMemoryMeasurementStore()
         self.pulse: PulseMission | None = None
         self.mood_choice: int | None = None  # the face tapped and not saved yet
         self.selected_system: System | None = None
@@ -153,7 +155,7 @@ class AppState:
         if self.pulse is None or self.profile is None:
             raise RuntimeError("there is no pulse mission to save")
         measurement = self.pulse.to_measurement(self.profile.crew_id, self.environment, self._now())
-        self.measurements.append(measurement)
+        self._store.add(measurement)
         self.pulse = None
         return measurement
 
@@ -169,7 +171,7 @@ class AppState:
         measurement = mood_measurement(
             self.profile.crew_id, self.mood_choice, self.environment, self._now()
         )
-        self.measurements.append(measurement)
+        self._store.add(measurement)
         self.mood_choice = None
         return measurement
 
@@ -179,7 +181,7 @@ class AppState:
         """What the astronaut recorded in the app (not the simulated history)."""
         if self.profile is None:
             return ()
-        return tuple(m for m in self.measurements if m.crew_id == self.profile.crew_id)
+        return self._store.for_crew(self.profile.crew_id)
 
     def _last(self, indicator: Indicator) -> Measurement | None:
         found = [m for m in self.own_measurements() if m.indicator is indicator]
@@ -199,7 +201,7 @@ class AppState:
             return ()
         crew_id = self.profile.crew_id
         cutoff = self.current_day.timestamp + timedelta(days=1)
-        pool = [*self.scenario.measurements, *self.measurements]
+        pool = [*self.scenario.measurements, *self._store.all()]
         mine = [m for m in pool if m.crew_id == crew_id and m.timestamp < cutoff]
         return tuple(sorted(mine, key=lambda m: m.timestamp))
 
