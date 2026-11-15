@@ -138,8 +138,9 @@ class AppState:
         self.voice_tick = 0  # lets only the newest recording screen update the meter
         # The single screen opens everything in modals; one at a time (UX v2).
         self.modal = Modal.NONE
+        self.journey_playing = False  # the ring's play button
         self.pulse_tab = "data"  # "data" (collected) or "hand" (measure by hand)
-        self.bubble_offset: tuple[int, int] = (28, 28)  # right and bottom, in pixels
+        self.bubble_offset: tuple[int, int] = (400, 40)  # right and bottom, in pixels
         self.voice_result: VoiceResult | None = None
 
     @property

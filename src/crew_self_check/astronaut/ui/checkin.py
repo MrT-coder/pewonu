@@ -1,4 +1,4 @@
-"""The daily check-in: today the pulse mission (manual pulse, D-014, D-021)."""
+"""The pulse mission and the five faces, shown inside modals (D-014, D-021, UX v2)."""
 
 from __future__ import annotations
 
@@ -14,9 +14,8 @@ from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.mood import MOOD_LEVELS
 from crew_self_check.astronaut.pulse_guidance import outside_band, pulse_guidance
 from crew_self_check.astronaut.pulse_mission import INTERVALS, PulseMission, Station
-from crew_self_check.astronaut.state import AppState, VoiceStage
+from crew_self_check.astronaut.state import AppState, Modal
 from crew_self_check.astronaut.ui.common import Actions, card, status_color
-from crew_self_check.astronaut.ui.voice import build_voice
 from crew_self_check.core.contract import Escalation, Status
 
 Say = Callable[..., str]
@@ -30,86 +29,7 @@ def _station_number(station: Station) -> int:
     return 4 if station is Station.RESULT else _STATIONS.index(station) + 1
 
 
-def build_checkin(state: AppState, actions: Actions) -> ft.Control:
-    if state.voice_stage is not VoiceStage.IDLE:
-        return build_voice(state, actions)
-    if state.pulse is None:
-        return _hub(state, actions)
-    return _mission(state, state.pulse, actions)
-
-
 # --- the hub: what can be done today --------------------------------------------------------------
-
-
-def _hub(state: AppState, actions: Actions) -> ft.Control:
-    language = state.language
-
-    def say(key: str, **params: object) -> str:
-        return translate(key, language, **params)
-
-    last = state.last_pulse()
-    pulse_lines: list[ft.Control] = [
-        ft.Icon(ft.Icons.MONITOR_HEART_OUTLINED, size=30, color=theme.ACCENT),
-        ft.Text(say("pulse.title"), size=17, weight=ft.FontWeight.W_600, color=theme.TEXT),
-        ft.Text(say("pulse.hub_body"), size=13, color=theme.MUTED),
-    ]
-    if last is not None:
-        pulse_lines.append(
-            ft.Text(say("pulse.last", bpm=round(last.value)), size=13, color=theme.GOOD)
-        )
-    pulse_lines.append(
-        ft.FilledButton(
-            content=say("pulse.start"),
-            icon=ft.Icons.PLAY_ARROW,
-            height=44,
-            on_click=lambda _: _start(state, actions),
-        )
-    )
-
-    mood_card = _mood_card(state, actions, say)
-    voice_card = _voice_card(state, actions, say)
-    return ft.Column(
-        spacing=16,
-        scroll=ft.ScrollMode.AUTO,
-        controls=[
-            ft.Text(say("checkin.subtitle"), size=14, color=theme.MUTED),
-            ft.ResponsiveRow(
-                spacing=14,
-                run_spacing=14,
-                controls=[
-                    ft.Container(
-                        content=card(ft.Column(spacing=10, controls=pulse_lines)),
-                        col={"xs": 12, "md": 6},
-                    ),
-                    ft.Container(content=mood_card, col={"xs": 12, "md": 6}),
-                    ft.Container(content=voice_card, col={"xs": 12, "md": 6}),
-                ],
-            ),
-        ],
-    )
-
-
-def _voice_card(state: AppState, actions: Actions, say: Say) -> ft.Control:
-    def open_voice(_: object) -> None:
-        state.new_voice_prompt()
-        state.open_voice()
-        actions.rerender()
-
-    return card(
-        ft.Column(
-            spacing=10,
-            controls=[
-                ft.Icon(ft.Icons.MIC, size=30, color=theme.ACCENT),
-                ft.Text(
-                    say("part.voice.title"), size=17, weight=ft.FontWeight.W_600, color=theme.TEXT
-                ),
-                ft.Text(say("part.voice.body"), size=13, color=theme.MUTED),
-                ft.FilledButton(
-                    content=say("voice.start"), icon=ft.Icons.MIC, height=44, on_click=open_voice
-                ),
-            ],
-        )
-    )
 
 
 _FACES = {
@@ -158,7 +78,10 @@ def _mood_card(state: AppState, actions: Actions, say: Say) -> ft.Control:
         )
 
     def save(_: object) -> None:
-        state.save_mood()
+        if state.modal is Modal.MOOD:  # the bubble: faces first, then the voice log
+            state.save_mood_and_continue()
+        else:
+            state.save_mood()
         actions.rerender()
 
     last = state.last_mood()
@@ -178,7 +101,7 @@ def _mood_card(state: AppState, actions: Actions, say: Say) -> ft.Control:
         )
     lines += [
         ft.FilledButton(
-            content=say("mood.save"),
+            content=say("bubble.save_continue" if state.modal is Modal.MOOD else "mood.save"),
             icon=ft.Icons.SAVE_OUTLINED,
             height=44,
             disabled=chosen is None,
@@ -187,11 +110,6 @@ def _mood_card(state: AppState, actions: Actions, say: Say) -> ft.Control:
         ft.Text(say("mood.note"), size=11, color=theme.MUTED),
     ]
     return card(ft.Column(spacing=10, controls=lines))
-
-
-def _start(state: AppState, actions: Actions) -> None:
-    state.start_pulse()
-    actions.rerender()
 
 
 # --- the mission ----------------------------------------------------------------------------------
@@ -560,3 +478,18 @@ def _result(state: AppState, mission: PulseMission, actions: Actions, say: Say) 
         ),
     ]
     return ft.Column(spacing=14, controls=summary)
+
+
+def build_pulse_mission(state: AppState, actions: Actions) -> ft.Control:
+    """The guided pulse mission, for the pulse modal."""
+    assert state.pulse is not None
+    return _mission(state, state.pulse, actions)
+
+
+def build_mood_card(state: AppState, actions: Actions) -> ft.Control:
+    """The five faces, for the mood bubble."""
+
+    def say(key: str, **params: object) -> str:
+        return translate(key, state.language, **params)
+
+    return _mood_card(state, actions, say)

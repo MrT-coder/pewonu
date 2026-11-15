@@ -37,16 +37,11 @@ class Actions:
     run_task: Callable[[Callable[[], Awaitable[None]]], None] = _no_task
 
 
-def cabin_background(content: ft.Control) -> ft.Container:
-    return ft.Container(
-        content=content,
-        expand=True,
-        gradient=ft.LinearGradient(
-            begin=ft.Alignment.TOP_CENTER,
-            end=ft.Alignment.BOTTOM_CENTER,
-            colors=[theme.BG_TOP, theme.BG_BOTTOM],
-        ),
-    )
+def cabin_background(content: ft.Control) -> ft.Control:
+    """The space backdrop under ``content`` (UX v2)."""
+    from crew_self_check.astronaut.ui.space import space_background
+
+    return space_background(content)
 
 
 def card(

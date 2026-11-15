@@ -37,7 +37,7 @@ def _leave(state: AppState, actions: Actions) -> ft.Control:
         actions.rerender()
 
     return ft.TextButton(
-        content=translate("pulse.leave", state.language), icon=ft.Icons.CLOSE, on_click=back
+        content=translate("modal.close", state.language), icon=ft.Icons.CLOSE, on_click=back
     )
 
 

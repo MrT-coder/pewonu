@@ -222,3 +222,6 @@ def _trend(
             )
             return [title, chart]
     return [ft.Text(translate("card.trend_empty", language), size=12, color=theme.MUTED)]
+
+
+trend_controls = _trend  # the pulse modal draws the same trend

@@ -8,7 +8,7 @@ ft = pytest.importorskip("flet")
 
 from crew_self_check.astronaut.access import simulated_directory  # noqa: E402
 from crew_self_check.astronaut.body_model import reference_text  # noqa: E402
-from crew_self_check.astronaut.cases import CASES, Hazard  # noqa: E402
+from crew_self_check.astronaut.cases import CASES  # noqa: E402
 from crew_self_check.astronaut.i18n import translate  # noqa: E402
 from crew_self_check.astronaut.state import AppState, Section  # noqa: E402
 from crew_self_check.astronaut.ui.common import Actions, glossary_dialog  # noqa: E402
@@ -82,40 +82,6 @@ def test_login_view_shows_its_texts_in_the_language(language: Language) -> None:
     assert any("AST-0001" in text for text in texts)  # the demo hint
 
 
-@pytest.mark.parametrize("language", list(Language))
-@pytest.mark.parametrize("section", list(Section))
-def test_shell_builds_every_section_in_both_languages(language: Language, section: Section) -> None:
-    state = state_in(language, logged_in=True, section=section)
-    view = build_shell(state, Recorder().actions())
-    assert isinstance(view, ft.Control)
-    texts = collect_texts(view)
-    for key in ("nav.home", "nav.checkin", "nav.body", "nav.summary", "nav.data", "nav.logout"):
-        assert translate(key, language) in texts, (key, language)
-    assert any("AST-0001" in text for text in texts)  # who is logged in
-    if section is Section.HOME:
-        assert translate("home.greeting", language, code="AST-0001") in texts
-        assert translate("home.privacy_body", language) in texts
-    elif section is Section.CHECKIN:
-        assert translate("checkin.subtitle", language) in texts
-        assert translate("pulse.start", language) in texts
-    elif section is Section.BODY:
-        assert translate("body.hint", language) in texts
-    elif section is Section.SUMMARY:
-        assert translate("summary.systems", language) in texts
-    elif section is Section.DATA:
-        assert translate("intake.title", language) in texts
-        assert translate("intake.sources_title", language) in texts
-        assert translate("intake.feed_title", language) in texts
-        assert translate("intake.origin_simulated", language) in texts
-    elif section is Section.HAZARDS:
-        assert translate("hazards.title", language) in texts
-        assert translate("hazards.assumption", language) in texts
-        for hazard in Hazard:
-            assert translate(f"hazard.{hazard.value}", language) in texts, hazard
-    else:
-        assert translate(f"part.{section.value}.body", language) in texts
-
-
 def test_spanish_view_has_no_english_navigation() -> None:
     view = build_shell(state_in(Language.ES, logged_in=True), Recorder().actions())
     texts = collect_texts(view)
@@ -140,8 +106,9 @@ def image_sources(node: object) -> list[str]:
 
 
 def mission_state(language: Language, steps_confirmed: int) -> AppState:
-    state = state_in(language, logged_in=True, section=Section.CHECKIN)
-    state.start_pulse()
+    state = state_in(language, logged_in=True)
+    state.open_pulse()
+    state.pulse_measure()
     assert state.pulse is not None
     for _ in range(steps_confirmed):
         state.pulse.complete_station()
@@ -222,35 +189,7 @@ def test_an_implausible_result_asks_for_a_recount_and_cannot_be_saved(language: 
     assert translate("pulse.badge", language) not in texts
 
 
-def test_the_hub_shows_the_last_pulse_after_saving() -> None:
-    state = mission_state(Language.EN, 3)
-    finish(state, 35)
-    state.save_pulse()
-    texts = collect_texts(build_shell(state, Recorder().actions()))
-    assert translate("pulse.last", Language.EN, bpm=70) in texts
-
-
 # --- the mood faces -----------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("language", list(Language))
-def test_the_hub_shows_the_five_faces_in_the_language(language: Language) -> None:
-    state = state_in(language, logged_in=True, section=Section.CHECKIN)
-    texts = collect_texts(build_shell(state, Recorder().actions()))
-    assert translate("mood.prompt", language) in texts
-    for level in range(1, 6):
-        assert translate(f"mood.level.{level}", language) in texts
-    assert translate("mood.save", language) in texts
-    assert translate("mood.note", language) in texts
-
-
-def test_after_saving_a_face_the_hub_says_which_one() -> None:
-    state = state_in(Language.ES, logged_in=True, section=Section.CHECKIN)
-    state.choose_mood(4)
-    state.save_mood()
-    texts = collect_texts(build_shell(state, Recorder().actions()))
-    label = translate("mood.level.4", Language.ES)
-    assert translate("mood.last", Language.ES, label=label) in texts
 
 
 # --- the glossary -------------------------------------------------------------------------------
@@ -288,32 +227,9 @@ def body_state(
     state.login(code)
     state.set_day(next(d.index for d in state.scenario.days if d.label == label))
     state.go(Section.BODY)
-    state.select_system(system)
+    if system is not None:
+        state.open_zone(system)
     return state
-
-
-@pytest.mark.parametrize("language", list(Language))
-@pytest.mark.parametrize("section", list(Section))
-def test_the_journey_bar_is_on_every_section(language: Language, section: Section) -> None:
-    state = body_state(language)
-    state.go(section)
-    texts = collect_texts(build_shell(state, Recorder().actions()))
-    place = translate("env.planet", language)
-    assert translate("journey.title", language) in texts
-    assert translate("journey.day", language, label="R+3", place=place) in texts
-    assert translate("journey.note", language) in texts
-
-
-@pytest.mark.parametrize("language", list(Language))
-def test_the_body_view_shows_the_six_zones_the_legend_and_the_hint(language: Language) -> None:
-    texts = collect_texts(build_shell(body_state(language), Recorder().actions()))
-    for system in System:
-        assert translate(f"system.{system.value}", language) in texts, system
-    assert translate("body.hint", language) in texts
-    assert translate("body.legend", language) in texts
-    assert translate("body.colors_note", language) in texts
-    for key in ("ok", "watch", "act", "insufficient_data", "nothing"):
-        assert translate(f"status.{key}", language) in texts, key
 
 
 @pytest.mark.parametrize("language", list(Language))
@@ -370,87 +286,14 @@ def test_the_card_of_a_green_system_does_not_push_to_escalate() -> None:
 # --- the summary ---------------------------------------------------------------------------------
 
 
-def summary_state(language: Language, label: str, code: str = "AST-0001") -> AppState:
-    state = body_state(language, label, None, code)
-    state.go(Section.SUMMARY)
-    return state
-
-
-@pytest.mark.parametrize("language", list(Language))
-def test_the_summary_shows_the_four_kpis_and_the_latest_readings(language: Language) -> None:
-    texts = collect_texts(build_shell(summary_state(language, "R+3"), Recorder().actions()))
-    for key in (
-        "summary.systems",
-        "summary.checkin",
-        "summary.regularity",
-        "summary.baseline",
-        "summary.attention",
-        "summary.latest",
-        "summary.regularity_note",
-        "summary.baseline_note",
-    ):
-        assert translate(key, language) in texts, key
-    for key in ("summary.col.indicator", "summary.col.latest", "summary.col.state"):
-        assert translate(key, language) in texts, key
-    assert translate("summary.col.compared", language) in texts
-
-
-def test_the_summary_counts_are_the_ones_of_the_model() -> None:
-    state = summary_state(Language.EN, "R+3")
-    texts = collect_texts(build_shell(state, Recorder().actions()))
-    assert translate("summary.days", Language.EN, n=7) in texts
-    assert translate("summary.baseline_value", Language.EN, ready=0, total=0) not in texts
-    for key in ("ok", "watch", "act", "insufficient_data", "nothing"):
-        assert translate(f"summary.short.{key}", Language.EN) in texts, key
-
-
-def test_what_needs_attention_names_the_indicator_its_reason_and_the_suggestion() -> None:
-    state = summary_state(Language.ES, "R+3")
-    texts = collect_texts(build_shell(state, Recorder().actions()))
-    pulse = state.resolutions()[Indicator.RESTING_HR]
-    assert translate("indicator.resting_hr", Language.ES) in texts
-    assert pulse.reason.text(Language.ES) in texts
-    assert translate("escalation.crew_cmo", Language.ES) in texts
-    assert translate("summary.attention_none", Language.ES) not in texts
-
-
-def test_when_nothing_is_outside_the_range_the_summary_says_so() -> None:
-    texts = collect_texts(build_shell(summary_state(Language.EN, "E-1"), Recorder().actions()))
-    assert translate("summary.attention_none", Language.EN) in texts
-
-
-@pytest.mark.parametrize("language", list(Language))
-def test_the_check_in_says_what_is_still_to_do(language: Language) -> None:
-    texts = collect_texts(build_shell(summary_state(language, "T+3"), Recorder().actions()))
-    assert translate("summary.pulse_todo", language) in texts
-    assert translate("summary.mood_todo", language) in texts
-    state = summary_state(language, "T+3")
-    state.start_pulse()
-    assert state.pulse is not None
-    for _ in range(3):
-        state.pulse.complete_station()
-    state.pulse.submit_count(35)
-    state.save_pulse()
-    state.choose_mood(4)
-    state.save_mood()
-    done = collect_texts(build_shell(state, Recorder().actions()))
-    assert translate("summary.pulse_done", language) in done
-    assert translate("summary.mood_done", language) in done
-
-
-def test_where_there_are_no_readings_the_baseline_card_says_so() -> None:
-    state = summary_state(Language.EN, "E-1", "AST-0002")
-    texts = collect_texts(build_shell(state, Recorder().actions()))
-    assert translate("summary.baseline_none", Language.EN) in texts
-
-
-def test_the_home_cards_no_longer_say_coming_next() -> None:
-    state = state_in(Language.EN, logged_in=True)
-    texts = collect_texts(build_shell(state, Recorder().actions()))
-    assert translate("part.coming", Language.EN) not in texts
-
-
 # --- sharing with the ground team ----------------------------------------------------------------
+
+
+def summary_state(language: Language, label: str, code: str = "AST-0001") -> AppState:
+    """A person on a given day with the share modal open (the share panel lives there now)."""
+    state = body_state(language, label, None, code)
+    state.open_share()
+    return state
 
 
 def controls_of(node: object, kind: type) -> list[object]:
@@ -587,13 +430,13 @@ def test_the_pulse_result_says_what_it_means_and_what_to_do_before_saving(
     state = AppState(simulated_directory())
     state.set_language(language)
     state.login("AST-0001")
-    state.start_pulse()
+    state.open_pulse()
+    state.pulse_measure()
     assert state.pulse is not None
     for _ in range(3):
         state.pulse.complete_station()
     state.pulse.set_interval(60)
     state.pulse.submit_count(110)  # far above this person's usual 60
-    state.go(Section.CHECKIN)
     texts = collect_texts(build_shell(state, Recorder().actions()))
     for key in (
         "pulse.meaning_title",
@@ -617,17 +460,8 @@ def voice_state(language: Language, code: str = "AST-0003", day: str = "T+8") ->
     state.set_language(language)
     state.login(code)
     state.set_day(next(d.index for d in state.scenario.days if d.label == day))
-    state.go(Section.CHECKIN)
+    state.open_mood()  # the voice log opens inside the mood bubble
     return state
-
-
-@pytest.mark.parametrize("language", list(Language))
-def test_the_checkin_offers_the_voice_log_next_to_the_pulse_and_the_faces(
-    language: Language,
-) -> None:
-    texts = collect_texts(build_shell(voice_state(language), Recorder().actions()))
-    assert translate("part.voice.title", language) in texts
-    assert translate("part.voice.body", language) in texts
 
 
 @pytest.mark.parametrize("language", list(Language))
@@ -684,3 +518,117 @@ def test_a_person_without_history_sees_the_baseline_building(language: Language)
         "1" in text and translate("voice.building", language, n=1, needed=5) == text
         for text in texts
     )
+
+
+# --- the single screen (UX v2) --------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("language", list(Language))
+@pytest.mark.parametrize("section", [s for s in Section if s is not Section.HAZARDS])
+def test_the_single_screen_shows_the_ring_the_body_and_the_data_in_both_languages(
+    language: Language, section: Section
+) -> None:
+    state = state_in(language, logged_in=True, section=section)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    for key in ("nav.body", "nav.hazards", "nav.logout", "journey.title", "stage.hint"):
+        assert translate(key, language) in texts, (key, language)
+    assert state.current_day.label in texts
+    assert translate("stage.data_title", language) in texts
+    assert translate("intake.sources_title", language) in texts
+    assert any("AST-0001" in text for text in texts)
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_hazards_are_the_second_screen(language: Language) -> None:
+    state = state_in(language, logged_in=True, section=Section.HAZARDS)
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("hazards.title", language) in texts
+    assert translate("journey.title", language) not in texts  # the ring belongs to the body screen
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_body_labels_every_zone_with_its_name_and_a_short_state(language: Language) -> None:
+    texts = collect_texts(build_shell(body_state(language), Recorder().actions()))
+    for key in (
+        "system.sleep_brain",
+        "system.vestibular",
+        "system.cardiovascular",
+        "system.immune",
+        "system.bone_muscle",
+        "zone.wrist",
+    ):
+        assert translate(key, language) in texts, key
+    assert translate("summary.short.nothing", language) in texts  # bone and muscle: not measured
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_ring_shows_the_place_the_crew_is_in(language: Language) -> None:
+    state = body_state(language, label="T+4")
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert "T+4" in texts
+    assert translate("env.spacecraft.short", language) in texts
+    assert translate("journey.play", language) in texts
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_wrist_opens_the_pulse_with_its_collected_data_and_the_way_to_measure(
+    language: Language,
+) -> None:
+    state = body_state(language)
+    state.open_pulse()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("zone.wrist", language) in texts
+    assert translate("pulse.tab.data", language) in texts
+    assert translate("pulse.tab.hand", language) in texts
+    assert translate("pulse.latest", language) in texts
+    assert translate("pulse.take_now", language) in texts
+
+
+def test_after_saving_the_pulse_the_modal_shows_the_new_reading() -> None:
+    state = mission_state(Language.EN, 3)
+    finish(state, 35)
+    state.save_pulse()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("pulse.latest", Language.EN) in texts
+    assert any("70" in text for text in texts)
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_mood_bubble_opens_the_five_faces_and_offers_the_voice_log_next(
+    language: Language,
+) -> None:
+    state = state_in(language, logged_in=True)
+    state.open_mood()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("mood.prompt", language) in texts
+    for level in range(1, 6):
+        assert translate(f"mood.level.{level}", language) in texts
+    assert translate("bubble.save_continue", language) in texts
+
+
+def test_reopening_the_faces_says_which_one_was_saved_last() -> None:
+    state = state_in(Language.ES, logged_in=True)
+    state.choose_mood(4)
+    state.save_mood()
+    state.open_mood()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    label = translate("mood.level.4", Language.ES)
+    assert translate("mood.last", Language.ES, label=label) in texts
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_share_modal_states_the_rule(language: Language) -> None:
+    state = state_in(language, logged_in=True)
+    state.open_share()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("share.note", language) in texts
+    assert translate("share.send", language) in texts
+
+
+def test_nothing_floats_over_the_screen_when_no_modal_is_open_except_the_bubble() -> None:
+    state = state_in(Language.EN, logged_in=True)
+    view = build_shell(state, Recorder().actions())
+    assert state.modal.value == "none"
+    # the bubble is there (tooltip) and no modal title is
+    texts = collect_texts(view)
+    assert translate("modal.close", Language.EN) not in texts

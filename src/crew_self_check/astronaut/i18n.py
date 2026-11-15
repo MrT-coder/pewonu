@@ -604,6 +604,62 @@ STRINGS: dict[str, dict[Language, str]] = {
         _EN: "Talk about whatever you need. Only numbers about your voice are kept.",
         _ES: "Habla de lo que necesites. Solo se guardan números sobre tu voz.",
     },
+    "stage.data_title": {
+        _EN: "Your data",
+        _ES: "Tus datos",
+    },
+    "zone.wrist": {
+        _EN: "Pulse · wrist",
+        _ES: "Pulso · muñeca",
+    },
+    "stage.hint": {
+        _EN: "Tap a zone. The wrist opens your pulse.",
+        _ES: "Toca una zona. La muñeca abre tu pulso.",
+    },
+    "journey.play": {
+        _EN: "Play journey",
+        _ES: "Reproducir viaje",
+    },
+    "journey.pause": {
+        _EN: "Pause",
+        _ES: "Pausar",
+    },
+    "pulse.tab.data": {
+        _EN: "Collected data",
+        _ES: "Datos recopilados",
+    },
+    "pulse.tab.hand": {
+        _EN: "Measure by hand",
+        _ES: "Medir a mano",
+    },
+    "pulse.take_now": {
+        _EN: "Take my pulse now",
+        _ES: "Tomar mi pulso ahora",
+    },
+    "pulse.where_from": {
+        _EN: "Where it comes from",
+        _ES: "De dónde viene",
+    },
+    "pulse.latest": {
+        _EN: "Latest resting pulse",
+        _ES: "Último pulso en reposo",
+    },
+    "modal.close": {
+        _EN: "Close",
+        _ES: "Cerrar",
+    },
+    "bubble.tip": {
+        _EN: "How are you? Drag me",
+        _ES: "¿Cómo estás? Arrástrame",
+    },
+    "bubble.label": {
+        _EN: "Mood and voice log",
+        _ES: "Ánimo y bitácora de voz",
+    },
+    "bubble.save_continue": {
+        _EN: "Save and continue to the voice log",
+        _ES: "Guardar y seguir a la bitácora de voz",
+    },
     "nav.limits": {_EN: "Limits", _ES: "Límites"},
     "nav.glossary": {_EN: "Glossary", _ES: "Glosario"},
     "glossary.close": {_EN: "Close", _ES: "Cerrar"},
