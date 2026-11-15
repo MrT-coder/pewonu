@@ -370,27 +370,57 @@ class SystemStatus(_Contract):
 
 @dataclass(frozen=True, slots=True)
 class CrewProfile(_Contract):
+    """Who the person is. The body data is preflight and simulated (D-030)."""
+
     crew_id: str
     age: int
     sex: Sex
     baseline_source: str
+    weight_kg: float | None = None
+    height_cm: float | None = None
+    bone_mineral_density: float | None = None  # preflight lumbar-spine DXA, g/cm2
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        out: dict[str, Any] = {
             "crewId": self.crew_id,
             "age": self.age,
             "sex": self.sex.value,
             "baselineSource": self.baseline_source,
         }
+        for key, value in (
+            ("weightKg", self.weight_kg),
+            ("heightCm", self.height_cm),
+            ("boneMineralDensity", self.bone_mineral_density),
+        ):
+            if value is not None:
+                out[key] = value
+        return out
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> Self:
-        d = _object(data, "CrewProfile", {"crewId", "age", "sex", "baselineSource"})
+        d = _object(
+            data,
+            "CrewProfile",
+            {"crewId", "age", "sex", "baselineSource"},
+            frozenset({"weightKg", "heightCm", "boneMineralDensity"}),
+        )
+
+        def positive(key: str) -> float | None:
+            if key not in d:
+                return None
+            value = _number(d[key], key)
+            if value <= 0:
+                raise _fail(key, "expected a number greater than 0")
+            return value
+
         return cls(
             crew_id=_text(d["crewId"], "crewId"),
             age=_int(d["age"], "age", 1),
             sex=_enum(Sex, d["sex"], "sex"),
             baseline_source=_text(d["baselineSource"], "baselineSource"),
+            weight_kg=positive("weightKg"),
+            height_cm=positive("heightCm"),
+            bone_mineral_density=positive("boneMineralDensity"),
         )
 
 

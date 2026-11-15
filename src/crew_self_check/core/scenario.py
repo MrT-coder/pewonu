@@ -40,9 +40,11 @@ PLANET_DAYS = 4  # R+0 to R+3
 DEFAULT_START = datetime(2026, 11, 1, 7, 30, tzinfo=UTC)
 
 CREW: tuple[CrewProfile, ...] = (
-    CrewProfile("crew-01", 38, Sex.FEMALE, "simulated-clinical-history"),
-    CrewProfile("crew-02", 45, Sex.MALE, "simulated-no-history"),
-    CrewProfile("crew-03", 33, Sex.MALE, "simulated-clinical-history"),
+    # Body data is preflight and simulated: weight (kg), height (cm), lumbar-spine bone mineral
+    # density (g/cm2). Illustrative values, never data of real astronauts.
+    CrewProfile("crew-01", 38, Sex.FEMALE, "simulated-clinical-history", 62.0, 168.0, 1.04),
+    CrewProfile("crew-02", 45, Sex.MALE, "simulated-no-history", 84.0, 179.0, 1.16),
+    CrewProfile("crew-03", 33, Sex.MALE, "simulated-clinical-history", 74.0, 181.0, 1.21),
 )
 
 
