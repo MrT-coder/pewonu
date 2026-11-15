@@ -677,6 +677,16 @@ STRINGS: dict[str, dict[Language, str]] = {
         _ES: "La base en Tierra es simulada: aún no existe, así que la entrega solo "
         "mueve el paquete a una bandeja local.",
     },
+    "share.waiting_ground": {
+        _EN: "The ground base did not answer. The package is kept and will be sent again.",
+        _ES: "La base en Tierra no respondió. El paquete se conserva y se enviará de nuevo.",
+    },
+    "share.linked_note": {
+        _EN: "Sent to the ground base (a separate local system). It shows the package only "
+        "after the simulated communication delay.",
+        _ES: "Enviado a la base en Tierra (un sistema local aparte). Solo muestra el paquete "
+        "tras el retraso de comunicación simulado.",
+    },
     "share.show_data": {
         _EN: "Show the FHIR data",
         _ES: "Ver los datos FHIR",

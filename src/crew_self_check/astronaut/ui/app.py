@@ -9,6 +9,7 @@ import flet as ft
 
 from crew_self_check.astronaut import theme
 from crew_self_check.astronaut.access import simulated_directory
+from crew_self_check.astronaut.ground_client import GroundLink, HttpGroundLink
 from crew_self_check.astronaut.i18n import translate
 from crew_self_check.astronaut.share_model import OutboxItem
 from crew_self_check.astronaut.sqlite_store import SqliteMeasurementStore
@@ -23,9 +24,16 @@ from crew_self_check.core.reasons import Language
 PORT = 8550
 ASSETS_DIR = Path(__file__).resolve().parent.parent / "assets"
 DB_ENV = "CREW_SELF_CHECK_DB"
+GROUND_ENV = "CREW_SELF_CHECK_GROUND_URL"  # empty turns the link off
+DEFAULT_GROUND_URL = "http://127.0.0.1:8560"
 DEFAULT_DB = Path("data") / "crew-self-check.db"  # data/ is git-ignored (AGENTS.md section 8)
 
 _store: SqliteMeasurementStore | None = None
+
+
+def _ground_link() -> GroundLink | None:
+    url = os.environ.get(GROUND_ENV, DEFAULT_GROUND_URL)
+    return HttpGroundLink(url) if url else None
 
 
 def _shared_store() -> SqliteMeasurementStore:
@@ -37,7 +45,7 @@ def _shared_store() -> SqliteMeasurementStore:
 
 
 def main(page: ft.Page) -> None:
-    state = AppState(simulated_directory(), store=_shared_store())
+    state = AppState(simulated_directory(), store=_shared_store(), ground_link=_ground_link())
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = theme.BG_BOTTOM
     page.padding = 0

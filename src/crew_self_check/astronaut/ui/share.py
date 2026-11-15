@@ -162,11 +162,13 @@ def _sent(state: AppState, actions: Actions) -> list[ft.Control]:
     now = state.journey_time()
     for item in items:
         arrived = delivery_state(item, now) is DeliveryState.DELIVERED
-        status = (
-            say("share.delivered")
-            if arrived
-            else say("share.in_transit", minutes=state.ground_delay_minutes)
-        )
+        minutes = round((item.arrives_at - item.sent_at).total_seconds() / 60)
+        if item in state.unsent_to_ground():
+            status = say("share.waiting_ground")
+        elif arrived:
+            status = say("share.delivered")
+        else:
+            status = say("share.in_transit", minutes=minutes)
         out.append(
             ft.Container(
                 padding=ft.Padding.symmetric(vertical=4),
@@ -193,5 +195,6 @@ def _sent(state: AppState, actions: Actions) -> list[ft.Control]:
                 ),
             )
         )
-    out.append(ft.Text(say("share.sim_note"), size=11, color=theme.MUTED))
+    note = "share.linked_note" if state.ground_linked else "share.sim_note"
+    out.append(ft.Text(say(note), size=11, color=theme.MUTED))
     return out

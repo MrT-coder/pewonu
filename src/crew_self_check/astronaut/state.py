@@ -8,10 +8,12 @@ the spacecraft to the planet, and what the astronaut records is stamped with tha
 from __future__ import annotations
 
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import datetime, timedelta
 from enum import StrEnum
 
 from crew_self_check.astronaut.access import AccessDirectory, AccessError
+from crew_self_check.astronaut.ground_client import GroundLink, GroundRejected, GroundUnreachable
 from crew_self_check.astronaut.mood import check_level, mood_measurement
 from crew_self_check.astronaut.pulse_mission import PulseMission
 from crew_self_check.astronaut.share_model import (
@@ -52,8 +54,10 @@ class AppState:
         clock: Callable[[], datetime] | None = None,
         scenario: Scenario | None = None,
         store: MeasurementStore | None = None,
+        ground_link: GroundLink | None = None,
     ) -> None:
         self._directory = directory
+        self._ground_link = ground_link
         self._clock = clock
         self.scenario = scenario or generate_scenario()
         self.language = Language.EN  # English is the source language (D-016)
@@ -73,7 +77,11 @@ class AppState:
         self.share_confirmed = False
         self.ground_delay_minutes = DEFAULT_GROUND_DELAY_MINUTES
         self.outbox: list[OutboxItem] = []
-        self.ground_inbox: list[OutboxItem] = []  # stands in for the ground base until G1
+        self.ground_inbox: list[
+            OutboxItem
+        ] = []  # the simulated inbox, used when no ground is linked
+        self.ground_error: str | None = None  # "unreachable" while a package waits to be resent
+        self._unsent: list[OutboxItem] = []
 
     @property
     def logged_in(self) -> bool:
@@ -128,6 +136,7 @@ class AppState:
             raise IndexError(f"day {index} is outside 0..{len(self.scenario.days) - 1}")
         self.journey_day = index
         self.environment = self.current_day.environment
+        self._sync_ground()
         self._deliver()
 
     def advance(self) -> None:
@@ -301,9 +310,64 @@ class AppState:
             states=len(selection.statuses),
             indicators=tuple(chosen),
         )
+        item = self._hand_to_ground(item)
         self.outbox.append(item)
         self.clear_share()
         return item
+
+    # --- the link to the ground base (G1) ------------------------------------------------------
+
+    @property
+    def ground_linked(self) -> bool:
+        return self._ground_link is not None
+
+    def unsent_to_ground(self) -> tuple[OutboxItem, ...]:
+        """Packages the ground base has not taken yet (it was unreachable)."""
+        return tuple(self._unsent)
+
+    def _hand_to_ground(self, item: OutboxItem) -> OutboxItem:
+        """Give ``item`` to the linked ground base. The ground decides when it arrives.
+
+        Unreachable: the package stays queued for a retry and the app keeps working (offline-first).
+        Refused: ``RuntimeError`` with the reasons, and nothing is queued.
+        """
+        if self._ground_link is None:
+            return item
+        try:
+            self._ground_link.sync_clock(self.journey_time())
+            arrives = self._ground_link.send(item.bundle)
+        except GroundUnreachable:
+            self.ground_error = "unreachable"
+            self._unsent.append(item)
+            return item
+        except GroundRejected as error:
+            raise RuntimeError(f"the ground base refused the package: {error}") from error
+        self.ground_error = None
+        return replace(item, arrives_at=arrives)
+
+    def _retry_unsent(self, link: GroundLink) -> None:
+        for item in tuple(self._unsent):
+            try:
+                link.sync_clock(self.journey_time())
+                arrives = link.send(item.bundle)
+            except GroundUnreachable:
+                return
+            except GroundRejected:
+                self._unsent.remove(item)  # it will never be accepted: do not retry forever
+                continue
+            self._unsent.remove(item)
+            self.outbox[self.outbox.index(item)] = replace(item, arrives_at=arrives)
+        if not self._unsent:
+            self.ground_error = None
+
+    def _sync_ground(self) -> None:
+        if self._ground_link is None:
+            return
+        try:
+            self._ground_link.sync_clock(self.journey_time())
+        except GroundUnreachable:
+            return
+        self._retry_unsent(self._ground_link)
 
     def own_outbox(self) -> tuple[OutboxItem, ...]:
         """The packages this person sent, up to the simulated "now"."""
