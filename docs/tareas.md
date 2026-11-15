@@ -41,6 +41,7 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 | A12 | Racha de adherencia: premia medir con regularidad, nunca "estar sano" | S | A5 | La racha depende de mediciones hechas, no de su valor |
 | A13 | Voz como entrada y salida (dictar datos, leer guías) | S | A2 | Un dato dictado produce el mismo `Measurement` que el manual |
 | A15 | Resumen por astronauta ("KPIs humanos", D-020): estados por sistema, chequeo de hoy, constancia, qué tan lista está la línea base aquí, qué requiere atención y las últimas lecturas | M | A3, C4 | Todo sale del estado ya calculado, sin umbrales nuevos; la constancia mide con qué frecuencia se mide, nunca cómo está la persona. **Hecho 2026-11-14** en `astronaut/summary_model.py` y `ui/summary.py`, rama `app/summary` |
+| A16 | Accesibilidad del shell de la app (hallazgos B1 y B2 del gate de QA 2026-11-14): nombre accesible en los botones de ícono (glosario, límites, día anterior y siguiente), etiqueta del campo oculto y recorrido por teclado | S | A2 | `a11y-scan` sin violaciones `critical`/`serious` en el Resumen y Tab recorre los controles. [SUPOSICION] puede ser una limitación de Flet 1.1.2: si lo es, se documenta |
 
 ## Carril G · Base en Tierra (`ground`)
 
@@ -69,7 +70,7 @@ Leyenda: **M** Must, **S** Should, **C** Could. `Dep` = depende de. `Hecho cuand
 
 | ID | Tarea | Nivel | Dep | Hecho cuando |
 |---|---|---|---|---|
-| Q1 | Flujo de punta a punta: viaje simulado → escalamiento → recepción en la base | M | A10, G3 | Un guion automático lo recorre sin errores |
+| Q1 | Flujo de punta a punta: viaje simulado → escalamiento → recepción en la base | M | A10, G3 | Un guion automático lo recorre sin errores. **Parcial 2026-11-14:** `tests/test_end_to_end.py` recorre app → HTTP real → base → vista, y el gate de QA manual (`feature-qa`) dio APTO a la base; falta el guion del viaje completo hasta Marte |
 | Q2 | Congelar funcionalidades y ensayar la demo | M | Q1 | La demo corre desde cero en un equipo limpio |
 
 ## Herramienta de desarrollo (decisión pendiente)
