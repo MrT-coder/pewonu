@@ -11,6 +11,7 @@ from crew_self_check.astronaut.ui.cases import case_card
 from crew_self_check.astronaut.ui.common import Actions
 from crew_self_check.astronaut.ui.data_panel import build_data_panel
 from crew_self_check.astronaut.ui.figure import STAGE_HEIGHT, STAGE_WIDTH, build_figure
+from crew_self_check.astronaut.ui.pewonu import build_pillars
 from crew_self_check.astronaut.ui.ring import build_ring
 
 _SIDE_LEFT = 290
@@ -24,7 +25,11 @@ def build_stage(state: AppState, actions: Actions) -> ft.Control:
         width=_SIDE_LEFT,
         spacing=12,
         scroll=ft.ScrollMode.AUTO,
-        controls=[build_ring(state, actions), *([case] if case is not None else [])],
+        controls=[
+            build_ring(state, actions),
+            build_pillars(state, actions),
+            *([case] if case is not None else []),
+        ],
     )
     center = ft.Container(
         expand=True,

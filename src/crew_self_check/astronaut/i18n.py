@@ -11,7 +11,9 @@ from crew_self_check.core.reasons import Language
 _EN, _ES = Language.EN, Language.ES
 
 # Keys that are the same in both languages on purpose (names and examples).
-SAME_IN_BOTH = frozenset({"app.name", "login.code_hint", "value.no"})
+SAME_IN_BOTH = frozenset(
+    {"app.name", "login.code_hint", "value.no", "pewonu.title", "pewonu.wod", "food.tortilla"}
+)
 
 STRINGS: dict[str, dict[Language, str]] = {
     "app.name": {_EN: "Crew Self-Check", _ES: "Crew Self-Check"},
@@ -1384,12 +1386,414 @@ STRINGS: dict[str, dict[Language, str]] = {
         "te compara con tu propia línea base.",
     },
     "limits.close": {_EN: "Close", _ES: "Cerrar"},
+    "pewonu.title": {
+        _EN: "PeWoNu",
+        _ES: "PeWoNu",
+    },
+    "pewonu.tagline": {
+        _EN: "Peace · WOD · Nutrition",
+        _ES: "Paz · WOD · Nutrición",
+    },
+    "pewonu.peace": {
+        _EN: "Peace",
+        _ES: "Paz",
+    },
+    "pewonu.peace.sub": {
+        _EN: "How are you feeling? Talk it out.",
+        _ES: "¿Cómo te sientes? Desahógate.",
+    },
+    "pewonu.wod": {
+        _EN: "WOD",
+        _ES: "WOD",
+    },
+    "pewonu.wod.sub": {
+        _EN: "Today's workout on the three machines",
+        _ES: "El entrenamiento de hoy en las tres máquinas",
+    },
+    "pewonu.nutrition": {
+        _EN: "Nutrition",
+        _ES: "Nutrición",
+    },
+    "pewonu.nutrition.sub": {
+        _EN: "Your food of the day",
+        _ES: "Tu comida del día",
+    },
+    "wod.title": {
+        _EN: "Workout of the day",
+        _ES: "Entrenamiento del día",
+    },
+    "wod.total": {
+        _EN: "{minutes} min in total",
+        _ES: "{minutes} min en total",
+    },
+    "wod.minutes": {
+        _EN: "{minutes} min",
+        _ES: "{minutes} minutos",
+    },
+    "wod.rpe": {
+        _EN: "Perceived effort {low} to {high} out of 10",
+        _ES: "Esfuerzo percibido de {low} a {high} sobre 10",
+    },
+    "wod.kind.legs_and_easy_bike": {
+        _EN: "Legs and easy bike",
+        _ES: "Piernas y bicicleta suave",
+    },
+    "wod.kind.run_intervals_and_upper": {
+        _EN: "Run intervals and upper body",
+        _ES: "Intervalos de carrera y torso",
+    },
+    "wod.kind.steady_bike_and_full": {
+        _EN: "Steady bike and full body",
+        _ES: "Bicicleta constante y cuerpo completo",
+    },
+    "wod.kind.steady_run_and_legs": {
+        _EN: "Steady run and legs",
+        _ES: "Carrera constante y piernas",
+    },
+    "wod.kind.bike_intervals_and_upper": {
+        _EN: "Bike intervals and upper body",
+        _ES: "Intervalos en bicicleta y torso",
+    },
+    "wod.kind.circuit": {
+        _EN: "Three-machine circuit",
+        _ES: "Circuito de tres máquinas",
+    },
+    "wod.kind.active_recovery": {
+        _EN: "Active recovery",
+        _ES: "Recuperación activa",
+    },
+    "wod.machine.treadmill": {
+        _EN: "Treadmill",
+        _ES: "Caminadora",
+    },
+    "wod.machine.cycle": {
+        _EN: "Cycle ergometer",
+        _ES: "Bicicleta ergométrica",
+    },
+    "wod.machine.resistive": {
+        _EN: "Resistive exercise device",
+        _ES: "Dispositivo de ejercicio de resistencia",
+    },
+    "wod.effort.easy": {
+        _EN: "Easy",
+        _ES: "Suave",
+    },
+    "wod.effort.moderate": {
+        _EN: "Moderate",
+        _ES: "Moderado",
+    },
+    "wod.effort.hard": {
+        _EN: "Hard",
+        _ES: "Intenso",
+    },
+    "wod.focus.intervals": {
+        _EN: "Intervals",
+        _ES: "Intervalos",
+    },
+    "wod.focus.steady": {
+        _EN: "Steady pace",
+        _ES: "Ritmo constante",
+    },
+    "wod.focus.legs": {
+        _EN: "Legs and hips",
+        _ES: "Piernas y caderas",
+    },
+    "wod.focus.upper": {
+        _EN: "Upper body",
+        _ES: "Torso y brazos",
+    },
+    "wod.focus.full": {
+        _EN: "Full body",
+        _ES: "Cuerpo completo",
+    },
+    "wod.focus.easy": {
+        _EN: "Easy pace",
+        _ES: "Ritmo suave",
+    },
+    "wod.adj.lighter_sleep": {
+        _EN: ("Shorter and never hard today: your sleep readings are outside your usual range."),
+        _ES: (
+            "Más corto y sin esfuerzo intenso hoy: tus lecturas de sueño están "
+            "fuera de tu rango habitual."
+        ),
+    },
+    "wod.adj.no_treadmill": {
+        _EN: (
+            "The bike replaces the treadmill today: your balance readings are "
+            "outside your usual range."
+        ),
+        _ES: (
+            "La bicicleta reemplaza la caminadora hoy: tus lecturas de equilibrio "
+            "están fuera de tu rango habitual."
+        ),
+    },
+    "wod.adj.tell_cmo": {
+        _EN: ("Tell the crew medical officer before you train, and keep the effort moderate."),
+        _ES: (
+            "Avisa al oficial médico de la tripulación antes de entrenar y mantén "
+            "el esfuerzo moderado."
+        ),
+    },
+    "wod.adj.mood_note": {
+        _EN: (
+            "Your mood looks low. Training can help; keep it at a pace you enjoy "
+            "and talk to someone you trust."
+        ),
+        _ES: (
+            "Tu ánimo se ve bajo. Entrenar puede ayudar; mantén un ritmo que "
+            "disfrutes y habla con alguien de confianza."
+        ),
+    },
+    "wod.adj.extra_loading": {
+        _EN: (
+            "Time in space lowers the load on your bones, so the resistive device "
+            "is the key session of the week."
+        ),
+        _ES: (
+            "El tiempo en el espacio reduce la carga sobre tus huesos, así que el "
+            "dispositivo de resistencia es la sesión clave de la semana."
+        ),
+    },
+    "wod.hr": {
+        _EN: (
+            "Heart-rate reference for your age: about {low} to {high} beats per "
+            "minute for moderate effort, with a rough maximum of {maximum}. It is "
+            "only a rule of thumb, not a measurement."
+        ),
+        _ES: (
+            "Referencia de pulso para tu edad: unos {low} a {high} latidos por "
+            "minuto en esfuerzo moderado, con un máximo aproximado de {maximum}. Es"
+            " solo una regla general, no una medición."
+        ),
+    },
+    "wod.energy": {
+        _EN: "About {kcal} kcal for this session at your weight (an estimate).",
+        _ES: "Unas {kcal} kcal en esta sesión con tu peso (una estimación).",
+    },
+    "wod.bone": {
+        _EN: (
+            "Your preflight bone density was {baseline} g/cm². Without exercise, "
+            "bone loss in space is about 1 to 2 percent a month (NASA Human "
+            "Research Program). After {months} months that would be {low} to {high}"
+            " percent. Loading the bones is why this plan always includes resistive"
+            " work."
+        ),
+        _ES: (
+            "Tu densidad ósea antes del vuelo fue {baseline} g/cm². Sin ejercicio, "
+            "la pérdida ósea en el espacio es de 1 a 2 por ciento al mes (Programa "
+            "de Investigación Humana de la NASA). Tras {months} meses serían de "
+            "{low} a {high} por ciento. Cargar los huesos es la razón por la que "
+            "este plan siempre incluye trabajo de resistencia."
+        ),
+    },
+    "wod.disclaimer": {
+        _EN: (
+            "Educational and simulated. The ground exercise specialists set your real prescription."
+        ),
+        _ES: (
+            "Educativo y simulado. Los especialistas en ejercicio de tierra definen"
+            " tu prescripción real."
+        ),
+    },
+    "wod.mark_done": {
+        _EN: "Mark as done",
+        _ES: "Marcar como hecho",
+    },
+    "wod.done": {
+        _EN: "Done today",
+        _ES: "Hecho hoy",
+    },
+    "wod.no_profile": {
+        _EN: "There is no profile data for a plan.",
+        _ES: "No hay datos de perfil para un plan.",
+    },
+    "nutrition.title": {
+        _EN: "Food of the day",
+        _ES: "Comida del día",
+    },
+    "nutrition.energy": {
+        _EN: (
+            "Energy estimate: about {kcal} kcal today, with the exercise planned. "
+            "Station dietitians work in a range of 1,900 to 3,200 kcal depending on"
+            " weight, sex and needs (Canadian Space Agency)."
+        ),
+        _ES: (
+            "Estimación de energía: unas {kcal} kcal hoy, con el ejercicio "
+            "previsto. Los dietistas de la estación trabajan en un rango de 1.900 a"
+            " 3.200 kcal según peso, sexo y necesidades (Agencia Espacial "
+            "Canadiense)."
+        ),
+    },
+    "nutrition.protein": {
+        _EN: (
+            "Protein reference: about {grams} g (0.8 g per kg of body weight, the "
+            "dietary reference intake)."
+        ),
+        _ES: (
+            "Referencia de proteína: unos {grams} g (0,8 g por kg de peso, la "
+            "ingesta dietética de referencia)."
+        ),
+    },
+    "nutrition.logged": {
+        _EN: "Eaten today",
+        _ES: "Comido hoy",
+    },
+    "nutrition.totals": {
+        _EN: ("{kcal} kcal · {protein} g protein · {carbs} g carbohydrate · {fat} g fat"),
+        _ES: ("{kcal} kcal · {protein} g proteína · {carbs} g carbohidratos · {fat} g grasa"),
+    },
+    "nutrition.shares": {
+        _EN: (
+            "Share of energy: {protein} percent protein, {carbs} percent "
+            "carbohydrate, {fat} percent fat. Common reference ranges are 10 to 35,"
+            " 45 to 65 and 20 to 35 percent."
+        ),
+        _ES: (
+            "Reparto de energía: {protein} por ciento proteína, {carbs} por ciento "
+            "carbohidratos, {fat} por ciento grasa. Los rangos de referencia "
+            "habituales son 10 a 35, 45 a 65 y 20 a 35 por ciento."
+        ),
+    },
+    "nutrition.empty": {
+        _EN: "Nothing logged yet. Tap a food to add it.",
+        _ES: "Aún no hay nada. Toca un alimento para agregarlo.",
+    },
+    "nutrition.add": {
+        _EN: "Add a food",
+        _ES: "Agregar un alimento",
+    },
+    "nutrition.remove": {
+        _EN: "Remove {food}",
+        _ES: "Quitar {food}",
+    },
+    "nutrition.progress": {
+        _EN: "Energy {kcal} of about {target} kcal",
+        _ES: "Energía {kcal} de unas {target} kcal",
+    },
+    "nutrition.disclaimer": {
+        _EN: (
+            "Simulated, illustrative foods by station food type, not the real menu."
+            " No supplements or doses. The ground dietitians set your real plan."
+        ),
+        _ES: (
+            "Alimentos simulados e ilustrativos por tipo de comida de la estación, "
+            "no el menú real. Sin suplementos ni dosis. Los dietistas de tierra "
+            "definen tu plan real."
+        ),
+    },
+    "nutrition.no_profile": {
+        _EN: "There is no weight and height for an estimate.",
+        _ES: "No hay peso y estatura para una estimación.",
+    },
+    "food.cat.rehydratable": {
+        _EN: "Rehydratable",
+        _ES: "Rehidratable",
+    },
+    "food.cat.thermostabilized": {
+        _EN: "Heat-treated pouch",
+        _ES: "Bolsa tratada con calor",
+    },
+    "food.cat.intermediate": {
+        _EN: "Intermediate moisture",
+        _ES: "Humedad intermedia",
+    },
+    "food.cat.irradiated": {
+        _EN: "Irradiated",
+        _ES: "Irradiado",
+    },
+    "food.cat.natural": {
+        _EN: "Natural form",
+        _ES: "Forma natural",
+    },
+    "food.cat.fresh": {
+        _EN: "Fresh",
+        _ES: "Fresco",
+    },
+    "food.scrambled_eggs": {
+        _EN: "Scrambled eggs",
+        _ES: "Huevos revueltos",
+    },
+    "food.oatmeal": {
+        _EN: "Oatmeal",
+        _ES: "Avena",
+    },
+    "food.macaroni_cheese": {
+        _EN: "Macaroni and cheese",
+        _ES: "Macarrones con queso",
+    },
+    "food.beef_stew": {
+        _EN: "Beef stew",
+        _ES: "Estofado de res",
+    },
+    "food.chicken_rice": {
+        _EN: "Chicken and rice",
+        _ES: "Pollo con arroz",
+    },
+    "food.tuna_pouch": {
+        _EN: "Tuna pouch",
+        _ES: "Bolsa de atún",
+    },
+    "food.lentil_soup": {
+        _EN: "Lentil soup",
+        _ES: "Sopa de lentejas",
+    },
+    "food.fruit_cup": {
+        _EN: "Fruit cup",
+        _ES: "Vaso de fruta",
+    },
+    "food.granola_bar": {
+        _EN: "Granola bar",
+        _ES: "Barra de granola",
+    },
+    "food.dried_apricots": {
+        _EN: "Dried apricots",
+        _ES: "Duraznos secos",
+    },
+    "food.smoked_turkey": {
+        _EN: "Smoked turkey",
+        _ES: "Pavo ahumado",
+    },
+    "food.beef_jerky": {
+        _EN: "Beef jerky",
+        _ES: "Carne seca",
+    },
+    "food.almonds": {
+        _EN: "Almonds",
+        _ES: "Almendras",
+    },
+    "food.peanut_butter": {
+        _EN: "Peanut butter",
+        _ES: "Mantequilla de maní",
+    },
+    "food.tortilla": {
+        _EN: "Tortilla",
+        _ES: "Tortilla",
+    },
+    "food.cookies": {
+        _EN: "Cookies",
+        _ES: "Galletas",
+    },
+    "food.fresh_apple": {
+        _EN: "Fresh apple",
+        _ES: "Manzana fresca",
+    },
+    "food.fresh_greens": {
+        _EN: "Fresh greens",
+        _ES: "Verduras frescas",
+    },
 }
 
 
 # Every acronym the interface shows is spelled out here (D-024). A test fails if a new acronym
 # appears in ``STRINGS`` without an entry, so nothing is left unexplained by accident.
 GLOSSARY: tuple[dict[Language, tuple[str, str]], ...] = (
+    {
+        _EN: ("WOD", "workout of the day: the exercise plan for today"),
+        _ES: (
+            "WOD",
+            "entrenamiento del día (workout of the day en inglés): el plan de ejercicio de hoy",
+        ),
+    },
     {
         _EN: ("bpm", "beats per minute: how many times the heart beats in one minute"),
         _ES: (

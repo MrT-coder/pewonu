@@ -632,3 +632,42 @@ def test_nothing_floats_over_the_screen_when_no_modal_is_open_except_the_bubble(
     # the bubble is there (tooltip) and no modal title is
     texts = collect_texts(view)
     assert translate("modal.close", Language.EN) not in texts
+
+
+# --- PeWoNu: the pillars, the workout and the food (D-030) ------------------------------------
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_home_screen_shows_the_three_pillars(language: Language) -> None:
+    view = build_shell(state_in(language, logged_in=True), Recorder().actions())
+    texts = collect_texts(view)
+    for key in ("pewonu.peace", "pewonu.wod", "pewonu.nutrition"):
+        assert translate(key, language) in texts, (key, language)
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_workout_modal_lists_the_blocks_the_disclaimer_and_the_bone_note(
+    language: Language,
+) -> None:
+    state = state_in(language, logged_in=True)
+    state.open_wod()
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    plan = state.wod_plan()
+    assert plan is not None
+    assert translate(f"wod.kind.{plan.kind}", language) in texts
+    assert translate("wod.disclaimer", language) in texts
+    assert any("g/cm²" in text for text in texts)
+
+
+@pytest.mark.parametrize("language", list(Language))
+def test_the_nutrition_modal_logs_a_food_and_shows_the_totals(language: Language) -> None:
+    state = state_in(language, logged_in=True)
+    state.open_nutrition()
+    assert translate("nutrition.empty", language) in collect_texts(
+        build_shell(state, Recorder().actions())
+    )
+    state.add_meal("oatmeal")
+    texts = collect_texts(build_shell(state, Recorder().actions()))
+    assert translate("food.oatmeal", language) in texts
+    assert translate("nutrition.disclaimer", language) in texts
+    assert not any("kg of" in t and "supplement" in t.lower() for t in texts)

@@ -16,6 +16,7 @@ from crew_self_check.astronaut.state import AppState, Modal, VoiceStage
 from crew_self_check.astronaut.summary_model import build_summary
 from crew_self_check.astronaut.ui.checkin import build_mood_card, build_pulse_mission
 from crew_self_check.astronaut.ui.common import Actions, card, status_color
+from crew_self_check.astronaut.ui.pewonu import build_nutrition, build_wod
 from crew_self_check.astronaut.ui.share import build_share_panel
 from crew_self_check.astronaut.ui.system_card import build_system_card, status_chip, trend_controls
 from crew_self_check.astronaut.ui.voice import build_voice
@@ -32,6 +33,10 @@ def _title(state: AppState) -> str:
         return translate("zone.wrist", language)
     if state.modal is Modal.SHARE:
         return translate("share.title", language)
+    if state.modal is Modal.WOD:
+        return translate("wod.title", language)
+    if state.modal is Modal.NUTRITION:
+        return translate("nutrition.title", language)
     return translate("bubble.label", language)
 
 
@@ -169,6 +174,10 @@ def _body(state: AppState, actions: Actions) -> ft.Control:
         return _zone_body(state)
     if state.modal is Modal.PULSE:
         return _pulse_body(state, actions)
+    if state.modal is Modal.WOD:
+        return build_wod(state, actions)
+    if state.modal is Modal.NUTRITION:
+        return build_nutrition(state, actions)
     if state.modal is Modal.SHARE:
         return build_share_panel(state, build_summary(state), actions)
     if state.voice_stage is not VoiceStage.IDLE:

@@ -30,6 +30,7 @@ from crew_self_check.astronaut.voice_capture import (
 )
 from crew_self_check.core.contract import (
     CrewProfile,
+    Environment,
     Indicator,
     Measurement,
     Status,
@@ -38,6 +39,12 @@ from crew_self_check.core.contract import (
     VoiceFeatures,
 )
 from crew_self_check.core.fhir import ShareSelection, build_bundle, check_bundle
+from crew_self_check.core.nutrition import (
+    MealEntry,
+    NutritionPlan,
+    food_by_id,
+    plan_nutrition,
+)
 from crew_self_check.core.reasons import Language
 from crew_self_check.core.scenario import Scenario, ScenarioDay, generate_scenario
 from crew_self_check.core.status import IndicatorResolution, resolve_indicator, resolve_system
@@ -50,6 +57,7 @@ from crew_self_check.core.storage import (
 from crew_self_check.core.voice_analysis import VoiceAnalysis, analyze
 from crew_self_check.core.voice_baseline import VoiceComparison, compare
 from crew_self_check.core.voice_scenario import generate_voice_notes
+from crew_self_check.core.wod import Wod, WodContext, plan_wod
 
 START_LABEL = "E-1"  # the journey opens on the last day on Earth, with a full history behind it
 _MIDDAY = timedelta(hours=12)
@@ -72,6 +80,8 @@ class Modal(StrEnum):
     PULSE = "pulse"
     MOOD = "mood"
     SHARE = "share"
+    WOD = "wod"
+    NUTRITION = "nutrition"
 
 
 class VoiceStage(StrEnum):
@@ -142,6 +152,9 @@ class AppState:
         self.pulse_tab = "data"  # "data" (collected) or "hand" (measure by hand)
         self.bubble_offset: tuple[int, int] = (400, 40)  # right and bottom, in pixels
         self.voice_result: VoiceResult | None = None
+        # PeWoNu (D-030): the meals logged and the workouts done, per person and mission day.
+        self._meals: dict[tuple[str, int], list[MealEntry]] = {}
+        self._wod_done: set[tuple[str, int]] = set()
 
     @property
     def logged_in(self) -> bool:
@@ -204,6 +217,68 @@ class AppState:
         self.new_voice_prompt()
         self.open_voice()
         return measurement
+
+    def open_wod(self) -> None:
+        self._open(Modal.WOD)
+
+    def open_nutrition(self) -> None:
+        self._open(Modal.NUTRITION)
+
+    def wod_context(self) -> WodContext:
+        flagged = (Status.WATCH, Status.ACT)
+        systems = self.system_statuses()
+        sleep = systems.get(System.SLEEP_BRAIN)
+        balance = systems.get(System.VESTIBULAR)
+        mood = self.resolutions().get(Indicator.MOOD)
+        days_in_space = sum(
+            1
+            for day in self.scenario.days[: self.journey_day + 1]
+            if day.environment is not Environment.EARTH
+        )
+        return WodContext(
+            day_in_week=self.journey_day % 7,
+            days_in_space=days_in_space,
+            sleep_flagged=sleep is not None and sleep.status in flagged,
+            balance_flagged=balance is not None and balance.status in flagged,
+            balance_severe=balance is not None and balance.status is Status.ACT,
+            mood_flagged=mood is not None and mood.status.status in flagged,
+        )
+
+    def wod_plan(self) -> Wod | None:
+        return None if self.profile is None else plan_wod(self.profile, self.wod_context())
+
+    def nutrition_plan(self) -> NutritionPlan | None:
+        if self.profile is None:
+            return None
+        wod = self.wod_plan()
+        exercise = wod.energy_kcal if wod is not None and wod.energy_kcal else 0
+        return plan_nutrition(self.profile, exercise)
+
+    def _day_key(self) -> tuple[str, int]:
+        if self.profile is None:
+            raise RuntimeError("sign in first")
+        return (self.profile.crew_id, self.journey_day)
+
+    def meals(self) -> tuple[MealEntry, ...]:
+        if self.profile is None:
+            return ()
+        return tuple(self._meals.get(self._day_key(), ()))
+
+    def add_meal(self, food_id: str, servings: float = 1.0) -> None:
+        food_by_id(food_id)  # an unknown food is refused
+        self._meals.setdefault(self._day_key(), []).append(MealEntry(food_id, servings))
+
+    def remove_meal(self, index: int) -> None:
+        entries = self._meals.get(self._day_key(), [])
+        if 0 <= index < len(entries):
+            del entries[index]
+
+    def wod_done(self) -> bool:
+        return self.profile is not None and self._day_key() in self._wod_done
+
+    def toggle_wod_done(self) -> None:
+        key = self._day_key()
+        self._wod_done.symmetric_difference_update({key})
 
     def open_share(self) -> None:
         self._open(Modal.SHARE)
