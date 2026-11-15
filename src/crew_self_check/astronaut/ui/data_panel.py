@@ -173,6 +173,8 @@ def build_data_panel(state: AppState, actions: Actions) -> ft.Control:
                 _sources(state),
                 ft.Row(
                     spacing=8,
+                    run_spacing=8,
+                    wrap=True,
                     controls=[
                         ft.FilledButton(
                             content=translate("share.title", language),

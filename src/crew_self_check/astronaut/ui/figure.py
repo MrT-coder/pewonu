@@ -17,9 +17,9 @@ from crew_self_check.astronaut.state import AppState
 from crew_self_check.astronaut.ui.common import Actions, status_color
 from crew_self_check.core.contract import Indicator, Status, System
 
-STAGE_WIDTH = 640
+STAGE_WIDTH = 720
 STAGE_HEIGHT = 580
-_BODY_LEFT = 170  # the silhouette is 300 wide and sits in the middle of the stage
+_BODY_LEFT = 210  # the silhouette is 300 wide and sits in the middle of the stage
 _LABEL_WIDTH = 204
 
 
@@ -104,6 +104,9 @@ def _label(
                         controls=[
                             ft.Text(
                                 _zone_name(state, zone),
+                                max_lines=1,
+                                overflow=ft.TextOverflow.ELLIPSIS,
+                                width=_LABEL_WIDTH - 44,
                                 size=11,
                                 weight=ft.FontWeight.W_600,
                                 color=theme.TEXT,
