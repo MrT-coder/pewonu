@@ -83,10 +83,17 @@ def _pitch(frame: list[float], rate: int) -> float | None:
         return None
     # the shortest strong peak: avoids picking a multiple of the period
     lag = next(
-        lag
-        for lag in range(low, high + 1)
-        if corr[lag] >= 0.85 * best and corr[lag] >= corr[lag - 1] and corr[lag] >= corr[lag + 1]
+        (
+            lag
+            for lag in range(low, high + 1)
+            if corr[lag] >= 0.85 * best
+            and corr[lag] >= corr[lag - 1]
+            and corr[lag] >= corr[lag + 1]
+        ),
+        None,
     )
+    if lag is None:  # the strongest value sits at the edge of the range: no real peak inside it
+        return None
     a, b, c = corr[lag - 1], corr[lag], corr[lag + 1]
     denominator = a - 2 * b + c
     shift = 0.5 * (a - c) / denominator if denominator else 0.0

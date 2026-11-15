@@ -125,3 +125,14 @@ def test_a_long_note_is_analysed_in_reasonable_time() -> None:
     started = time.perf_counter()
     analyze(samples, RATE)
     assert time.perf_counter() - started < 20
+
+
+def test_a_tone_below_the_pitch_range_is_unvoiced_and_does_not_crash() -> None:
+    """Regression: a correlation peak at the edge of the lag range raised StopIteration."""
+    import math
+
+    from crew_self_check.core.voice_analysis import _pitch
+
+    rate = 16000
+    frame = [math.sin(2 * math.pi * 70 * i / rate) * 3000 for i in range(1024)]
+    assert _pitch(frame, rate) is None
