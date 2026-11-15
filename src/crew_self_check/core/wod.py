@@ -127,7 +127,7 @@ def rpe_range(effort: Effort) -> tuple[int, int]:
 
 
 def _round5(minutes: float) -> int:
-    return max(5, int(round(minutes / 5)) * 5)
+    return max(5, round(minutes / 5) * 5)
 
 
 def _adjusted(
@@ -146,7 +146,9 @@ def _adjusted(
         out = [Block(C, b.effort, b.minutes, b.focus) if b.machine is T else b for b in out]
         if context.balance_severe:
             notes.append(Adjustment.TELL_CMO)
-            out = [Block(b.machine, M if b.effort is H else b.effort, b.minutes, b.focus) for b in out]
+            out = [
+                Block(b.machine, M if b.effort is H else b.effort, b.minutes, b.focus) for b in out
+            ]
     if context.mood_flagged:
         notes.append(Adjustment.MOOD_NOTE)
     if context.days_in_space >= _EXTRA_LOADING_AFTER_DAYS:
